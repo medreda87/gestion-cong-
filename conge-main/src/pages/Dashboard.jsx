@@ -281,8 +281,8 @@ const Dashboard = () => {
                     <span className="text-sm text-muted-foreground">jours</span>
                   </div>
                   <div className="flex gap-2 text-xs text-muted-foreground">
-                    <span>2025: {currentSolde} j</span>
-                    <span>2026: {user ? getEmployeeYearBalance(user.id, 2026) : 0}j</span>
+                    <span>2025: {previousSolde} j</span>
+                    <span>2026: {currentSolde} j</span>
                   </div>
                 </div>
                 <div className="rounded-lg p-3 bg-muted text-muted-foreground flex items-center gap-2">
@@ -299,11 +299,11 @@ const Dashboard = () => {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-warning-foreground">En attente</p>
+                  <p className="text-sm font-medium text-darck-foreground">En attente</p>
                   <p className="mt-2 text-3xl font-bold tracking-tight">{pendingCount}</p>
-                  <p className="mt-1 text-sm text-warning-foreground/70">Demandes</p>
+                  <p className="mt-1 text-sm text-darck-foreground/70">Demandes</p>
                 </div>
-                <div className="rounded-lg p-3 bg-warning/10 text-warning">
+                <div className="rounded-lg p-3 bg-warning/10 text-darck">
                   <Clock className="h-6 w-6" />
                 </div>
               </div>
@@ -316,9 +316,9 @@ const Dashboard = () => {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-success-foreground">Approuvés</p>
+                  <p className="text-sm font-medium text-darck-foreground">Approuvés</p>
                   <p className="mt-2 text-3xl font-bold tracking-tight">{approvedCount}</p>
-                  <p className="mt-1 text-sm text-success-foreground/70">Cette année</p>
+                  <p className="mt-1 text-sm text-darck-foreground/70">Cette année</p>
                 </div>
                 <div className="rounded-lg p-3 bg-success/10 text-success">
                   <CheckCircle className="h-6 w-6" />

@@ -32,8 +32,7 @@ export const Sidebar = () => {
 
   return (
     <motion.aside
-      initial={{ x: -280 }}
-      animate={{ x: 0 }}
+
       className="fixed left-0 top-0 z-40 h-screen w-64 bg-sidebar text-sidebar-foreground"
     >
       <div className="flex h-full flex-col">
