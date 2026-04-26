@@ -123,8 +123,10 @@ export const LeaveProvider = ({ children }) => {
   const getRequestsByEmployee = (employeeId) => 
     requests.filter((r) => r.employeeId === employeeId);
 
-  const getPendingForManager = () => 
-    requests.filter((r) => r.status === 'pending_manager');
+  const getPendingForManager = () =>
+  requests.filter(
+    (r) => r.status === "pending_manager" || r.status === "cancelled"
+  );
 
   const getPendingForDirector = () => 
     requests.filter((r) => r.status === 'pending_director');

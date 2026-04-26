@@ -18,11 +18,17 @@ const LEAVE_STATUS_LABELS = {
 
 const LeaveHistory = () => {
   const { user } = useAuth();
+<<<<<<< HEAD
   const { getRequestsByEmployee } = useLeave();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const { cancelLeave } = useLeave();
   if (!user) return null;
+=======
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const { getRequestsByEmployee, updateRequestStatus } = useLeave();  if (!user) return null;
+>>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
 
   const myRequests = getRequestsByEmployee(user.id);
 
@@ -178,6 +184,7 @@ const LeaveHistory = () => {
                       {LEAVE_STATUS_LABELS[request.status]}
                     </span>
 
+<<<<<<< HEAD
   {/* Bouton Annuler */}
 {request.status.startsWith("pending") && (
   <button
@@ -191,6 +198,21 @@ const LeaveHistory = () => {
     Annuler
   </button>
 )}
+=======
+                    {/* Bouton Annuler */}
+                  {request.status === 'pending_manager' && (
+                  <button
+                    onClick={() => {
+                      if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                        updateRequestStatus(request.id, "cancelled");
+                      }
+                    }}
+                    className="text-sm text-red-500 hover:underline"
+                  >
+                    Annuler
+                  </button>
+                )}
+>>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                   </div>
                 </motion.div>
               ))}
@@ -210,7 +232,10 @@ const LeaveHistory = () => {
               { label: 'Total', count: myRequests.length, color: 'bg-muted' },
               { label: 'En attente', count: myRequests.filter((r) => r.status.startsWith('pending')).length, color: 'bg-warning/10' },
               { label: 'Approuvées', count: myRequests.filter((r) => r.status === 'approved').length, color: 'bg-success/10' },
+<<<<<<< HEAD
               { label: 'Refusées', count: myRequests.filter((r) => r.status === 'cancelled').length, color: 'bg-gray/100' },
+=======
+>>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
             ].map((stat) => (
               <div key={stat.label} className={`rounded-lg ${stat.color} p-4 text-center`}>
                 <p className="text-2xl font-bold">{stat.count}</p>
