@@ -43,25 +43,27 @@ const Dashboard = () => {
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
 
-  // نجيبو balance ديال العام الحالي
   const currentBalance = user?.balances.find(
     (b) => b.year === currentYear
   );
 
-  // نجيبو balance ديال العام اللي فات
   const previousBalance = user?.balances.find(
     (b) => b.year === previousYear
   );
 
-  // نحسبو solde لكل عام
   const currentSolde =
     (currentBalance?.earnedDays || 0) -
     (currentBalance?.usedDays || 0);
 
+  
+
   const previousSolde =
     (previousBalance?.earnedDays || 0) -
     (previousBalance?.usedDays || 0);
-
+console.log("USER:", user);
+console.log("BALANCES:", user?.balances);
+console.log("CURRENT YEAR:", currentYear);
+console.log("PREVIOUS YEAR:", previousYear);
   const handleUpload = async () => {
     if (!uploadFile) return;
     setIsUploading(true);
