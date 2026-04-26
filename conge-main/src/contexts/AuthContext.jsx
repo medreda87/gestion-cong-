@@ -14,7 +14,7 @@ const MOCK_USERS = {
     balances: [
       { year: 2024, earnedDays: 22, usedDays: 4 },
       { year: 2025, earnedDays: 22, usedDays: 0},
-      { year: 2026, earnedDays: 0, usedDays: 0 }
+      { year: 2026, earnedDays: 22, usedDays: 2 }
     ],
     password: 'demo123',
   },
@@ -42,7 +42,7 @@ const MOCK_USERS = {
     balances: [
       { year: 2024, earnedDays: 22, usedDays: 0 },
       { year: 2025, earnedDays: 22, usedDays: 0 },
-      { year: 2026, earnedDays: 0, usedDays: 0 }
+      { year: 2026, earnedDays: 22, usedDays: 0 }
     ],
     password: 'demo123',
   },
