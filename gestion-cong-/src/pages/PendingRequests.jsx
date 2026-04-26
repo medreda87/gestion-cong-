@@ -158,15 +158,27 @@ const PendingRequests = () => {
                         DEBUG: {request.id} - {request.status}
                       </p>
 
-                      {request.status === 'pending_manager' && (
-                        <button
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
-                          onClick={() => handleApprove(request)}
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          {user.role === 'manager' ? 'Valider' : 'Approuver'}
-                        </button>
-                      )}
+                     {request.status === 'cancelled' ? (
+                    <span className="text-sm font-semibold text-gray-600">
+                      Annulée
+                    </span>
+                  ) : request.status === 'pending_manager' ? (
+                    <button
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
+                      onClick={() => handleApprove(request)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Valider
+                    </button>
+                  ) : request.status === 'pending_director' && user.role === 'director' ? (
+                    <button
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
+                      onClick={() => handleApprove(request)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Approuver
+                    </button>
+                  ) : null}
                       </div>
                     </div>
                   </motion.div>
