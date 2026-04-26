@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import { ClipboardList, CheckCircle, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -11,42 +11,42 @@ import { toast } from 'sonner';
 
 const PendingRequests = () => {
   const { user } = useAuth();
-  const { getPendingForManager, updateRequestStatus } = useLeave();
+  const { getPendingForManager, getPendingForDirector, updateRequestStatus } = useLeave();
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
 
   if (!user) return null;
 
-  const pendingRequests = user.role === 'manager' 
-    ? getPendingForManager() 
+  const pendingRequests =
+  user.role === "manager"
+    ? getPendingForManager()
+    : user.role === "director"
+    ? getPendingForDirector()
     : [];
 
-  const handleAction = (request, actionType) => {
+  const handleApprove = (request) => {
     setSelectedRequest(request);
-    setAction(actionType);
     setComment('');
   };
 
   const confirmAction = () => {
-    if (!selectedRequest || !action) return;
+    if (!selectedRequest) return;
 
-    const newStatus = action === 'approve' ? 'pending_director' : 'rejected';
+    const newStatus = user.role === 'manager' ? 'pending_director' : 'approved';
 
     updateRequestStatus(selectedRequest.id, newStatus, comment || undefined);
-    
+
     toast.success(
-      action === 'approve' 
+      user.role === 'manager'
         ? 'Demande transmise au directeur'
-        : 'Demande refusée'
+        : 'Demande approuvée avec succès'
     );
 
     setSelectedRequest(null);
-    setAction(null);
     setComment('');
   };
 
-  const isModalOpen = !!selectedRequest && !!action;
+  const isModalOpen = !!selectedRequest;
 
   return (
     <DashboardLayout>
@@ -55,7 +55,6 @@ const PendingRequests = () => {
         animate={{ opacity: 1 }}
         className="space-y-6"
       >
-        {/* Header */}
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-warning/10 p-3">
             <ClipboardList className="h-6 w-6 text-warning" />
@@ -68,7 +67,6 @@ const PendingRequests = () => {
           </div>
         </div>
 
-        {/* Requests list */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -97,43 +95,87 @@ const PendingRequests = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-sm font-medium">
-{request.employeeName.split(' ').map((n) => n[0]).join('')}
+                          {request.employeeName
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
                         </div>
+
                         <div>
                           <h3 className="font-semibold">{request.employeeName}</h3>
                           <p className="text-sm text-muted-foreground">
                             {LEAVE_TYPE_LABELS[request.type]}
                           </p>
+
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
-{format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
-                      {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
+                              📅 Du{' '}
+                              {format(new Date(request.startDate), 'dd MMM', {
+                                locale: fr,
+                              })}{' '}
+                              au{' '}
+                              {format(new Date(request.endDate), 'dd MMM yyyy', {
+                                locale: fr,
+                              })}
                             </span>
                             <span>⏱️ {request.duration} jours</span>
                           </div>
+
                           {request.reason && (
                             <p className="mt-2 rounded-lg bg-muted p-3 text-sm">
                               💬 {request.reason}
                             </p>
                           )}
+
+                          {request.managerComment && (
+                            <p className="mt-2 rounded-lg bg-primary/5 p-3 text-sm">
+                              <span className="font-medium">
+                                Commentaire du responsable:
+                              </span>{' '}
+                              {request.managerComment}
+                            </p>
+                          )}
                         </div>
                       </div>
+
                       <div className="flex flex-col items-end gap-3">
-                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
-                          En attente
-                        </span>
-                        <p className="text-xs text-muted-foreground">
-                          Demandé le {format(new Date(request.createdAt), 'dd/MM/yyyy', { locale: fr })}
-                        </p>
-                        <div className="flex gap-2">
-                          <button
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                            onClick={() => handleAction(request, 'approve')}
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                            Valider
-                          </button>
-                        </div>
+                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
+                    {request.status === 'cancelled'
+                      ? 'Annulée'
+                      : request.status === 'pending_manager'
+                      ? 'En attente'
+                      : 'En cours'}
+                  </span>
+
+                       <p className="text-xs text-muted-foreground">
+                        Demandé le{' '}
+                        {format(new Date(request.createdAt), 'dd/MM/yyyy', {
+                          locale: fr,
+                        })}
+                      </p>
+
+
+                     {request.status === 'cancelled' ? (
+                    <span className="text-sm font-semibold text-gray-600">
+                      Annulée
+                    </span>
+                  ) : request.status === 'pending_manager' ? (
+                    <button
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
+                      onClick={() => handleApprove(request)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Valider
+                    </button>
+                  ) : request.status === 'pending_director' && user.role === 'director' ? (
+                    <button
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
+                      onClick={() => handleApprove(request)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Approuver
+                    </button>
+                  ) : null}
                       </div>
                     </div>
                   </motion.div>
@@ -143,78 +185,77 @@ const PendingRequests = () => {
           )}
         </motion.div>
 
-        {/* Modal Overlay */}
         {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-            onClick={() => {
-              setSelectedRequest(null);
-              setAction(null);
-            }}
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+            onClick={() => setSelectedRequest(null)}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               className="mx-auto mt-20 max-w-md rounded-xl border bg-card p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="space-y-4">
                 <div>
                   <h2 className="text-lg font-semibold">
-                    {action === 'approve' 
+                    {user.role === 'manager'
                       ? 'Valider et transmettre au directeur'
-                      : 'Refuser la demande'}
+                      : 'Approuver la demande'}
                   </h2>
                 </div>
+
                 {selectedRequest && (
                   <div className="rounded-lg bg-muted p-4">
                     <p className="font-medium">{selectedRequest.employeeName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
+                      {LEAVE_TYPE_LABELS[selectedRequest.type]} •{' '}
+                      {selectedRequest.duration} jours
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Du {format(new Date(selectedRequest.startDate), 'dd MMM', { locale: fr })} au{' '}
-                      {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', { locale: fr })}
+                      Du{' '}
+                      {format(new Date(selectedRequest.startDate), 'dd MMM', {
+                        locale: fr,
+                      })}{' '}
+                      au{' '}
+                      {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', {
+                        locale: fr,
+                      })}
                     </p>
                   </div>
                 )}
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
                     <MessageSquare className="mr-1 inline h-4 w-4" />
-                    Commentaire {action === 'reject' ? '(recommandé)' : '(facultatif)'}
+                    Commentaire (facultatif)
                   </label>
+
                   <textarea
-                    placeholder={action === 'reject' 
-                      ? 'Expliquez le motif du refus...'
-                      : 'Ajoutez un commentaire si nécessaire...'}
+                    placeholder="Ajoutez un commentaire si nécessaire..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows={3}
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
+
                 <div className="flex gap-2">
                   <button
                     type="button"
                     className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                    onClick={() => {
-                      setSelectedRequest(null);
-                      setAction(null);
-                    }}
+                    onClick={() => setSelectedRequest(null)}
                   >
                     Annuler
                   </button>
                   <button
                     onClick={confirmAction}
-                    className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
-                      action === 'approve' 
-                        ? 'bg-success text-success-foreground hover:bg-success/90' 
-                        : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                    }`}
+                    className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-success text-success-foreground hover:bg-success/90"
                   >
-                    {action === 'approve' ? 'Confirmer' : 'Refuser'}
+                    Confirmer
                   </button>
                 </div>
               </div>
@@ -227,4 +268,3 @@ const PendingRequests = () => {
 };
 
 export default PendingRequests;
-
