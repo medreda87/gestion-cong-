@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-<<<<<<< HEAD
 import { ClipboardList, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
-=======
-import { ClipboardList, CheckCircle, MessageSquare } from 'lucide-react';
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -14,80 +10,41 @@ import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
 
 const PendingRequests = () => {
-  const { user } = useAuth();
-<<<<<<< HEAD
-  const { getPendingForManager, updateRequestStatus } = useLeave();
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [action, setAction] = useState(null);
-=======
-  const { getPendingForManager, getPendingForDirector, updateRequestStatus } = useLeave();
-  const [selectedRequest, setSelectedRequest] = useState(null);
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
-  const [comment, setComment] = useState('');
+const { user } = useAuth();
+const { getPendingForManager, getPendingForDirector, updateRequestStatus } = useLeave();
 
-  if (!user) return null;
+const [selectedRequest, setSelectedRequest] = useState(null);
+const [action, setAction] = useState(null);
+const [comment, setComment] = useState('');
 
-<<<<<<< HEAD
-  const pendingRequests = user.role === 'manager' 
-    ? getPendingForManager() 
-    : [];
+if (!user) return null;
 
-  const handleAction = (request, actionType) => {
-    setSelectedRequest(request);
-    setAction(actionType);
-=======
-  const pendingRequests =
-  user.role === "manager"
+const pendingRequests =
+  user.role === 'manager'
     ? getPendingForManager()
-    : user.role === "director"
+    : user.role === 'director'
     ? getPendingForDirector()
     : [];
 
-  const handleApprove = (request) => {
-    setSelectedRequest(request);
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
-    setComment('');
-  };
+const handleAction = (request, actionType) => {
+  setSelectedRequest(request);
+  setAction(actionType);
+};
 
-  const confirmAction = () => {
-<<<<<<< HEAD
-    if (!selectedRequest || !action) return;
+const confirmAction = () => {
+  if (!selectedRequest || !action) return;
 
-    const newStatus = action === 'approve' ? 'pending_director' : 'rejected';
+  const newStatus =
+    action === 'approve' ? 'pending_director' : 'rejected';
 
-    updateRequestStatus(selectedRequest.id, newStatus, comment || undefined);
-    
-    toast.success(
-      action === 'approve' 
-        ? 'Demande transmise au directeur'
-        : 'Demande refusée'
-    );
+  updateRequestStatus(selectedRequest.id, newStatus, comment);
 
-    setSelectedRequest(null);
-    setAction(null);
-    setComment('');
-  };
+  setSelectedRequest(null);
+  setAction(null);
+  setComment('');
+};
 
-  const isModalOpen = !!selectedRequest && !!action;
-=======
-    if (!selectedRequest) return;
-
-    const newStatus = user.role === 'manager' ? 'pending_director' : 'approved';
-
-    updateRequestStatus(selectedRequest.id, newStatus, comment || undefined);
-
-    toast.success(
-      user.role === 'manager'
-        ? 'Demande transmise au directeur'
-        : 'Demande approuvée avec succès'
-    );
-
-    setSelectedRequest(null);
-    setComment('');
-  };
-
-  const isModalOpen = !!selectedRequest;
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
+const isModalOpen = !!selectedRequest && !!action;
 
   return (
     <DashboardLayout>
@@ -96,10 +53,7 @@ const PendingRequests = () => {
         animate={{ opacity: 1 }}
         className="space-y-6"
       >
-<<<<<<< HEAD
         {/* Header */}
-=======
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-warning/10 p-3">
             <ClipboardList className="h-6 w-6 text-warning" />
@@ -112,10 +66,7 @@ const PendingRequests = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
         {/* Requests list */}
-=======
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -144,23 +95,13 @@ const PendingRequests = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-sm font-medium">
-<<<<<<< HEAD
 {request.employeeName.split(' ').map((n) => n[0]).join('')}
                         </div>
-=======
-                          {request.employeeName
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')}
-                        </div>
-
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                         <div>
                           <h3 className="font-semibold">{request.employeeName}</h3>
                           <p className="text-sm text-muted-foreground">
                             {LEAVE_TYPE_LABELS[request.type]}
                           </p>
-<<<<<<< HEAD
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
 {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
@@ -168,29 +109,11 @@ const PendingRequests = () => {
                             </span>
                             <span>⏱️ {request.duration} jours</span>
                           </div>
-=======
-
-                          <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                            <span>
-                              📅 Du{' '}
-                              {format(new Date(request.startDate), 'dd MMM', {
-                                locale: fr,
-                              })}{' '}
-                              au{' '}
-                              {format(new Date(request.endDate), 'dd MMM yyyy', {
-                                locale: fr,
-                              })}
-                            </span>
-                            <span>⏱️ {request.duration} jours</span>
-                          </div>
-
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                           {request.reason && (
                             <p className="mt-2 rounded-lg bg-muted p-3 text-sm">
                               💬 {request.reason}
                             </p>
                           )}
-<<<<<<< HEAD
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-3">
@@ -216,58 +139,6 @@ const PendingRequests = () => {
                             Valider
                           </button>
                         </div>
-=======
-
-                          {request.managerComment && (
-                            <p className="mt-2 rounded-lg bg-primary/5 p-3 text-sm">
-                              <span className="font-medium">
-                                Commentaire du responsable:
-                              </span>{' '}
-                              {request.managerComment}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-end gap-3">
-                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
-                    {request.status === 'cancelled'
-                      ? 'Annulée'
-                      : request.status === 'pending_manager'
-                      ? 'En attente'
-                      : 'En cours'}
-                  </span>
-
-                       <p className="text-xs text-muted-foreground">
-                        Demandé le{' '}
-                        {format(new Date(request.createdAt), 'dd/MM/yyyy', {
-                          locale: fr,
-                        })}
-                      </p>
-
-
-                     {request.status === 'cancelled' ? (
-                    <span className="text-sm font-semibold text-gray-600">
-                      Annulée
-                    </span>
-                  ) : request.status === 'pending_manager' ? (
-                    <button
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
-                      onClick={() => handleApprove(request)}
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Valider
-                    </button>
-                  ) : request.status === 'pending_director' && user.role === 'director' ? (
-                    <button
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
-                      onClick={() => handleApprove(request)}
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Approuver
-                    </button>
-                  ) : null}
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                       </div>
                     </div>
                   </motion.div>
@@ -277,16 +148,12 @@ const PendingRequests = () => {
           )}
         </motion.div>
 
-<<<<<<< HEAD
         {/* Modal Overlay */}
-=======
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
         {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-<<<<<<< HEAD
             className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
             onClick={() => {
               setSelectedRequest(null);
@@ -297,39 +164,19 @@ const PendingRequests = () => {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               className="mx-auto mt-20 max-w-md rounded-xl border bg-card p-6 shadow-2xl"
-=======
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
-            onClick={() => setSelectedRequest(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="mx-auto mt-20 max-w-md rounded-xl border bg-card p-6 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
             >
               <div className="space-y-4">
                 <div>
                   <h2 className="text-lg font-semibold">
-<<<<<<< HEAD
                     {action === 'approve' 
                       ? 'Valider et transmettre au directeur'
                       : 'Refuser la demande'}
                   </h2>
                 </div>
-=======
-                    {user.role === 'manager'
-                      ? 'Valider et transmettre au directeur'
-                      : 'Approuver la demande'}
-                  </h2>
-                </div>
-
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                 {selectedRequest && (
                   <div className="rounded-lg bg-muted p-4">
                     <p className="font-medium">{selectedRequest.employeeName}</p>
                     <p className="text-sm text-muted-foreground">
-<<<<<<< HEAD
                       {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -347,60 +194,25 @@ const PendingRequests = () => {
                     placeholder={action === 'reject' 
                       ? 'Expliquez le motif du refus...'
                       : 'Ajoutez un commentaire si nécessaire...'}
-=======
-                      {LEAVE_TYPE_LABELS[selectedRequest.type]} •{' '}
-                      {selectedRequest.duration} jours
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Du{' '}
-                      {format(new Date(selectedRequest.startDate), 'dd MMM', {
-                        locale: fr,
-                      })}{' '}
-                      au{' '}
-                      {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', {
-                        locale: fr,
-                      })}
-                    </p>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    <MessageSquare className="mr-1 inline h-4 w-4" />
-                    Commentaire (facultatif)
-                  </label>
-
-                  <textarea
-                    placeholder="Ajoutez un commentaire si nécessaire..."
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows={3}
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                 <div className="flex gap-2">
                   <button
                     type="button"
                     className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-<<<<<<< HEAD
                     onClick={() => {
                       setSelectedRequest(null);
                       setAction(null);
                     }}
-=======
-                    onClick={() => setSelectedRequest(null)}
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                   >
                     Annuler
                   </button>
                   <button
                     onClick={confirmAction}
-<<<<<<< HEAD
                     className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
                       action === 'approve' 
                         ? 'bg-success text-success-foreground hover:bg-success/90' 
@@ -408,11 +220,6 @@ const PendingRequests = () => {
                     }`}
                   >
                     {action === 'approve' ? 'Confirmer' : 'Refuser'}
-=======
-                    className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-success text-success-foreground hover:bg-success/90"
-                  >
-                    Confirmer
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
                   </button>
                 </div>
               </div>
@@ -424,9 +231,8 @@ const PendingRequests = () => {
   );
 };
 
-<<<<<<< HEAD
 export default PendingRequests;
 
-=======
-export default PendingRequests;
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
+
+
+

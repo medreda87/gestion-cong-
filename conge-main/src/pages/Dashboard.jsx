@@ -61,13 +61,6 @@ const Dashboard = () => {
   const previousSolde =
     (previousBalance?.earnedDays || 0) -
     (previousBalance?.usedDays || 0);
-<<<<<<< HEAD
-console.log('balances:', user?.balances);
-console.log('currentYear:', currentYear);
-console.log('currentBalance:', currentBalance);
-=======
-
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
 
   const handleUpload = async () => {
     if (!uploadFile) return;
@@ -119,12 +112,6 @@ console.log('currentBalance:', currentBalance);
   if (!user) return null;
 
   const myRequests = getRequestsByEmployee(user.id);
-<<<<<<< HEAD
-  const approvedCount = myRequests.filter((r) => r.status === 'approved').length;
-  const pendingCount = myRequests.filter((r) => 
-    r.status === 'pending_manager' || r.status === 'pending_director'
-  ).length;
-=======
   const approvedCount = myRequests.filter(
   (r) => r.status === "approved"
 ).length;
@@ -136,7 +123,6 @@ const pendingDirectorCount = myRequests.filter(
 const pendingCount = myRequests.filter(
   (r) => r.status === "pending_manager"
 ).length;
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
   const rejectedCount = myRequests.filter((r) => r.status === 'rejected').length;
 
   const pendingToReview = user.role === 'manager' 
@@ -334,18 +320,6 @@ const pendingCount = myRequests.filter(
               animate={{ opacity: 1, y: 0 }}
               className="rounded-xl border p-6 shadow-sm bg-success/5 border-success/20"
             >
-<<<<<<< HEAD
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-darck-foreground">Approuvés</p>
-                  <p className="mt-2 text-3xl font-bold tracking-tight">{approvedCount}</p>
-                  <p className="mt-1 text-sm text-darck-foreground/70">Cette année</p>
-                </div>
-                <div className="rounded-lg p-3 bg-success/10 text-success">
-                  <CheckCircle className="h-6 w-6" />
-                </div>
-              </div>
-=======
               <p className="text-sm font-medium text-darck-foreground">Congés validés</p>
 
               <p className="mt-2 text-3xl font-bold tracking-tight">
@@ -355,7 +329,6 @@ const pendingCount = myRequests.filter(
               <p className="mt-1 text-sm font-semibold text-gray-800">
               {pendingDirectorCount}  en attente directeur
             </p>
->>>>>>> ae7a6874ff8b704a6b7d7ebc263967e3cf1e8796
             </motion.div>
           </div>
 
