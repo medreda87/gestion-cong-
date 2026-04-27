@@ -62,7 +62,9 @@ const Dashboard = () => {
   const previousSolde =
     (previousBalance?.earnedDays || 0) -
     (previousBalance?.usedDays || 0);
+
 const totalSolde = currentSolde + previousSolde;
+
   const handleUpload = async () => {
     if (!uploadFile) return;
     setIsUploading(true);
