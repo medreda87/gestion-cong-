@@ -287,7 +287,7 @@ const pendingCount = myRequests.filter(
                     <span className="text-3xl font-bold tracking-tight">
                       {totalSolde}
                     </span>
-                    <span className="text-sm text-muted-foreground">jours</span>
+                    <span className="text-sm text-muted-foreground">{totalSolde}</span>
                   </div>
                   <div className="flex gap-2 text-xs text-muted-foreground">
                     <span>2025: {previousSolde} j</span>
