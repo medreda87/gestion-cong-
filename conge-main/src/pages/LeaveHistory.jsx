@@ -26,11 +26,12 @@ const LeaveHistory = () => {
 
   const filteredRequests = myRequests.filter((request) => {
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
+    const matchType = request.type !== 'exceptional';
     const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
     const matchesSearch = 
       typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesSearch && matchType;
   });
 
   const getStatusBadgeClass = (status) => {

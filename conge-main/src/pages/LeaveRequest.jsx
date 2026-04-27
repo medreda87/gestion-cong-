@@ -33,7 +33,7 @@ const LeaveRequest = () => {
   const { addRequest } = useLeave();
   const navigate = useNavigate();
 
-  const [type, setType] = useState('annual');
+  const [type, setType] = useState('administratif');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('');
