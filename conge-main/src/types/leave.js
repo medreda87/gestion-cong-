@@ -16,3 +16,25 @@ export const LEAVE_STATUS_LABELS = {
   cancelled: "Annulé"
 };
 
+export const UserRole = {
+  EMPLOYEE: 'employee',
+  RESPONSABLE: 'responsable',
+  DIRECTEUR: 'directeur',
+};
+
+
+
+export const ExceptionalReason = {
+  MARIAGE: 'mariage',
+  NAISSANCE: 'naissance',
+  DECES: 'deces',
+  AUTRE: 'autre',
+};
+
+export const RequestStatus = {
+  EN_ATTENTE: 'en_attente',
+  VALIDE_RESPONSABLE: 'valide_responsable',
+  VALIDE_DIRECTEUR: 'valide_directeur',
+  REFUSE: 'refuse',
+};
+

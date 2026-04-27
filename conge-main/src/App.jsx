@@ -15,6 +15,8 @@ import PendingRequestsResponsable from "@/responsable/pages/PendingRequests";
 import PendingRequestsDirecteur from "@/directeur/pages/PendingRequests";
 import Employees from "@/directeur/pages/Employees";
 import Holidays from "@/directeur/pages/Holidays";
+import EmployeeDashboard from "./directeur/pages/employerDashboard";
+import { DataProvider } from "./contexts/DataContext";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <BalanceProvider>
+        <DataProvider>
         <LeaveProvider>
           <BrowserRouter>
           <Routes>
@@ -29,6 +32,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/request" element={<LeaveRequest />} />
+            <Route path="/employerDashboard" element={<EmployeeDashboard />} />
             <Route path="/history" element={<LeaveHistory />} />
             <Route path="/pending" element={
               <RoleGuard roles={['manager']}>
@@ -55,6 +59,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
         </LeaveProvider>
+        </DataProvider>
       </BalanceProvider>
     </AuthProvider>
   </QueryClientProvider>
