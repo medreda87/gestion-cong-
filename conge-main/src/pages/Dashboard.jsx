@@ -19,7 +19,7 @@ const LEAVE_STATUS_LABELS = {
   pending_manager: 'En attente (Responsable)',
   pending_director: 'En attente (Directeur)',
   approved: 'Approuvé',
-  rejected: 'Refusé',
+  cancelled: 'annulé',
 };
 
 const Dashboard = () => {
