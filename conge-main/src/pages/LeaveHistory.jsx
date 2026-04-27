@@ -208,7 +208,7 @@ const LeaveHistory = () => {
               { label: 'Total', count: myRequests.length, color: 'bg-muted' },
               { label: 'En attente', count: myRequests.filter((r) => r.status.startsWith('pending')).length, color: 'bg-warning/10' },
               { label: 'Approuvées', count: myRequests.filter((r) => r.status === 'approved').length, color: 'bg-success/10' },
-              { label: 'Annuler', count: myRequests.filter((r) => r.status === 'approved').length, color: 'bg-success/10' },
+              { label: 'Annuler', count: myRequests.filter((r) => r.status === 'cancelled').length, color: 'bg-success/10' },
 
             ].map((stat) => (
               <div key={stat.label} className={`rounded-lg ${stat.color} p-4 text-center`}>
