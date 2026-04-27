@@ -20,6 +20,8 @@ const LEAVE_STATUS_LABELS = {
   pending_director: 'En attente (Directeur)',
   approved: 'Approuvé',
   rejected: 'Refusé',
+  cancelled: 'Annulé',
+
 };
 
 const Dashboard = () => {
@@ -60,10 +62,7 @@ const Dashboard = () => {
   const previousSolde =
     (previousBalance?.earnedDays || 0) -
     (previousBalance?.usedDays || 0);
-console.log("USER:", user);
-console.log("BALANCES:", user?.balances);
-console.log("CURRENT YEAR:", currentYear);
-console.log("PREVIOUS YEAR:", previousYear);
+const totalSolde = currentSolde + previousSolde;
   const handleUpload = async () => {
     if (!uploadFile) return;
     setIsUploading(true);
@@ -284,7 +283,7 @@ const pendingCount = myRequests.filter(
                 <div className="space-y-1">
                   <div className="flex justify-between items-baseline">
                     <span className="text-3xl font-bold tracking-tight">
-                      {user ? getEmployeeTotalBalance(user.id) : 0}
+                      {totalSolde}
                     </span>
                     <span className="text-sm text-muted-foreground">jours</span>
                   </div>
