@@ -104,7 +104,7 @@ const isModalOpen = !!selectedRequest && !!action;
                           </p>
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
-{format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
+                          {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
                       {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
                             </span>
                             <span>⏱️ {request.duration} jours</span>
@@ -117,27 +117,29 @@ const isModalOpen = !!selectedRequest && !!action;
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-3">
-                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
-                          En attente
-                        </span>
+                      <span
+                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                        request.status === 'cancelled'
+                          ? 'bg-gray-200 text-gray-700 border-gray-300'
+                          : 'bg-warning/10 text-warning border-warning/20'
+                      }`}
+                    >
+                      {request.status === 'cancelled' ? 'Annulée' : 'En attente'}
+                    </span>
                         <p className="text-xs text-muted-foreground">
                           Demandé le {format(new Date(request.createdAt), 'dd/MM/yyyy', { locale: fr })}
                         </p>
                         <div className="flex gap-2">
-                          <button
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-destructive hover:bg-destructive hover:text-destructive-foreground h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background"
-                            onClick={() => handleAction(request, 'reject')}
-                          >
-                            <XCircle className="h-4 w-4" />
-                            Refuser
-                          </button>
-                          <button
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                            onClick={() => handleAction(request, 'approve')}
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                            Valider
-                          </button>
+
+                        {request.status !== 'cancelled' && (
+                        <button
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
+                          onClick={() => handleAction(request, 'approve')}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Valider
+                        </button>
+                      )}
                         </div>
                       </div>
                     </div>
