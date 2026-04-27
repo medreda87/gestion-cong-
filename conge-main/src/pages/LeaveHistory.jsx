@@ -9,18 +9,20 @@ import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { Link } from 'react-router-dom';
 
-const LEAVE_STATUS_LABELS = {
-  pending_manager: 'En attente (Responsable)',
-  pending_director: 'En attente (Directeur)',
-  approved: 'Approuvé',
-  cancelled: 'Annulé',
-};
+
 
 const LeaveHistory = () => {
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const { getRequestsByEmployee, updateRequestStatus } = useLeave();  if (!user) return null;
+
+  const LEAVE_STATUS_LABELS = {
+  pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
+  pending_director: 'En attente (Directeur)',
+  approved: 'Approuvé',
+  cancelled: 'Annulé',
+};
 
   const myRequests = getRequestsByEmployee(user.id);
 
