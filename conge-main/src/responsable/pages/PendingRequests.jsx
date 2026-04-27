@@ -107,11 +107,12 @@ const isModalOpen = !!selectedRequest && !!action;
                           {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
                       {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
                             </span>
-                            <span><AlarmClock/> {request.duration} jours</span>
+                            <p className='flex '><AlarmClock className='mr-2 mt-1'  size={16}/> {request.duration} jours</p>
                           </div>
                           {request.reason && (
-                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm">
-                              <MessageCircle/> {request.reason}
+                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
+                              <MessageCircle size={14} className="mt-0.5" />
+                              <span>{request.reason}</span>
                             </p>
                           )}
                         </div>
