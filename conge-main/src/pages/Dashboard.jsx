@@ -15,15 +15,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useState, useEffect, useCallback } from 'react';
 
-const LEAVE_STATUS_LABELS = {
-  pending_manager: 'En attente (Responsable)',
-  pending_director: 'En attente (Directeur)',
-  approved: 'Approuvé',
-  rejected: 'Refusé',
-  cancelled: 'Annulé',
-
-};
-
 const Dashboard = () => {
   const { user } = useAuth();
   const balance = useBalance();
@@ -33,6 +24,16 @@ const Dashboard = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  
+const LEAVE_STATUS_LABELS = {
+  pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
+  pending_director: 'En attente (Directeur)',
+  approved: 'Approuvé',
+  cancelled: 'Annulé',
+
+};
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -159,7 +160,7 @@ const pendingCount = myRequests.filter(
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">
-                Bonjour , {user.name.split(' ')[0]} 👋
+                Bonjour , {user.name.split(' ')[0]} 
               </h1>
               <p className="mt-1 text-muted-foreground">
                 Bienvenue sur votre tableau de bord
@@ -481,7 +482,7 @@ const pendingCount = myRequests.filter(
                     className="flex items-center justify-between rounded-lg border bg-background p-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
                         {request.employeeName.split(' ').map((n) => n[0]).join('')}
                       </div>
                       <div>
