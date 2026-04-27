@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -107,11 +107,12 @@ const isModalOpen = !!selectedRequest && !!action;
                           {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
                       {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
                             </span>
-                            <span>⏱️ {request.duration} jours</span>
+                            <p className='flex '><AlarmClock className='mr-2 mt-1'  size={16}/> {request.duration} jours</p>
                           </div>
                           {request.reason && (
-                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm">
-                              💬 {request.reason}
+                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
+                              <MessageCircle size={14} className="mt-0.5" />
+                              <span>{request.reason}</span>
                             </p>
                           )}
                         </div>
@@ -166,6 +167,7 @@ const isModalOpen = !!selectedRequest && !!action;
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               className="mx-auto mt-20 max-w-md rounded-xl border bg-card p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="space-y-4">
                 <div>
