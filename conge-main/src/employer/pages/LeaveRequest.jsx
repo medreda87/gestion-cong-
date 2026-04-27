@@ -119,7 +119,7 @@ const LeaveRequest = () => {
     const day = date.getDay();
     const formatted = format(date, 'yyyy-MM-dd');
 
-    const isWeekend = day === 0 || day = 6;
+    const isWeekend = day === 0 || day === 6;
     const isHoliday = HOLIDAYS.includes(formatted);
 
     return !isWeekend && !isHoliday;

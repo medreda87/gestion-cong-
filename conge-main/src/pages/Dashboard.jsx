@@ -159,7 +159,7 @@ const pendingCount = myRequests.filter(
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">
-                Bonjour, {user.name.split(' ')[0]} 👋
+                Bonjour , {user.name.split(' ')[0]} 👋
               </h1>
               <p className="mt-1 text-muted-foreground">
                 Bienvenue sur votre tableau de bord
@@ -355,36 +355,42 @@ const pendingCount = myRequests.filter(
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                     {images.map((img) => (
                       <motion.div
                         key={img.id}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        whileHover={{ scale: 1.02 }}
-                        className="group relative overflow-hidden rounded-xl border shadow-sm cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                        whileHover={{ scale: 1.03 }}
+                        className="group relative overflow-hidden rounded-2xl border shadow-md cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                         onClick={() => handleImageClick(img)}
                       >
                         <img
                           src={img.url}
                           alt={img.name}
-                          className="w-full h-48 object-cover"
+                          className="w-full h-64 md:h-72 lg:h-80 object-cover"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <p className="text-xs bg-black/70 text-white px-2 py-1 rounded-full truncate">
-                            {img.name}
-                          </p>
-                        </div>
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <span className="bg-white/90 hover:bg-white text-gray-900 text-xs px-2 py-1 rounded-full font-medium shadow-md transition-all duration-200 hover:shadow-lg">
-                            {Math.round(img.size / 1024)} KB
-                          </span>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
+
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
+
+                        {/* Title */}
+                        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
+        <p className="text-sm bg-black/70 text-white px-3 py-1 rounded-full truncate">
+          {img.name}
+        </p>
+      </div>
+
+      {/* Size */}
+      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
+        <span className="bg-white/90 text-gray-900 text-xs px-3 py-1 rounded-full font-medium shadow">
+          {Math.round(img.size / 1024)} KB
+        </span>
+      </div>
+    </motion.div>
+  ))}
+</div>
                 </CardContent>
               </motion.div>
 
