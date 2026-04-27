@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
+import { createPortal } from "react-dom";
 
 const PendingRequests = () => {
 const { user } = useAuth();
@@ -94,8 +95,8 @@ const isModalOpen = !!selectedRequest && !!action;
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-sm font-medium">
-{request.employeeName.split(' ').map((n) => n[0]).join('')}
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
+                        {request.employeeName.split(' ').map((n) => n[0]).join('')}
                         </div>
                         <div>
                           <h3 className="font-semibold">{request.employeeName}</h3>
@@ -105,13 +106,14 @@ const isModalOpen = !!selectedRequest && !!action;
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
                           {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
-                      {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
+                         {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
                             </span>
-                            <span>⏱️ {request.duration} jours</span>
+                            <p className='flex '><AlarmClock className='mr-2 mt-1'  size={16}/> {request.duration} jours</p>
                           </div>
                           {request.reason && (
-                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm">
-                              💬 {request.reason}
+                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
+                              <MessageCircle size={14} className="mt-0.5" />
+                              <span>{request.reason}</span>
                             </p>
                           )}
                         </div>
@@ -151,82 +153,85 @@ const isModalOpen = !!selectedRequest && !!action;
         </motion.div>
 
         {/* Modal Overlay */}
-        {isModalOpen && (
+        {isModalOpen &&
+        createPortal(
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+            className="fixed inset-0 z-[999999] min-h-screen w-screen bg-white/60 backdrop-blur-sm flex items-center justify-center"
             onClick={() => {
               setSelectedRequest(null);
               setAction(null);
             }}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="mx-auto mt-20 max-w-md rounded-xl border bg-card p-6 shadow-2xl"
+              className="w-full max-w-md rounded-xl border bg-card p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="space-y-4">
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    {action === 'approve' 
-                      ? 'Valider et transmettre au directeur'
-                      : 'Refuser la demande'}
-                  </h2>
-                </div>
-                {selectedRequest && (
-                  <div className="rounded-lg bg-muted p-4">
-                    <p className="font-medium">{selectedRequest.employeeName}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Du {format(new Date(selectedRequest.startDate), 'dd MMM', { locale: fr })} au{' '}
-                      {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', { locale: fr })}
-                    </p>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    <MessageSquare className="mr-1 inline h-4 w-4" />
-                    Commentaire {action === 'reject' ? '(recommandé)' : '(facultatif)'}
-                  </label>
-                  <textarea
-                    placeholder={action === 'reject' 
-                      ? 'Expliquez le motif du refus...'
-                      : 'Ajoutez un commentaire si nécessaire...'}
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={3}
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                    onClick={() => {
-                      setSelectedRequest(null);
-                      setAction(null);
-                    }}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    onClick={confirmAction}
-                    className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
-                      action === 'approve' 
-                        ? 'bg-success text-success-foreground hover:bg-success/90' 
-                        : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                    }`}
-                  >
-                    {action === 'approve' ? 'Confirmer' : 'Refuser'}
-                  </button>
-                </div>
+              <div>
+                        <h2 className="text-lg font-semibold">
+                          {action === 'approve' 
+                            ? 'Valider et transmettre au directeur'
+                            : 'Refuser la demande'}
+                        </h2>
+                      </div>
+                      {selectedRequest && (
+                        <div className="rounded-lg bg-muted p-4">
+                          <p className="font-medium">{selectedRequest.employeeName}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Du {format(new Date(selectedRequest.startDate), 'dd MMM', { locale: fr })} au{' '}
+                            {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', { locale: fr })}
+                          </p>
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          <MessageSquare className="mr-1 inline h-4 w-4" />
+                          Commentaire {action === 'reject' ? '(recommandé)' : '(facultatif)'}
+                        </label>
+                        <textarea
+                          placeholder={action === 'reject' 
+                            ? 'Expliquez le motif du refus...'
+                            : 'Ajoutez un commentaire si nécessaire...'}
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          rows={3}
+                          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                          onClick={() => {
+                            setSelectedRequest(null);
+                            setAction(null);
+                          }}
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          onClick={confirmAction}
+                          className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
+                            action === 'approve' 
+                              ? 'bg-success text-success-foreground hover:bg-success/90' 
+                              : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                          }`}
+                        >
+                          {action === 'approve' ? 'Confirmer' : 'Refuser'}
+                        </button>
+                      </div>
               </div>
             </motion.div>
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </motion.div>
     </DashboardLayout>

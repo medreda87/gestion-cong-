@@ -177,19 +177,19 @@ const LeaveHistory = () => {
                       {LEAVE_STATUS_LABELS[request.status]}
                     </span>
 
-                    {/* Bouton Annuler */}
-                  {request.status === 'pending_manager' && (
-                  <button
-                    onClick={() => {
-                      if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
-                        updateRequestStatus(request.id, "cancelled");
-                      }
-                    }}
-                    className="text-sm text-red-500 hover:underline"
-                  >
-                    Annuler
-                  </button>
-                )}
+                  {/* Bouton Annuler */}
+                  {request.status === "pending_manager" && (
+                    <button
+                      onClick={() => {
+                        if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                          updateRequestStatus(request.id, "cancelled");
+                        }
+                      }}
+                      className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300"
+                    >
+                      Annuler
+                    </button>
+                  )}
                   </div>
                 </motion.div>
               ))}
@@ -197,25 +197,59 @@ const LeaveHistory = () => {
           )}
         </motion.div>
 
-        {/* Summary */}
+      {/* Summary */}
         {myRequests.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="grid gap-4 sm:grid-cols-4"
+            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
           >
             {[
-              { label: 'Total', count: myRequests.length, color: 'bg-muted' },
-              { label: 'En attente', count: myRequests.filter((r) => r.status.startsWith('pending')).length, color: 'bg-warning/10' },
-              { label: 'Approuvées', count: myRequests.filter((r) => r.status === 'approved').length, color: 'bg-success/10' },
-              { label: 'Annuler', count: myRequests.filter((r) => r.status === 'cancelled').length, color: 'bg-success/10' },
+              {
+                label: "Total des demandes",
+                count: myRequests.length,
+                color: "from-slate-500 to-slate-700",
+                bg: "bg-slate-50",
+              },
+              {
+                label: "En attente",
+                count: myRequests.filter((r) => r.status.startsWith("pending")).length,
+                color: "from-amber-500 to-orange-500",
+                bg: "bg-amber-50",
+              },
+              {
+                label: "Approuvées",
+                count: myRequests.filter((r) => r.status === "approved").length,
+                color: "from-emerald-500 to-green-500",
+                bg: "bg-emerald-50",
+              },
+              {
+                label: "Annulées",
+                count: myRequests.filter((r) => r.status === "cancelled").length,
+                color: "from-rose-500 to-red-500",
+                bg: "bg-rose-50",
+              },
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.08 }}
+                className="group relative overflow-hidden rounded-2xl border bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className={`absolute left-0 top-0 h-1 w-full bg-gradient-to-r ${stat.color}`} />
 
-            ].map((stat) => (
-              <div key={stat.label} className={`rounded-lg ${stat.color} p-4 text-center`}>
-                <p className="text-2xl font-bold">{stat.count}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </div>
+                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${stat.bg}`}>
+                  <span className="text-xl font-bold text-gray-900">
+                    {stat.count}
+                  </span>
+                </div>
+
+                <p className="text-sm font-semibold text-gray-700">
+                  {stat.label}
+                </p>
+              </motion.div>
             ))}
           </motion.div>
         )}
