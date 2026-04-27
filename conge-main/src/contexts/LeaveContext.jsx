@@ -108,23 +108,17 @@ export const LeaveProvider = ({ children }) => {
   const deleteLeave = (leaveId) => {
     setRequests((prev) => prev.filter((req) => req.id !== leaveId));
   };
-  
 
- const cancelLeave = (id) => {
-  const updated = requests.map((req) => {
-    if (req.id === id && req.status === "pending_manager") {
-      return {
-        ...req,
-        status: "cancelled",
-        updatedAt: new Date().toISOString(),
-      };
-    }
-
-    return req;
-  });
-
-  saveRequests(updated);
-};
+  const cancelLeave = (id) => {
+    setRequests((prev) =>
+      prev.map((req) => {
+        if (req.id === id && req.status.startsWith("pending")) {
+          return { ...req, status: "cancelled" };
+        }
+        return req;
+      })
+    );
+  };
 
   const getRequestsByEmployee = (employeeId) => 
     requests.filter((r) => r.employeeId === employeeId);
