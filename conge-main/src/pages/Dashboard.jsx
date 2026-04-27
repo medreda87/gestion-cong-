@@ -273,67 +273,81 @@ const pendingCount = myRequests.filter(
             </motion.div>
           )}
 
-          {/* Stats */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border p-6 shadow-sm bg-card"
-            >
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Solde de congés</p>
-                <div className="space-y-1">
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-3xl font-bold tracking-tight">
-                      {totalSolde}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{totalSolde}</span>
-                  </div>
-                  <div className="flex gap-2 text-xs text-muted-foreground">
-                    <span>2025: {previousSolde} j</span>
-                    <span>2026: {currentSolde} j</span>
-                  </div>
-                </div>
-                <div className="rounded-lg p-3 bg-muted text-muted-foreground flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  <span className="text-sm">Auto-mis à jour</span>
-                </div>
-              </div>
-            </motion.div>
+         {/* Stats */}
+<div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+  {[
+    {
+      title: "Solde de congés",
+      value: totalSolde,
+      subtitle: `${previousYear}: ${previousSolde} j • ${currentYear}: ${currentSolde} j`,
+      icon: Calendar,
+      color: "from-blue-500 to-cyan-500",
+      bg: "bg-blue-50",
+      text: "text-blue-600",
+    },
+    {
+      title: "En attente responsable",
+      value: pendingCount,
+      subtitle: "Demandes à valider",
+      icon: Clock,
+      color: "from-amber-500 to-orange-500",
+      bg: "bg-amber-50",
+      text: "text-amber-600",
+    },
+    {
+      title: "Attente directeur",
+      value: pendingDirectorCount,
+      subtitle: "Validation finale",
+      icon: Users,
+      color: "from-violet-500 to-purple-500",
+      bg: "bg-violet-50",
+      text: "text-violet-600",
+    },
+    {
+      title: "Congés validés",
+      value: approvedCount,
+      subtitle: "Demandes approuvées",
+      icon: CheckCircle,
+      color: "from-emerald-500 to-green-500",
+      bg: "bg-emerald-50",
+      text: "text-emerald-600",
+    }
+  ].map((stat, index) => {
+    const Icon = stat.icon;
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border p-6 shadow-sm bg-warning/5 border-warning/20"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-darck-foreground">En attente</p>
-                  <p className="mt-2 text-3xl font-bold tracking-tight">{pendingCount}</p>
-                  <p className="mt-1 text-sm text-darck-foreground/70">Demandes</p>
-                </div>
-                <div className="rounded-lg p-3 bg-warning/10 text-darck">
-                  <Clock className="h-6 w-6" />
-                </div>
-              </div>
-            </motion.div>
+    return (
+      <motion.div
+        key={stat.title}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.08 }}
+        className="group relative overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      >
+        <div className={`absolute left-0 top-0 h-1 w-full bg-gradient-to-r ${stat.color}`} />
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border p-6 shadow-sm bg-success/5 border-success/20"
-            >
-              <p className="text-sm font-medium text-darck-foreground">Congés validés</p>
-
-              <p className="mt-2 text-3xl font-bold tracking-tight">
-                {approvedCount} 
-              </p>
-
-              <p className="mt-1 text-sm font-semibold text-gray-800">
-              {pendingDirectorCount}  en attente directeur
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-semibold text-muted-foreground">
+              {stat.title}
             </p>
-            </motion.div>
+
+            <p className="mt-3 text-4xl font-bold tracking-tight text-gray-900">
+              {stat.value}
+            </p>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              {stat.subtitle}
+            </p>
           </div>
+
+          <div className={`rounded-2xl ${stat.bg} p-3 ${stat.text}`}>
+            <Icon className="h-6 w-6" />
+          </div>
+        </div>
+      </motion.div>
+    );
+  })}
+</div>
 
           {/* Images Grid */}
           {images.length > 0 && (
