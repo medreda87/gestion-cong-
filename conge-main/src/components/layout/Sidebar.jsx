@@ -23,8 +23,6 @@ const navItems = [
   { label: 'Jours fériés', href: '/holidays', icon: Calendar, roles: ['director'] },
   { label: 'Demandes à valider', href: '/pending', icon: ClipboardList, roles: ['manager'] },
   { label: 'Demandes à valider', href: '/pending-director', icon: ClipboardList, roles: ['director'] },
-  { label: 'Gestion Employés', href: '/employerDashboard', icon: ClipboardList, roles: ['director'] },
-
 ];
 
 export const Sidebar = () => {
