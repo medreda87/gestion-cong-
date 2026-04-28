@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 const navItems = [
+  { label: 'Tableau de bord', href: '/employerDashboard', icon: ClipboardList, roles: ['director'] },
   { label: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard, roles: ['employee', 'manager'] },
   { label: 'Nouvelle demande', href: '/request', icon: CalendarPlus, roles: ['employee', 'manager'] },
   { label: 'Mes congés', href: '/history', icon: History, roles: ['employee', 'manager'] },
@@ -20,7 +21,6 @@ const navItems = [
   { label: 'Gestion employés', href: '/employees', icon: Users, roles: ['director'] },
   { label: 'Jours fériés', href: '/holidays', icon: Calendar, roles: ['director'] },
   { label: 'Demandes à valider', href: '/pending', icon: ClipboardList, roles: ['manager', 'director'] },
-  { label: 'Gestion Employés', href: '/employerDashboard', icon: ClipboardList, roles: ['director'] },
 
 ];
 

@@ -1,12 +1,19 @@
 import { cn } from '@/lib/utils';
 import { LEAVE_STATUS_LABELS } from '@/types/leave';
 
-export const StatusBadge = ({ status, className }) => {
+export const StatusBadge = ({ status, className}) => {
   const variants = {
-    pending_manager: 'bg-warning/10 text-warning border-warning/20',
-    pending_director: 'bg-primary/10 text-primary border-primary/20',
-    approved: 'bg-success/10 text-success border-success/20',
-    rejected: 'bg-destructive/10 text-destructive border-destructive/20',
+    en_attente: 'bg-warning/10 text-warning border-warning/20',
+    valide_responsable: 'bg-primary/10 text-primary border-primary/20',
+    valide_directeur: 'bg-success/10 text-success border-success/20',
+    refuse: 'bg-destructive/10 text-destructive border-destructive/20',
+  };
+
+  const labels = {
+    en_attente: 'En attente',
+    valide_responsable: 'Validé responsable',
+    valide_directeur: 'Validé directeur',
+    refuse: 'Refusé',
   };
 
   return (
@@ -17,7 +24,7 @@ export const StatusBadge = ({ status, className }) => {
         className
       )}
     >
-      {LEAVE_STATUS_LABELS[status]}
+      {labels[status]}
     </span>
   );
 };
