@@ -9,7 +9,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login,loginn } = useAuth();
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,13 +18,21 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
-    const success = await login(email, password);
-    
-    if (success) {
-      navigate('/request');
-    } else {
-      setError('Email ou mot de passe incorrect');
-    }
+const user = await login(email, password);
+
+if (user) {
+  if (user.role === "director") {
+    navigate("/employerDashboard");
+  } 
+  else if (user.role === "manager") {
+    navigate("/pending");
+  } 
+  else {
+    navigate("/request");
+  }
+} else {
+  setError("Email ou mot de passe incorrect");
+}
     
     setIsLoading(false);
   };
