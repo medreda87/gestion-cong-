@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 const navItems = [
+  { label: 'Tableau de bord', href: '/employerDashboard', icon: ClipboardList, roles: ['director'] },
   { label: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard, roles: ['employee', 'manager'] },
   { label: 'Nouvelle demande', href: '/request', icon: CalendarPlus, roles: ['employee', 'manager'] },
   { label: 'Mes congés', href: '/history', icon: History, roles: ['employee', 'manager'] },
