@@ -5,8 +5,8 @@ const INITIAL_REQUESTS = [
   {
     id: '1',
     employeeId: '1',
-    employeeName: 'Ahmed Bennani',
-    type: 'annual',
+    employeeName: 'Mohamed reda',
+    type: 'administratif',
     startDate: '2026-01-20',
     endDate: '2026-01-24',
     duration: 5,
@@ -19,7 +19,7 @@ const INITIAL_REQUESTS = [
     id: '2',
     employeeId: '1',
     employeeName: 'Ahmed Bennani',
-    type: 'sick',
+    type: 'administratif',
     startDate: '2025-12-10',
     endDate: '2025-12-12',
     duration: 3,
@@ -31,7 +31,7 @@ const INITIAL_REQUESTS = [
     id: '3',
     employeeId: '4',
     employeeName: 'Karim Idrissi',
-    type: 'annual',
+    type: 'exceptional',
     startDate: '2026-02-01',
     endDate: '2026-02-05',
     duration: 5,
@@ -70,55 +70,66 @@ export const LeaveProvider = ({ children }) => {
     const newRequest = {
       ...request,
       id: Date.now().toString(),
+      status: request.status || 'pending_manager',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     saveRequests([newRequest, ...requests]);
   };
 
-  const addImage = (file) => {
-    const imageUrl = URL.createObjectURL(file);
+const addImage = (file) => {
+  const reader = new FileReader();
+  reader.onload = () => {
     const imageData = {
       id: Date.now().toString(),
-      url: imageUrl,
+      url: reader.result, // base64
       name: file.name,
       size: file.size,
       uploadedAt: new Date().toISOString(),
     };
     saveImages([imageData, ...images]);
   };
+  reader.readAsDataURL(file);
+};
+const updateRequestStatus = (id, status, comment) => {
+  const updated = requests.map((req) => {
+    if (req.id === id) {
+      let updatedRequest = {
+        ...req,
+        status,
+        updatedAt: new Date().toISOString(),
+      };
 
-  const updateRequestStatus = (id, status, comment) => {
-    const updated = requests.map((req) => {
-      if (req.id === id) {
-        return {
-          ...req,
-          status,
-          ...(status === 'pending_director' || status === 'rejected' 
-            ? { managerComment: comment } 
-            : { directorComment: comment }),
-          updatedAt: new Date().toISOString(),
-        };
+      if (status === 'pending_director') {
+        updatedRequest.managerComment = comment;
       }
-      return req;
-    });
-    saveRequests(updated);
-  };
 
-  const deleteLeave = (leaveId) => {
-    setRequests((prev) => prev.filter((req) => req.id !== leaveId));
-  };
+      if (status === 'approved' || status === 'rejected') {
+        updatedRequest.directorComment = comment;
+      }
 
-  const cancelLeave = (id) => {
-    setRequests((prev) =>
-      prev.map((req) => {
-        if (req.id === id && req.status.startsWith("pending")) {
-          return { ...req, status: "cancelled" };
-        }
-        return req;
-      })
-    );
-  };
+      return updatedRequest;
+    }
+    return req;
+  });
+
+  saveRequests(updated);
+};
+
+const deleteLeave = (leaveId) => {
+  const updated = requests.filter((req) => req.id !== leaveId);
+  saveRequests(updated);
+};
+
+const cancelLeave = (id) => {
+  const updated = requests.map((req) => {
+    if (req.id === id && req.status.startsWith("pending")) {
+      return { ...req, status: "cancelled" };
+    }
+    return req;
+  });
+  saveRequests(updated);
+};
 
   const getRequestsByEmployee = (employeeId) => 
     requests.filter((r) => r.employeeId === employeeId);
