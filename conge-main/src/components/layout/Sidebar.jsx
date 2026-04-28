@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -9,6 +9,7 @@ import {
   LogOut,
   Calendar
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,7 @@ export const Sidebar = () => {
   const location = useLocation();
 
   if (!user) return null;
+  const navigate=useNavigate()
 
   const filteredItems = navItems.filter((item) => item.roles.includes(user.role));
 
@@ -96,7 +98,7 @@ export const Sidebar = () => {
         {/* Logout */}
         <div className="border-t border-sidebar-border p-4">
           <button
-            onClick={logout}
+            onClick={()=>navigate('/login')}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-destructive"
           >
             <LogOut className="h-5 w-5" />

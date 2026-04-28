@@ -56,17 +56,21 @@ export const AuthProvider = ({ children }) => {
     return stored ? JSON.parse(stored) : null;
   });
 
-  const login = async (email, password) => {
-    const mockUser = MOCK_USERS[email];
-    if (mockUser && mockUser.password === password) {
-      const { password: _, ...userWithoutPassword } = mockUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('conge_user', JSON.stringify(userWithoutPassword));
-      return true;
-    }
-    return false;
-  };
+const login = async (email, password) => {
+  const mockUser = MOCK_USERS[email];
 
+  if (mockUser && mockUser.password === password) {
+    const { password: _, ...userWithoutPassword } = mockUser;
+
+    setUser(userWithoutPassword);
+    localStorage.setItem('conge_user', JSON.stringify(userWithoutPassword));
+
+    return userWithoutPassword; // 👈 مهم
+  }
+
+  return null;
+};
+  
   const logout = () => {
     setUser(null);
     localStorage.removeItem('conge_user');
@@ -86,3 +90,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

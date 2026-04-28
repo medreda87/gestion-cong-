@@ -17,7 +17,7 @@ import Employees from "@/directeur/pages/Employees";
 import Holidays from "@/directeur/pages/Holidays";
 import EmployeeDashboard from "./directeur/pages/employerDashboard";
 import { DataProvider } from "./contexts/DataContext";
-
+import { Navigate } from "react-router-dom";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,7 +28,7 @@ const App = () => (
         <LeaveProvider>
           <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+           <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/request" element={<LeaveRequest />} />
