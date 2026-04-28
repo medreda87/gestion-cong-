@@ -31,26 +31,22 @@ const PendingRequests = () => {
   };
 
   const confirmAction = () => {
-    if (!selectedRequest || !action) return;
+  if (!selectedRequest || !action) return;
 
-    const newStatus = action === 'approve'
-      ? user.role === 'manager' ? 'pending_director' : 'approved'
-      : 'rejected';
+  const newStatus = action === 'approve' ? 'approved' : 'rejected';
 
-    updateRequestStatus(selectedRequest.id, newStatus, comment || undefined);
-    
-    toast.success(
-      action === 'approve' 
-        ? user.role === 'manager'
-          ? 'Demande transmise au directeur'
-          : 'Demande approuvée avec succès'
-        : 'Demande refusée'
-    );
+  updateRequestStatus(selectedRequest.id, newStatus, comment || undefined);
 
-    setSelectedRequest(null);
-    setAction(null);
-    setComment('');
-  };
+  toast.success(
+    action === 'approve'
+      ? 'Demande approuvée avec succès'
+      : 'Demande refusée'
+  );
+
+  setSelectedRequest(null);
+  setAction(null);
+  setComment('');
+};
 
   const isModalOpen = !!selectedRequest && !!action;
 

@@ -21,7 +21,9 @@ const navItems = [
   { label: 'Absences', href: '/absences', icon: Calendar, roles: ['employee', 'manager'] },
   { label: 'Gestion employés', href: '/employees', icon: Users, roles: ['director'] },
   { label: 'Jours fériés', href: '/holidays', icon: Calendar, roles: ['director'] },
-  { label: 'Demandes à valider', href: '/pending', icon: ClipboardList, roles: ['manager', 'director'] },
+  { label: 'Demandes à valider', href: '/pending', icon: ClipboardList, roles: ['manager'] },
+  { label: 'Demandes à valider', href: '/pending-director', icon: ClipboardList, roles: ['director'] },
+  { label: 'Gestion Employés', href: '/employerDashboard', icon: ClipboardList, roles: ['director'] },
 
 ];
 

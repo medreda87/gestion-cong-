@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
+import { createPortal } from "react-dom";
+
 
 const PendingRequests = () => {
   const { user } = useAuth();
@@ -21,6 +23,7 @@ const PendingRequests = () => {
   const pendingRequests = user.role === 'director' 
     ? getPendingForDirector() 
     : [];
+
 
   const handleAction = (request, actionType) => {
     setSelectedRequest(request);
@@ -83,76 +86,89 @@ const PendingRequests = () => {
               </p>
             </div>
           ) : (
-            <div className="divide-y">
-              <AnimatePresence>
-                {pendingRequests.map((request, index) => (
-                  <motion.div
-                    key={request.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="p-6"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-sm font-medium">
-                          {request.employeeName.split(' ').map((n) => n[0]).join('')}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">{request.employeeName}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {LEAVE_TYPE_LABELS[request.type]}
-                          </p>
-                          <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                            <span>
-                              📅 Du {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
-                              {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
-                            </span>
-                            <span>⏱️ {request.duration} jours</span>
-                          </div>
-                          {request.reason && (
-                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm">
-                              💬 {request.reason}
-                            </p>
-                          )}
-                          {request.managerComment && (
-                            <p className="mt-2 rounded-lg bg-primary/5 p-3 text-sm">
-                              <span className="font-medium">Commentaire du responsable:</span>{' '}
-                              {request.managerComment}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-3">
-                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
-                          En attente (Responsable)
-                        </span>
-                        <p className="text-xs text-muted-foreground">
-                          Demandé le {format(new Date(request.createdAt), 'dd/MM/yyyy', { locale: fr })}
-                        </p>
-                        <div className="flex gap-2">
-                          <button
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-destructive hover:bg-destructive hover:text-destructive-foreground h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background"
-                            onClick={() => handleAction(request, 'reject')}
-                          >
-                            <XCircle className="h-4 w-4" />
-                            Refuser
-                          </button>
-                          <button
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                            onClick={() => handleAction(request, 'approve')}
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                            Approuver
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+           <div className="divide-y">
+  <AnimatePresence>
+    {pendingRequests.map((request, index) => (
+      <motion.div
+        key={request.id}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 20 }}
+        transition={{ delay: index * 0.05 }}
+        className="p-6"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
+              {request.employeeName.split(" ").map((n) => n[0]).join("")}
             </div>
+
+            <div>
+              <h3 className="font-semibold">{request.employeeName}</h3>
+
+              <p className="text-sm text-muted-foreground">
+                {LEAVE_TYPE_LABELS[request.type]}
+              </p>
+
+              <div className="mt-2 flex flex-wrap gap-4 text-sm">
+                <span>
+                  {format(new Date(request.startDate), "dd MMM", { locale: fr })} au{" "}
+                  {format(new Date(request.endDate), "dd MMM yyyy", { locale: fr })}
+                </span>
+
+                <p className="flex">
+                  <AlarmClock className="mr-2 mt-1" size={16} />
+                  {request.duration} jours
+                </p>
+              </div>
+
+              {request.reason && (
+                <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
+                  <MessageCircle size={14} className="mt-0.5" />
+                  <span>{request.reason}</span>
+                </p>
+              )}
+
+              {request.managerComment && (
+                <p className="mt-2 rounded-lg bg-primary/5 p-3 text-sm">
+                  <span className="font-medium">Commentaire du responsable:</span>{" "}
+                  {request.managerComment}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-3">
+            <div className='flex'>
+              <span className="inline-flex mr-2 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary border-warning/20">
+              Approuvé par le responsable 
+            </span>
+            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
+              En attente 
+            </span>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Demandé le {format(new Date(request.createdAt), "dd/MM/yyyy", { locale: fr })}
+            </p>
+
+            <div className="flex gap-2">
+              {request.status !== "cancelled" && (
+                <button
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
+                  onClick={() => handleAction(request, "approve")}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Approuver
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    ))}
+  </AnimatePresence>
+</div>
           )}
         </motion.div>
 
