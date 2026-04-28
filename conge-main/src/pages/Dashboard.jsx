@@ -392,20 +392,20 @@ const pendingCount = myRequests.filter(
 
                         {/* Title */}
                         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
-        <p className="text-sm bg-black/70 text-white px-3 py-1 rounded-full truncate">
-          {img.name}
-        </p>
-      </div>
+                        <p className="text-sm bg-black/70 text-white px-3 py-1 rounded-full truncate">
+                          {img.name}
+                        </p>
+                      </div>
 
-      {/* Size */}
-      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
-        <span className="bg-white/90 text-gray-900 text-xs px-3 py-1 rounded-full font-medium shadow">
-          {Math.round(img.size / 1024)} KB
-        </span>
-      </div>
-    </motion.div>
-  ))}
-</div>
+                      {/* Size */}
+                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                        <span className="bg-white/90 text-gray-900 text-xs px-3 py-1 rounded-full font-medium shadow">
+                          {Math.round(img.size / 1024)} KB
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
                 </CardContent>
               </motion.div>
 

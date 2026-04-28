@@ -39,6 +39,7 @@ const App = () => (
                 <PendingRequestsResponsable />
               </RoleGuard>
             } />
+
             <Route path="/pending-director" element={
               <RoleGuard roles={['director']}>
                 <PendingRequestsDirecteur />

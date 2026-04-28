@@ -1,6 +1,6 @@
 import { useData } from '@/contexts/DataContext';
 import PageHeader from '@/components/ui/PageHeader';
-import StatCard from '@/components/ui/StatCardd'; // corrigé
+import StatCard from '@/components/ui/StatCardd'; 
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BarChart3, Clock, CheckCircle, Users, CalendarDays, Filter } from 'lucide-react';
