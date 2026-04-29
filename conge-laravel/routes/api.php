@@ -18,6 +18,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-
 Route::post('/login',[authController::class,'login'])->name('login');
+
+use App\Http\Controllers\SoldeCongeController;
+use App\Http\Controllers\LeaveRequestController;
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/my-solde', [SoldeCongeController::class, 'mySolde']);
+    Route::get('/users/{user}/solde', [SoldeCongeController::class, 'show']);
+
+    // Route::put('/leave-requests/{leave}/director-accept', [LeaveRequestController::class, 'directorAccept']);
+});

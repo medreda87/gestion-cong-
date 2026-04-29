@@ -17,22 +17,42 @@ export const AuthProvider = ({ children }) => {
 
   const token = response.data.token;
 
+  const soldeResponse = await axios.get("http://127.0.0.1:8000/api/my-solde", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  });
+
+  const solde = soldeResponse.data.solde;
+
   const user = {
-    ...response.data.user,
+  ...response.data.user,
 
-    name:
-      response.data.user.name ||
-      `${response.data.user.nom || ""} ${response.data.user.prenom || ""}`.trim(),
+  name:
+    response.data.user.name ||
+    `${response.data.user.nom || ""} ${response.data.user.prenom || ""}`.trim(),
 
-    balances: response.data.user.balances || [
-      { year: 2024, earnedDays: 22, usedDays: 0 },
-      { year: 2025, earnedDays: 22, usedDays: 0 },
-      { year: 2026, earnedDays: 8, usedDays: 0 },
-    ],
-  };
+  soldeConge: solde,
+
+  balances: [
+    {
+      year: new Date().getFullYear() - 1,
+      earnedDays: Number(response.data.user.solde_annee_derniere || 0),
+      usedDays: 0,
+    },
+    {
+      year: new Date().getFullYear(),
+      earnedDays:
+        Number(response.data.user.solde_annee_precedente || 0) +
+        Number(solde?.total_annuel || 0),
+
+      usedDays: Number(solde?.solde_utilise || 0),
+    },
+  ],
+};
 
   setUser(user);
-
   localStorage.setItem("user", JSON.stringify(user));
   localStorage.setItem("token", token);
 
