@@ -46,23 +46,23 @@ const LEAVE_STATUS_LABELS = {
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
 
-  const currentBalance = user?.balances.find(
-    (b) => b.year === currentYear
-  );
+  const balances = user?.balances || [];
 
-  const previousBalance = user?.balances.find(
-    (b) => b.year === previousYear
-  );
+const currentBalance = balances.find(
+  (b) => b.year === currentYear
+);
 
-  const currentSolde =
-    (currentBalance?.earnedDays || 0) -
-    (currentBalance?.usedDays || 0);
+const previousBalance = balances.find(
+  (b) => b.year === previousYear
+);
 
-  
+const currentSolde =
+  (currentBalance?.earnedDays || 0) -
+  (currentBalance?.usedDays || 0);
 
-  const previousSolde =
-    (previousBalance?.earnedDays || 0) -
-    (previousBalance?.usedDays || 0);
+const previousSolde =
+  (previousBalance?.earnedDays || 0) -
+  (previousBalance?.usedDays || 0);
 
 const totalSolde = currentSolde + previousSolde;
 
@@ -160,7 +160,7 @@ const pendingCount = myRequests.filter(
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">
-                Bonjour , {user.name.split(' ')[0]} 
+                Bonjour , {user.nom.split(' ')[0]} 
               </h1>
               <p className="mt-1 text-muted-foreground">
                 Bienvenue sur votre tableau de bord

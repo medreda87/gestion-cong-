@@ -41,17 +41,17 @@ const App = () => (
             } />
 
             <Route path="/pending-director" element={
-              <RoleGuard roles={['director']}>
+              <RoleGuard roles={['directeur']}>
                 <PendingRequestsDirecteur />
               </RoleGuard>
             } />
             <Route path="/employees" element={
-              <RoleGuard roles={['director']}>
+              <RoleGuard roles={['directeur']}>
                 <Employees />
               </RoleGuard>
             } />
             <Route path="/holidays" element={
-              <RoleGuard roles={['director']}>
+              <RoleGuard roles={['directeur']}>
                 <Holidays />
               </RoleGuard>
             } />

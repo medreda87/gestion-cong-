@@ -10,7 +10,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login,loginn } = useAuth();
+   const { login } = useAuth();
+
   
 
   const navigate = useNavigate();
@@ -24,28 +25,9 @@ const handleSubmit = async (e) => {
     const cleanEmail = email.trim();
     const cleanPassword = password.trim();
 
-    console.log("EMAIL SENT:", cleanEmail);
-    console.log("PASSWORD SENT:", cleanPassword);
+   
+    const user = await login(email, password);
 
-    const response = await axios.post(
-      "http://127.0.0.1:8000/api/login",
-      {
-        email: cleanEmail,
-        password: cleanPassword,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const user = response.data.user;
-    const token = response.data.token;
-
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
 
     if (user.role === "directeur") {
       navigate("/employerDashboard");
