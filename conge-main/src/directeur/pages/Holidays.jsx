@@ -11,15 +11,15 @@ import { format, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth, isS
 import { fr } from 'date-fns/locale';
 
 const initialHolidays = [
-  { id: '1', name: "Jour de l'An", date: '2026-01-01', isRecurring: true },
-  { id: '2', name: "Manifeste de l'Indépendance", date: '2026-01-11', isRecurring: true },
-  { id: '3', name: "Fête du Travail", date: '2026-05-01', isRecurring: true },
-  { id: '4', name: "Fête du Trône", date: '2026-07-30', isRecurring: true },
-  { id: '5', name: "Oued Ed-Dahab", date: '2026-08-14', isRecurring: true },
-  { id: '6', name: "Révolution du Roi et du Peuple", date: '2026-08-20', isRecurring: true },
-  { id: '7', name: "Fête de la Jeunesse", date: '2026-08-21', isRecurring: true },
-  { id: '8', name: "Marche Verte", date: '2026-11-06', isRecurring: true },
-  { id: '9', name: "Fête de l'Indépendance", date: '2026-11-18', isRecurring: true },
+  { id: '1', name: "Jour de l'An",type: "national",date: '2026-01-01', isRecurring: true },
+  { id: '2', name: "Manifeste de l'Indépendance",type: "national", date: '2026-01-11', isRecurring: true },
+  { id: '3', name: "Fête du Travail",type: "national", date: '2026-05-01', isRecurring: true },
+  { id: '4', name: "Fête du Trône",type: "national", date: '2026-07-30', isRecurring: true },
+  { id: '5', name: "Oued Ed-Dahab",type: "national", date: '2026-08-14', isRecurring: true },
+  { id: '6', name: "Révolution du Roi et du Peuple",type: "national", date: '2026-08-20', isRecurring: true },
+  { id: '7', name: "Fête de la Jeunesse",type: "national", date: '2026-08-21', isRecurring: true },
+  { id: '8', name: "Marche Verte",type: "national", date: '2026-11-06', isRecurring: true },
+  { id: '9', name: "Fête de l'Indépendance",type: "national",date: '2026-11-18', isRecurring: true },
 ];
 
 const Holidays = () => {
@@ -31,7 +31,7 @@ const Holidays = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState(null);
-  const [formData, setFormData] = useState({ name: '', date: '', isRecurring: true });
+  const [formData, setFormData] = useState({ name: '',type:'',date: '', isRecurring: true });
   const [showStats, setShowStats] = useState(true);
 
   const currentYear = new Date().getFullYear();
@@ -67,14 +67,14 @@ const Holidays = () => {
     } else {
       setHolidays([...holidays, { id: Date.now().toString(), ...formData }]);
     }
-    setFormData({ name: '', date: '', isRecurring: true });
+    setFormData({ name: '',type:'', date: '', isRecurring: true });
     setEditingHoliday(null);
     setIsDialogOpen(false);
   };
 
   const handleEdit = (holiday) => {
     setEditingHoliday(holiday);
-    setFormData({ name: holiday.name, date: holiday.date, isRecurring: holiday.isRecurring });
+    setFormData({ name: holiday.name,type:holiday.type, date: holiday.date, isRecurring: holiday.isRecurring });
     setIsDialogOpen(true);
   };
 
@@ -83,8 +83,8 @@ const Holidays = () => {
   };
 
   const exportCSV = () => {
-    const csv = [["Nom", "Date", "Récurrent"]];
-    holidays.forEach(h => csv.push([h.name, h.date, h.isRecurring ? "Oui" : "Non"]));
+    const csv = [["Nom","Type","Date", "Récurrent"]];
+    holidays.forEach(h => csv.push([h.name,h.type,h.date, h.isRecurring ? "Oui" : "Non"]));
     const blob = new Blob([csv.map(row => row.join(",")).join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -209,14 +209,15 @@ const Holidays = () => {
                 <table className="w-full text-sm">
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr className="text-left text-xs font-medium text-slate-500 uppercase">
-                      <th className="px-5 py-3">Nom</th><th className="px-5 py-3">Date</th><th className="px-5 py-3">Récurrence</th><th className="px-5 py-3 text-right">Actions</th>
+                      <th className="px-5 py-3">Nom</th><th className="px-5 py-3">Date</th><th className="px-5 py-3">Type</th><th className="px-5 py-3">Récurrence</th><th className="px-5 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {sortedHolidays.map(holiday => (
                       <tr key={holiday.id} className="hover:bg-slate-50">
                         <td className="px-5 py-3 font-medium">{holiday.name}</td>
-                        <td className="px-5 py-3 text-slate-600">{format(new Date(holiday.date), 'EEEE d MMMM yyyy', { locale: fr })}</td>
+                        <td className="px-5 py-3">{format(new Date(holiday.date), 'EEEE d MMMM yyyy', { locale: fr })}</td>
+                        <td className="px-5 py-3 text-slate-600 inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700">{holiday.type}</td>
                         <td className="px-5 py-3">{holiday.isRecurring ? <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700"><Check className="h-3 w-3" />Annuel</span> : <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"><X className="h-3 w-3" />Unique</span>}</td>
                         <td className="px-5 py-3 text-right"><div className="flex justify-end gap-2"><button onClick={() => handleEdit(holiday)} className="p-1 text-slate-400 hover:text-blue-600"><Edit2 className="h-4 w-4" /></button><button onClick={() => handleDelete(holiday.id)} className="p-1 text-slate-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button></div></td>
                       </tr>
