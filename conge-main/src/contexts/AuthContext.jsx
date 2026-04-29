@@ -1,80 +1,52 @@
-import React, { createContext, useContext, useState } from 'react';
-
-// Mock users for demo
-import { BalanceProvider, useBalance } from './BalanceContext';
-
-const MOCK_USERS = {
-  'employe@ofppt.ma': {
-    id: '1',
-    name: 'Ahmed Bennani',
-    email: 'employe@ofppt.ma',
-    role: 'employee',
-    department: 'Formation',
-    hireDate: '2020-01-01',
-    balances: [
-      { year: 2024, earnedDays: 22, usedDays: 4 },
-      { year: 2025, earnedDays: 22, usedDays: 0},
-      { year: 2026, earnedDays: 8, usedDays: 0 }
-    ],
-    password: 'demo123',
-  },
-  'responsable@ofppt.ma': {
-    id: '2',
-    name: 'Fatima Alaoui',
-    email: 'responsable@ofppt.ma',
-    role: 'manager',
-    department: 'Formation',
-    hireDate: '2018-01-01',
-    balances: [
-      { year: 2024, earnedDays: 22, usedDays: 0 },
-      { year: 2025, earnedDays: 22, usedDays: 0 },
-      { year: 2026, earnedDays: 0, usedDays: 0 }
-    ],
-    password: 'demo123',
-  },
-  'directeur@ofppt.ma': {
-    id: '3',
-    name: 'Mohammed Tazi',
-    email: 'directeur@ofppt.ma',
-    role: 'director',
-    department: 'Direction',
-    hireDate: '2015-01-01',
-    balances: [
-      { year: 2024, earnedDays: 22, usedDays: 0 },
-      { year: 2025, earnedDays: 22, usedDays: 0 },
-      { year: 2026, earnedDays: 22, usedDays: 0}
-    ],
-    password: 'demo123',
-  },
-};
+import React, { createContext, useContext, useState } from "react";
+import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('conge_user');
+    const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
 
-const login = async (email, password) => {
-  const mockUser = MOCK_USERS[email];
+  const login = async (email, password) => {
+  const response = await axios.post("http://127.0.0.1:8000/api/login", {
+    email: email.trim(),
+    password: password.trim(),
+  });
 
-  if (mockUser && mockUser.password === password) {
-    const { password: _, ...userWithoutPassword } = mockUser;
+  const token = response.data.token;
 
-    setUser(userWithoutPassword);
-    localStorage.setItem('conge_user', JSON.stringify(userWithoutPassword));
+  const user = {
+    ...response.data.user,
 
-    return userWithoutPassword; // 👈 مهم
-  }
+    name:
+      response.data.user.name ||
+      `${response.data.user.nom || ""} ${response.data.user.prenom || ""}`.trim(),
 
-  return null;
+    balances: response.data.user.balances || [
+      { year: 2024, earnedDays: 22, usedDays: 0 },
+      { year: 2025, earnedDays: 22, usedDays: 0 },
+      { year: 2026, earnedDays: 8, usedDays: 0 },
+    ],
+  };
+
+  setUser(user);
+
+  localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("token", token);
+
+  return user;
 };
-  
+
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('conge_user');
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("conge_user");
   };
+
+  
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
@@ -85,9 +57,10 @@ const login = async (email, password) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
+
   return context;
 };
-

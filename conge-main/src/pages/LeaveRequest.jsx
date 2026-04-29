@@ -80,24 +80,26 @@ const calculateDuration = () => {
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
 
-  // نجيبو balance ديال العام الحالي
-  const currentBalance = user?.balances.find(
-    (b) => b.year === currentYear
-  );
+  const balances = user?.balances || [];
 
-  // نجيبو balance ديال العام اللي فات
-  const previousBalance = user?.balances.find(
-    (b) => b.year === previousYear
-  );
+// نجيبو balance ديال العام الحالي
+const currentBalance = balances.find(
+  (b) => b.year === currentYear
+);
 
-  // نحسبو solde لكل عام
-  const currentSolde =
-    (currentBalance?.earnedDays || 0) -
-    (currentBalance?.usedDays || 0);
+// نجيبو balance ديال العام اللي فات
+const previousBalance = balances.find(
+  (b) => b.year === previousYear
+);
 
-  const previousSolde =
-    (previousBalance?.earnedDays || 0) -
-    (previousBalance?.usedDays || 0);
+// نحسبو solde لكل عام
+const currentSolde =
+  (currentBalance?.earnedDays || 0) -
+  (currentBalance?.usedDays || 0);
+
+const previousSolde =
+  (previousBalance?.earnedDays || 0) -
+  (previousBalance?.usedDays || 0);
 
   // المجموع
   const totalSolde = currentSolde + previousSolde;

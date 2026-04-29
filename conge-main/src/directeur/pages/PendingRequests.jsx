@@ -20,7 +20,7 @@ const PendingRequests = () => {
 
   if (!user) return null;
 
-  const pendingRequests = user.role === 'director' 
+  const pendingRequests = user.role === 'directeur' 
     ? getPendingForDirector() 
     : [];
 

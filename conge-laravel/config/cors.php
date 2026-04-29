@@ -15,11 +15,12 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+     'paths' => ['api/*'],  // applies to all /api routes
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['http://localhost:8080'],  // your React dev server
 
     'allowed_origins_patterns' => [],
 
@@ -30,5 +31,6 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => false,
+
 
 ];

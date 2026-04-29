@@ -3,39 +3,49 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login,loginn } = useAuth();
+   const { login } = useAuth();
+
+  
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setIsLoading(true);
 
-const user = await login(email, password);
+  try {
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
 
-if (user) {
-  if (user.role === "director") {
-    navigate("/employerDashboard");
-  } 
-  else if (user.role === "manager") {
-    navigate("/pending");
-  } 
-  else {
-    navigate("/request");
-  }
-} else {
-  setError("Email ou mot de passe incorrect");
-}
-    
+   
+    const user = await login(email, password);
+
+
+    if (user.role === "directeur") {
+      navigate("/employerDashboard");
+    } else if (user.role === "manager") {
+      navigate("/pending");
+    } else {
+      navigate("/request");
+    }
+  } catch (error) {
+    console.log("FULL ERROR:", error);
+    console.log("STATUS:", error.response?.status);
+    console.log("DATA:", error.response?.data);
+
+    setError(error.response?.data?.message || "Erreur de connexion");
+  } finally {
     setIsLoading(false);
-  };
+  }
+};
 
   return (
     <div className="flex min-h-screen">
