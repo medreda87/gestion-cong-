@@ -24,6 +24,8 @@ class User extends Authenticatable implements JWTSubject
             'email',
             'password',
             'role',
+            'solde_annee_derniere',
+            'solde_annee_precedente',
         ];
     /**
      * The attributes that should be hidden for serialization.
@@ -51,5 +53,9 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+    public function soldeConges()
+    {
+        return $this->hasMany(SoldeConge::class);
     }
 }
