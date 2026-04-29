@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\soldeConge;
+use App\Models\SoldeConge;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -12,7 +12,7 @@ class SoldeCongeController extends Controller
     {
         $user = auth('api')->user();
 
-        $solde = soldeConge::where('user_id', $user->id)->first();
+        $solde = SoldeConge::where('user_id', $user->id)->first();
 
         return response()->json([
             'user' => $user,

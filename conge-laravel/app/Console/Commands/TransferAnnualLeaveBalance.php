@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\soldeConge;
+use App\Models\SoldeConge;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -14,7 +14,7 @@ class TransferAnnualLeaveBalance extends Command
      *
      * @var string
      */
-    protected $signature = 'app:transfer-annual-leave-balance';
+    protected $signature = 'leave:transfer-balance';
 
     /**
      * The console command description.
@@ -26,7 +26,7 @@ class TransferAnnualLeaveBalance extends Command
     /**
      * Execute the console command.
      */
-   public function handle()
+    public function handle()
 {
     $today = now();
 
@@ -34,34 +34,66 @@ class TransferAnnualLeaveBalance extends Command
 
     foreach ($users as $user) {
 
+        if (!$user->date_recrutement) {
+            continue;
+        }
+
         $recruitmentDate = Carbon::parse($user->date_recrutement);
 
         if (
-            $today->day == $recruitmentDate->day &&
-            $today->month == $recruitmentDate->month &&
-            $user->solde_annee_precedente >= 22
+            // $today->day == $recruitmentDate->day &&
+            // $today->month == $recruitmentDate->month &&
+            (float) $user->solde_annee_precedente >= 22
         ) {
-
             $soldeConge = SoldeConge::where('user_id', $user->id)->first();
 
-            if (!$soldeConge) continue;
+            if (!$soldeConge) {
+                continue;
+            }
 
-            $nouveauSoldeDerniere =
-                $soldeConge->solde_restant - $user->solde_annee_derniere;
+            $soldeATransferer = (float) $user->solde_annee_precedente;
 
-            $nouveauSoldeDerniere = max(0, $nouveauSoldeDerniere);
-
-            $user->solde_annee_derniere = $nouveauSoldeDerniere;
+            $user->solde_annee_derniere = $soldeATransferer;
             $user->solde_annee_precedente = 0;
             $user->save();
 
             $soldeConge->solde_utilise = 0;
-            $soldeConge->total_annuel = 0;
-            $soldeConge->solde_restant = $nouveauSoldeDerniere;
+            $soldeConge->total_annuel = $soldeATransferer;
+            $soldeConge->solde_restant = $soldeATransferer;
             $soldeConge->save();
         }
     }
 
     return Command::SUCCESS;
 }
+
+// public function handle()
+// {
+//     $users = User::whereIn('role', ['employee', 'manager'])->get();
+
+//     foreach ($users as $user) {
+
+//         if ((float) $user->solde_annee_precedente >= 22) {
+
+//             $soldeConge = SoldeConge::where('user_id', $user->id)->first();
+
+//             if (!$soldeConge) {
+//                 continue;
+//             }
+
+//             $ancienSoldePrecedent = (float) $user->solde_annee_precedente;
+
+//             $user->solde_annee_derniere = $ancienSoldePrecedent;
+//             $user->solde_annee_precedente = 0;
+//             $user->save();
+
+//             $soldeConge->solde_utilise = 0;
+//             $soldeConge->total_annuel = $ancienSoldePrecedent;
+//             $soldeConge->solde_restant = $ancienSoldePrecedent;
+//             $soldeConge->save();
+//         }
+//     }
+
+//     return Command::SUCCESS;
+// }
 }

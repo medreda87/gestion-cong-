@@ -13,9 +13,14 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('leave:add-monthly-solde')->everyMinute();
-        $schedule->command('leave:transfer-balance')->daily();
-    }
+        $schedule->command('leave:add-monthly-solde')
+        ->everyMinute()
+        ->withoutOverlapping();
+
+        $schedule->command('leave:transfer-balance')
+        ->everyMinute()
+        ->withoutOverlapping();
+        }
 
     /**
      * Register the commands for the application.

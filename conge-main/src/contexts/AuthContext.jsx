@@ -35,19 +35,16 @@ export const AuthProvider = ({ children }) => {
 
   soldeConge: solde,
 
-  balances: [
+    balances: [
     {
       year: new Date().getFullYear() - 1,
       earnedDays: Number(response.data.user.solde_annee_derniere || 0),
       usedDays: 0,
+      remainingDays: Number(response.data.user.solde_annee_derniere || 0),
     },
     {
       year: new Date().getFullYear(),
-      earnedDays:
-        Number(response.data.user.solde_annee_precedente || 0) +
-        Number(solde?.total_annuel || 0),
-
-      usedDays: Number(solde?.solde_utilise || 0),
+      remainingDays: Number(solde?.solde_restant || 0),
     },
   ],
 };

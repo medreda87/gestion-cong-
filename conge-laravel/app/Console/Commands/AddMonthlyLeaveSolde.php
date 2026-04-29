@@ -28,38 +28,30 @@ class AddMonthlyLeaveSolde extends Command
     public function handle()
     {
 
-//     $today = now();
+    $today = now();
 
-//     $users = User::whereIn('role', ['employee', 'manager'])
-//         ->where('actif', true)
-//         ->whereNotNull('date_recrutement')
-//         ->get();
-
-//     foreach ($users as $user) {
-//         $recruitmentDate = Carbon::parse($user->date_recrutement);
-
-//         $dayToRun = min($recruitmentDate->day, $today->daysInMonth);
-
-//         if ($today->day === $dayToRun) {
-//             $daysToAdd = in_array($today->month, [6, 12]) ? 1 : 2;
-
-//             $user->solde_annee_precedente += $daysToAdd;
-//             $user->save();
-//         }
-//     }
-
-//     return Command::SUCCESS;
-
-     $users = User::whereIn('role', ['employee','manager'])
+    $users = User::whereIn('role', ['employee', 'manager'])
         ->where('actif', true)
         ->whereNotNull('date_recrutement')
         ->get();
 
     foreach ($users as $user) {
-        $user->solde_annee_precedente += 2;
-        $user->save();
+        $recruitmentDate = Carbon::parse($user->date_recrutement);
+
+        $dayToRun = min($recruitmentDate->day, $today->daysInMonth);
+
+        if ((int) $today->day === (int) $dayToRun) {
+            $daysToAdd = in_array($today->month, [6, 12]) ? 1 : 2;
+
+            
+            $user->solde_annee_precedente = min(
+            $user->solde_annee_precedente + $daysToAdd,
+            22);
+            $user->save();
+        }
     }
 
     return Command::SUCCESS;
+
     }
 }
