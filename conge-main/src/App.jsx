@@ -18,6 +18,7 @@ import Holidays from "@/directeur/pages/Holidays";
 import EmployeeDashboard from "./directeur/pages/employerDashboard";
 import { DataProvider } from "./contexts/DataContext";
 import { Navigate } from "react-router-dom";
+import Setting from './directeur/pages/paramettre'
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/request" element={<LeaveRequest />} />
             <Route path="/employerDashboard" element={<EmployeeDashboard />} />
             <Route path="/history" element={<LeaveHistory />} />
+            <Route path="/pramettre" element={<Setting/>} />
             <Route path="/pending" element={
               <RoleGuard roles={['manager']}>
                 <PendingRequestsResponsable />

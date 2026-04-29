@@ -123,118 +123,312 @@ const Holidays = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-slate-50">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div >
+        <div>
           {/* En-tête avec actions */}
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">📅 Jours fériés</h1>
-              <p className="text-sm text-slate-500">Tableau de bord exécutif • Année {currentYear}</p>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setShowStats(!showStats)} className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50">
-                {showStats ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-              <button onClick={exportCSV} className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50">
-                <Download className="h-4 w-4" />
-              </button>
-              <button onClick={() => setIsDialogOpen(true)} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 flex items-center gap-2">
-                <Plus className="h-4 w-4" /> Ajouter
-              </button>
-            </div>
-          </div>
+<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+  {/* Title */}
+  <div>
+    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+      📅 Jours fériés
+    </h1>
+
+    <p className="text-sm text-slate-500 mt-1">
+      Tableau de bord exécutif • Année {currentYear}
+    </p>
+  </div>
+
+  {/* Actions */}
+  <div className="flex flex-wrap items-center gap-2">
+    {/* Add Button */}
+<button
+  onClick={() => setIsDialogOpen(true)}
+  className="flex items-center gap-2 h-10 px-4 rounded-md bg-gray-100 text-gray-700 text-sm font-medium border border-gray-300 hover:bg-gray-200 transition"
+>
+  <Plus className="h-4 w-4" />
+  Ajouter
+</button>
+  </div>
+</div>
 
           {/* KPIs */}
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between"><p className="text-xs text-slate-500">Total</p><CalendarDays className="h-4 w-4 text-blue-500" /></div>
-              <p className="text-2xl font-bold text-slate-900">{total}</p>
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+
+          {/* Card */}
+          <div className="group rounded-2xl bg-white/80 backdrop-blur p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-blue-100 text-blue-600 group-hover:scale-110 transition">
+                  <CalendarDays className="h-4 w-4" />
+                </div>
+                <p className="text-xs text-slate-500">Total</p>
+              </div>
             </div>
-            <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between"><p className="text-xs text-slate-500">Récurrents</p><TrendingUp className="h-4 w-4 text-emerald-500" /></div>
-              <p className="text-2xl font-bold text-slate-900">{recurringCount}</p>
-            </div>
-            <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between"><p className="text-xs text-slate-500">À venir</p><Clock className="h-4 w-4 text-amber-500" /></div>
-              <p className="text-2xl font-bold text-slate-900">{upcomingCount}</p>
-            </div>
-            <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between"><p className="text-xs text-slate-500">Taux récurrence</p><RefreshCw className="h-4 w-4 text-indigo-500" /></div>
-              <p className="text-2xl font-bold text-slate-900">{Math.round((recurringCount/total)*100)}%</p>
-            </div>
+            <p className="text-3xl font-bold text-slate-900">{total}</p>
           </div>
+
+          {/* Card */}
+          <div className="group rounded-2xl bg-white/80 backdrop-blur p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-emerald-100 text-emerald-600 group-hover:scale-110 transition">
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+                <p className="text-xs text-slate-500">Récurrents</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">{recurringCount}</p>
+          </div>
+
+          {/* Card */}
+          <div className="group rounded-2xl bg-white/80 backdrop-blur p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-amber-100 text-amber-600 group-hover:scale-110 transition">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <p className="text-xs text-slate-500">À venir</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">{upcomingCount}</p>
+          </div>
+
+          {/* Card */}
+          <div className="group rounded-2xl bg-white/80 backdrop-blur p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600 group-hover:scale-110 transition">
+                  <RefreshCw className="h-4 w-4" />
+                </div>
+                <p className="text-xs text-slate-500">Taux récurrence</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">
+              {total > 0 ? Math.round((recurringCount / total) * 100) : 0}%
+            </p>
+          </div>
+
+        </div>
 
           {/* Filtres et vue */}
-          <div className="mb-6 flex flex-wrap gap-3 items-center justify-between">
-            <div className="flex flex-wrap gap-2">
-              <div className="relative"><Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input type="text" placeholder="Rechercher..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-9 w-48 rounded-md border border-slate-200 pl-8 pr-3 text-sm focus:border-blue-500" /></div>
-              <select value={filterRecurring} onChange={(e) => setFilterRecurring(e.target.value)} className="h-9 rounded-md border border-slate-200 px-2 text-sm">
-                <option value="all">Tous</option><option value="recurring">Récurrents</option><option value="once">Ponctuels</option>
-              </select>
-              <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="h-9 rounded-md border border-slate-200 px-2 text-sm">
-                <option value="all">Tous les mois</option>
-                {months.map((m, i) => <option key={i} value={i}>{format(m, 'MMMM', { locale: fr })}</option>)}
-              </select>
-            </div>
-            <div className="flex gap-1 rounded-md border border-slate-200 bg-white p-1">
-              <button onClick={() => setViewMode('table')} className={`rounded px-3 py-1 text-sm ${viewMode === 'table' ? 'bg-blue-100 text-blue-700' : 'text-slate-500'}`}><List className="h-4 w-4 inline mr-1" />Table</button>
-              <button onClick={() => setViewMode('calendar')} className={`rounded px-3 py-1 text-sm ${viewMode === 'calendar' ? 'bg-blue-100 text-blue-700' : 'text-slate-500'}`}><LayoutGrid className="h-4 w-4 inline mr-1" />Calendrier</button>
-            </div>
-          </div>
+<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+  {/* LEFT SIDE */}
+  <div className="flex flex-wrap items-center gap-3">
+
+    {/* Search */}
+    <div className="relative group">
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition" />
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="h-10 w-52 rounded-xl border border-slate-200 bg-white/80 backdrop-blur pl-9 pr-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+      />
+    </div>
+
+    {/* Recurring Filter */}
+    <select
+      value={filterRecurring}
+      onChange={(e) => setFilterRecurring(e.target.value)}
+      className="h-10 rounded-xl border border-slate-200 bg-white/80 backdrop-blur px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+    >
+      <option value="all">Tous</option>
+      <option value="recurring">Récurrents</option>
+      <option value="once">Ponctuels</option>
+    </select>
+
+    {/* Month Filter */}
+    <select
+      value={filterMonth}
+      onChange={(e) => setFilterMonth(e.target.value)}
+      className="h-10 rounded-xl border border-slate-200 bg-white/80 backdrop-blur px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+    >
+      <option value="all">Tous les mois</option>
+      {months.map((m, i) => (
+        <option key={i} value={i}>
+          {format(m, 'MMMM', { locale: fr })}
+        </option>
+      ))}
+    </select>
+
+  </div>
+
+  {/* RIGHT SIDE (VIEW SWITCH) */}
+  <div className="flex items-center rounded-xl border border-slate-200 bg-white/80 backdrop-blur p-1 shadow-sm">
+
+    <button
+      onClick={() => setViewMode('table')}
+      className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+        viewMode === 'table'
+          ? 'bg-blue-600 text-white shadow-sm'
+          : 'text-slate-500 hover:bg-slate-100'
+      }`}
+    >
+      <List className="h-4 w-4" />
+      Table
+    </button>
+
+    <button
+      onClick={() => setViewMode('calendar')}
+      className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+        viewMode === 'calendar'
+          ? 'bg-blue-600 text-white shadow-sm'
+          : 'text-slate-500 hover:bg-slate-100'
+      }`}
+    >
+      <LayoutGrid className="h-4 w-4" />
+      Calendrier
+    </button>
+
+  </div>
+
+</div>
 
           {/* Statistiques (graphiques) */}
-          {showStats && (
-            <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-100">
-                <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"><BarChart3 className="h-4 w-4" />Distribution mensuelle</h3>
-                <div className="space-y-2">
-                  {months.map((month, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs"><span className="w-12">{format(month, 'MMM', { locale: fr })}</span><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${(monthlyCount[idx]/maxCount)*100}%` }} /></div><span className="w-6 text-right">{monthlyCount[idx]}</span></div>
-                  ))}
-                </div>
-              </div>
-              <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-100">
-                <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"><PieChart className="h-4 w-4" />Répartition par mois</h3>
-                <div className="flex flex-wrap gap-2">
-                  {pieData.map((item, i) => <span key={i} className="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs"><span className="w-2 h-2 rounded-full bg-blue-500 mr-1"></span>{item.month}: {item.count}</span>)}
-                </div>
-              </div>
-            </div>
-          )}
+  
 
           {/* Contenu principal: tableau ou calendrier */}
           <div className="rounded-xl bg-white shadow-sm border border-slate-200 overflow-hidden">
             {viewMode === 'table' ? (
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white/80 backdrop-blur shadow-sm">
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                    <tr className="text-left text-xs font-medium text-slate-500 uppercase">
-                      <th className="px-5 py-3">Nom</th><th className="px-5 py-3">Date</th><th className="px-5 py-3">Type</th><th className="px-5 py-3">Récurrence</th><th className="px-5 py-3 text-right">Actions</th>
+
+                  {/* HEADER */}
+                  <thead className="bg-slate-50/80 backdrop-blur border-b border-slate-200 sticky top-0 z-10">
+                    <tr className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      <th className="px-6 py-3">Nom</th>
+                      <th className="px-6 py-3">Date</th>
+                      <th className="px-6 py-3">Type</th>
+                      <th className="px-6 py-3">Récurrence</th>
+                      <th className="px-6 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
+
+                  {/* BODY */}
                   <tbody className="divide-y divide-slate-100">
-                    {sortedHolidays.map(holiday => (
-                      <tr key={holiday.id} className="hover:bg-slate-50">
-                        <td className="px-5 py-3 font-medium">{holiday.name}</td>
-                        <td className="px-5 py-3">{format(new Date(holiday.date), 'EEEE d MMMM yyyy', { locale: fr })}</td>
-                        <td className="px-5 py-3 text-slate-600 inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700">{holiday.type}</td>
-                        <td className="px-5 py-3">{holiday.isRecurring ? <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700"><Check className="h-3 w-3" />Annuel</span> : <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"><X className="h-3 w-3" />Unique</span>}</td>
-                        <td className="px-5 py-3 text-right"><div className="flex justify-end gap-2"><button onClick={() => handleEdit(holiday)} className="p-1 text-slate-400 hover:text-blue-600"><Edit2 className="h-4 w-4" /></button><button onClick={() => handleDelete(holiday.id)} className="p-1 text-slate-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button></div></td>
+
+                    {sortedHolidays.map((holiday) => (
+                      <tr
+                        key={holiday.id}
+                        className="group hover:bg-slate-50/70 transition"
+                      >
+
+                        {/* NAME */}
+                        <td className="px-6 py-4 font-medium text-slate-800">
+                          {holiday.name}
+                        </td>
+
+                        {/* DATE */}
+                        <td className="px-6 py-4 text-slate-500">
+                          {format(new Date(holiday.date), 'EEEE d MMMM yyyy', { locale: fr })}
+                        </td>
+
+                        {/* TYPE */}
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                            {holiday.type}
+                          </span>
+                        </td>
+
+                        {/* RECURRING */}
+                        <td className="px-6 py-4">
+                          {holiday.isRecurring ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                              <Check className="h-3 w-3" />
+                              Annuel
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                              <X className="h-3 w-3" />
+                              Unique
+                            </span>
+                          )}
+                        </td>
+
+                        {/* ACTIONS */}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition">
+
+                            <button
+                              onClick={() => handleEdit(holiday)}
+                              className="p-2 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+
+                            <button
+                              onClick={() => handleDelete(holiday.id)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+
+                          </div>
+                        </td>
+
                       </tr>
                     ))}
-                    {sortedHolidays.length === 0 && <tr><td colSpan={4} className="px-5 py-8 text-center text-slate-400">Aucune donnée</td></tr>}
+
+                    {/* EMPTY STATE */}
+                    {sortedHolidays.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-10 text-center">
+                          <p className="text-slate-400 text-sm">Aucune donnée</p>
+                        </td>
+                      </tr>
+                    )}
+
                   </tbody>
                 </table>
               </div>
+            </div>
             ) : (
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth()-1)))}><ChevronLeft className="h-5 w-5" /></button>
-                  <span className="font-semibold">{format(selectedDate, 'MMMM yyyy', { locale: fr })}</span>
-                  <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth()+1)))}><ChevronRight className="h-5 w-5" /></button>
-                </div>
-                {renderCalendar()}
-              </div>
+             <div className="p-5 rounded-2xl bg-white/80 backdrop-blur border border-slate-200 shadow-sm">
+
+  <div className="flex items-center justify-between mb-5">
+
+    {/* Prev Button */}
+    <button
+      onClick={() =>
+        setSelectedDate(
+          new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1)
+        )
+      }
+      className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hover:text-blue-600 transition"
+    >
+      <ChevronLeft className="h-5 w-5" />
+    </button>
+
+    {/* Month Title */}
+    <h2 className="text-base font-semibold text-slate-800 tracking-wide">
+      {format(selectedDate, 'MMMM yyyy', { locale: fr })}
+    </h2>
+
+    {/* Next Button */}
+    <button
+      onClick={() =>
+        setSelectedDate(
+          new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1)
+        )
+      }
+      className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hover:text-blue-600 transition"
+    >
+      <ChevronRight className="h-5 w-5" />
+    </button>
+
+  </div>
+
+  {/* Calendar */}
+  <div className="rounded-xl border border-slate-100 p-3 bg-slate-50/50">
+    {renderCalendar()}
+  </div>
+
+</div>
             )}
           </div>
           <div className="mt-4 text-right text-xs text-slate-400">Dernière mise à jour : {format(new Date(), 'dd/MM/yyyy HH:mm')}</div>
@@ -242,9 +436,56 @@ const Holidays = () => {
       </div>
 
       {/* Modal amélioré */}
-      <AnimatePresence>{isDialogOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={(e) => e.target===e.currentTarget && setIsDialogOpen(false)}><motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="w-full max-w-md rounded-2xl bg-white shadow-xl"><div className="border-b p-5"><h3 className="text-lg font-semibold">{editingHoliday ? 'Modifier' : 'Ajouter'} un jour férié</h3></div><form onSubmit={handleSubmit} className="p-5 space-y-4"><div><label className="block text-sm font-medium">Nom</label><input type="text" value={formData.name} onChange={e=>setFormData({...formData,name:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" required /></div><div><label className="block text-sm font-medium">Date</label><input type="date" value={formData.date} onChange={e=>setFormData({...formData,date:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" required /></div><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={formData.isRecurring} onChange={e=>setFormData({...formData,isRecurring:e.target.checked})} className="rounded" /> Récurrent chaque année</label><div className="flex gap-3 pt-4"><button type="button" onClick={()=>setIsDialogOpen(false)} className="flex-1 rounded-lg border border-slate-200 px-4 py-2">Annuler</button><button type="submit" className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white">{editingHoliday ? 'Modifier' : 'Ajouter'}</button></div></form></motion.div></motion.div>}</AnimatePresence>
+      <AnimatePresence>{isDialogOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={(e) => e.target===e.currentTarget && setIsDialogOpen(false)}><motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="w-full max-w-md rounded-2xl bg-white shadow-xl"><div className="border-b p-5"><h3 className="text-lg font-semibold">{editingHoliday ? 'Modifier' : 'Ajouter'} un jour férié</h3></div><form onSubmit={handleSubmit} className="p-5 space-y-4"><div><label className="block text-sm font-medium">Nom</label><input type="text" value={formData.name} onChange={e=>setFormData({...formData,name:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" required /></div><div>
+  <label className="block text-sm font-medium text-slate-700">
+    Type
+  </label>
+
+  <div className="relative mt-1">
+    <select
+      value={formData.type}
+      onChange={(e) =>
+        setFormData({ ...formData, type: e.target.value })
+      }
+      className="w-full appearance-none rounded-lg border border-slate-200 bg-white px-3 py-2 pr-8 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+      required
+    >
+      <option value="">Choisir un type</option>
+      <option value="national">National</option>
+      <option value="religieux">Religieux</option>
+      <option value="entreprise">Entreprise</option>
+      <option value="autre">Autre</option>
+    </select>
+
+    {/* Arrow icon */}
+    <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-400">
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path d="M6 9l6 6 6-6" />
+      </svg>
+    </div>
+  </div>
+</div>
+<div>
+  <label className="block text-sm font-medium">Date</label>
+  <input type="date" value={formData.date} onChange={e=>setFormData({...formData,date:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" required />
+  </div><label className="flex items-center gap-2 text-sm">
+    <input type="checkbox" checked={formData.isRecurring} onChange={e=>setFormData({...formData,isRecurring:e.target.checked})} className="rounded" />
+     Récurrent chaque année</label>
+     <div className="flex gap-3 pt-4">
+      <button type="button" onClick={()=>setIsDialogOpen(false)} className="flex-1 rounded-lg border border-slate-200 px-4 py-2">Annuler</button>
+      <button type="submit" className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white">{editingHoliday ? 'Modifier' : 'Ajouter'}</button>
+      </div>
+      </form>
+      </motion.div>
+      </motion.div>}
+      </AnimatePresence>
     </DashboardLayout>
   );
 };
-
 export default Holidays;

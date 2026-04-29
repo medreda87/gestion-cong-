@@ -22,6 +22,8 @@ const navItems = [
   { label: "Jours fériés", href: "/holidays", icon: Calendar, roles: ["directeur"] },
   { label: "Demandes à valider", href: "/pending", icon: ClipboardList, roles: ["manager"] },
   { label: "Demandes à valider", href: "/pending-director", icon: ClipboardList, roles: ["directeur"] },
+  { label: "Paramètres", href: "/pramettre", icon: ClipboardList, roles: ["directeur"] },
+
 ];
 
 export const Sidebar = () => {
