@@ -8,6 +8,8 @@ import {
   ClipboardList,
   LogOut,
   Calendar,
+  Settings,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -22,7 +24,9 @@ const navItems = [
   { label: "Jours fériés", href: "/holidays", icon: Calendar, roles: ["directeur"] },
   { label: "Demandes à valider", href: "/pending", icon: ClipboardList, roles: ["manager"] },
   { label: "Demandes à valider", href: "/pending-director", icon: ClipboardList, roles: ["directeur"] },
-  { label: "Paramètres", href: "/pramettre", icon: ClipboardList, roles: ["directeur"] },
+  { label: "Paramètres", href: "/paramettre", icon: Settings, roles: ["directeur"] },
+  { label: "Documents", href: "/documents", icon: FileText, roles: ["directeur"] },
+  { label: "Documents", href: "/documentEmploye", icon: FileText, roles: ["employee","manager"] },
 
 ];
 
