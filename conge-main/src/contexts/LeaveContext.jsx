@@ -1,147 +1,152 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-// Mock initial data
-const INITIAL_REQUESTS = [
-  {
-    id: '1',
-    employeeId: '1',
-    employeeName: 'Mohamed reda',
-    type: 'administratif',
-    startDate: '2026-01-20',
-    endDate: '2026-01-24',
-    duration: 5,
-    reason: 'Vacances familiales',
-    status: 'pending_manager',
-    createdAt: '2026-01-05T10:00:00Z',
-    updatedAt: '2026-01-05T10:00:00Z',
-  },
-  {
-    id: '2',
-    employeeId: '1',
-    employeeName: 'Ahmed Bennani',
-    type: 'administratif',
-    startDate: '2025-12-10',
-    endDate: '2025-12-12',
-    duration: 3,
-    status: 'approved',
-    createdAt: '2025-12-09T08:00:00Z',
-    updatedAt: '2025-12-09T14:00:00Z',
-  },
-  {
-    id: '3',
-    employeeId: '4',
-    employeeName: 'Karim Idrissi',
-    type: 'exceptional',
-    startDate: '2026-02-01',
-    endDate: '2026-02-05',
-    duration: 5,
-    reason: 'Voyage',
-    status: 'pending_director',
-    createdAt: '2026-01-08T09:00:00Z',
-    updatedAt: '2026-01-09T11:00:00Z',
-    managerComment: 'Approuvé par le responsable',
-  },
-];
+import axios from "axios";
 
 const LeaveContext = createContext(undefined);
 
+const API_URL = "http://127.0.0.1:8000/api";
+
 export const LeaveProvider = ({ children }) => {
-  const [requests, setRequests] = useState(() => {
-    const stored = localStorage.getItem('conge_requests');
-    return stored ? JSON.parse(stored) : INITIAL_REQUESTS;
-  });
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [images, setImages] = useState(() => {
-    const stored = localStorage.getItem('conge_images');
-    return stored ? JSON.parse(stored) : [];
-  });
+  const getToken = () => localStorage.getItem("token");
 
-  const saveRequests = (newRequests) => {
-    setRequests(newRequests);
-    localStorage.setItem('conge_requests', JSON.stringify(newRequests));
-  };
+  
+const getDemandes = async () => {
+  try {
+    const response = await axios.get("http://127.0.0.1:8000/api/demandes",{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Accept: "application/json",
+      },
+    });
+    
+    console.log("DEMANDES API:", response.data);
 
-  const saveImages = (newImages) => {
-    setImages(newImages);
-    localStorage.setItem('conge_images', JSON.stringify(newImages));
-  };
+    const data = response.data;
 
-  const addRequest = (request) => {
-    const newRequest = {
-      ...request,
-      id: Date.now().toString(),
-      status: request.status || 'pending_manager',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveRequests([newRequest, ...requests]);
-  };
-
-const addImage = (file) => {
-  const reader = new FileReader();
-  reader.onload = () => {
-    const imageData = {
-      id: Date.now().toString(),
-      url: reader.result, // base64
-      name: file.name,
-      size: file.size,
-      uploadedAt: new Date().toISOString(),
-    };
-    saveImages([imageData, ...images]);
-  };
-  reader.readAsDataURL(file);
+    setRequests(
+      Array.isArray(data)
+        ? data
+        : Array.isArray(data.demandes)
+        ? data.demandes
+        : []
+    );
+  } catch (error) {
+    console.error("GET DEMANDES ERROR:", error.response?.data || error.message);
+  }
 };
-const updateRequestStatus = (id, status, comment) => {
-  const updated = requests.map((req) => {
-    if (req.id === id) {
-      let updatedRequest = {
-        ...req,
-        status,
-        updatedAt: new Date().toISOString(),
-      };
 
-      if (status === 'pending_director') {
-        updatedRequest.managerComment = comment;
-      }
+useEffect(() => {
+  getDemandes();
+}, []);
 
-      if (status === 'approved' || status === 'rejected') {
-        updatedRequest.directorComment = comment;
-      }
+  const addRequest = async (request) => {
+    try {
+      const response = await axios.post(`${API_URL}/store_demande`, request, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      });
 
-      return updatedRequest;
+      await getDemandes();
+      return response.data;
+    } catch (error) {
+      console.error("Erreur addRequest:", error.response?.data || error.message);
+      throw error;
     }
-    return req;
-  });
+  };
 
-  saveRequests(updated);
-};
+  const updateRequestStatus = async (id, status, comment = "") => {
+    try {
+      await axios.put(
+        `${API_URL}/demandes/${id}/status`,
+        { status, comment },
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
-const deleteLeave = (leaveId) => {
-  const updated = requests.filter((req) => req.id !== leaveId);
-  saveRequests(updated);
-};
-
-const cancelLeave = (id) => {
-  const updated = requests.map((req) => {
-    if (req.id === id && req.status.startsWith("pending")) {
-      return { ...req, status: "cancelled" };
+      await getDemandes();
+    } catch (error) {
+      console.error("Erreur updateRequestStatus:", error.response?.data || error.message);
+      throw error;
     }
-    return req;
-  });
-  saveRequests(updated);
-};
+  };
 
-  const getRequestsByEmployee = (employeeId) => 
-    requests.filter((r) => r.employeeId === employeeId);
+  const cancelLeave = async (id) => {
+    try {
+      await axios.put(
+        `${API_URL}/demandes/${id}/cancel`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
-  const getPendingForManager = () =>
-  requests.filter(
-    (r) => r.status === "pending_manager" || r.status === "cancelled"
+      await getDemandes();
+    } catch (error) {
+      console.error("Erreur cancelLeave:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+  const deleteLeave = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/demandes/${id}`,{
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      });
+
+      await getDemandes();
+    } catch (error) {
+      console.error("Erreur deleteLeave:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+ const getRequestsByEmployee = (employeeId) =>
+  (Array.isArray(requests) ? requests : []).filter(
+    (r) => String(r.user_id) === String(employeeId)
   );
 
-  const getPendingForDirector = () => 
-    requests.filter((r) => r.status === 'pending_director');
+ const getPendingForManager = () =>
+  (Array.isArray(requests) ? requests : []).filter(
+    (r) => r.status === "pending_manager"
+  );
 
+const getPendingForDirector = () =>
+  (Array.isArray(requests) ? requests : []).filter(
+    (r) => r.status === "pending_director"
+  );
+
+  return (
+    <LeaveContext.Provider
+      value={{
+        requests,
+        loading,
+        getDemandes,
+        addRequest,
+        updateRequestStatus,
+        cancelLeave,
+        deleteLeave,
+        getRequestsByEmployee,
+        getPendingForManager,
+        getPendingForDirector,
+      }}
+    >
+      {children}
+    </LeaveContext.Provider>
+  );
   return (
     <LeaveContext.Provider 
       value={{ 

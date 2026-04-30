@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\authController;
+use App\Http\Controllers\DemandeController;
+use App\Http\Controllers\SoldeCongeController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,12 +23,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/login',[authController::class,'login'])->name('login');
 
-use App\Http\Controllers\SoldeCongeController;
-use App\Http\Controllers\LeaveRequestController;
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/my-solde', [SoldeCongeController::class, 'mySolde']);
     Route::get('/users/{user}/solde', [SoldeCongeController::class, 'show']);
 
     // Route::put('/leave-requests/{leave}/director-accept', [LeaveRequestController::class, 'directorAccept']);
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/demandes',[DemandeController::class,'getdemande']);
+    Route::post('/store_demande',[DemandeController::class,'store']);
+    Route::put('/demandes/{id}/status', [DemandeController::class, 'updateStatus']);
+    Route::put('/demandes/{id}/cancel', [DemandeController::class, 'cancel']);
+    Route::delete('/demandes/{id}', [DemandeController::class, 'destroy']);
 });
