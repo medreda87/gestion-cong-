@@ -17,6 +17,8 @@ class authSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'employee@ofppt.com'],
             [
+                'nom' => 'employee',
+                'prenom' => 'User',
                 'password' => Hash::make('demo123'),
                 'date_recrutement' => now()
             ]
@@ -25,21 +27,23 @@ class authSeeder extends Seeder
          User::updateOrCreate(
             ['email' => 'responsable@ofppt.com'],
             [
+                'nom' => 'responsable',
+                'prenom' => 'User',
                 'password' => Hash::make('demo123'),
                 'date_recrutement' => now()
                 
             ]
         );
 
-        // User::updateOrCreate(
-        //     ['email' => 'directeur@ofppt.com'],
-        //     [
-        //         'nom' => 'Directeur',
-        //         'prenom' => 'User',
-        //         'password' => Hash::make('demo123'),
-        //         'role' => 'directeur',
-        //     ]
-        // );
+        User::updateOrCreate(
+            ['email' => 'directeur@ofppt.com'],
+            [
+                'nom' => 'Directeur',
+                'prenom' => 'User',
+                'password' => Hash::make('demo123'),
+                'role' => 'directeur',
+            ]
+        );
 
     }
 }

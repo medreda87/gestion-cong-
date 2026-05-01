@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle } from 'lucide-react';
+import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -9,10 +9,12 @@ import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
 import { createPortal } from "react-dom";
+import { useNavigate } from 'react-router-dom';
 
 const PendingRequests = () => {
 const { user } = useAuth();
 const { getPendingForManager, getPendingForDirector, updateRequestStatus } = useLeave();
+const navigate = useNavigate();
 
 const [selectedRequest, setSelectedRequest] = useState(null);
 const [action, setAction] = useState(null);
@@ -132,7 +134,13 @@ const isModalOpen = !!selectedRequest && !!action;
                           Demandé le {format(new Date(request.createdAt), 'dd/MM/yyyy', { locale: fr })}
                         </p>
                         <div className="flex gap-2">
-
+                        <button
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
+                          onClick={() => navigate(`/demande/${request.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          Détail
+                        </button>
                         {request.status !== 'cancelled' && (
                         <button
                           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
