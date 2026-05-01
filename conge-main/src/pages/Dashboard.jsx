@@ -103,20 +103,23 @@ const totalSolde = currentSolde + previousSolde;
     setSelectedImage(null);
   };
 
-  useEffect(() => {
-    return () => {
-      images.forEach(img => {
-        if (img.url.startsWith('blob:')) {
-          URL.revokeObjectURL(img.url);
-        }
-      });
-    };
-  }, [images]);
+  
 
   if (!user) return null;
 
-  const myRequests = getRequestsByEmployee(user.id);
-  const approvedCount = myRequests.filter(
+const allRequests = Array.isArray(requests) ? requests : [];
+
+const myRequests = allRequests.filter(
+  (r) => String(r.user_id) === String(user.id)
+);
+
+console.log("REQUESTS DASHBOARD:", requests);
+console.log("ALL REQUESTS:", allRequests);
+console.log("MY REQUESTS:", myRequests);
+
+const recentRequests = myRequests.slice(0, 5);
+
+const approvedCount = myRequests.filter(
   (r) => r.status === "approved"
 ).length;
 
@@ -127,15 +130,14 @@ const pendingDirectorCount = myRequests.filter(
 const pendingCount = myRequests.filter(
   (r) => r.status === "pending_manager"
 ).length;
-  const rejectedCount = myRequests.filter((r) => r.status === 'rejected').length;
 
-  const pendingToReview = user.role === 'manager' 
-    ? getPendingForManager() 
-    : user.role === 'director' 
-    ? getPendingForDirector() 
+const pendingToReview =
+  user.role === "manager"
+    ? allRequests.filter((r) => r.status === "pending_manager")
+    : user.role === "director"
+    ? allRequests.filter((r) => r.status === "pending_director")
     : [];
 
-  const recentRequests = myRequests.slice(0, 5);
 
   const getStatusBadgeClass = (status) => {
     const variants = {
@@ -350,104 +352,7 @@ const pendingCount = myRequests.filter(
   })}
 </div>
 
-          {/* Images Grid */}
-          {images.length > 0 && (
-            <>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl border bg-card shadow-sm overflow-hidden"
-              >
-                <CardHeader className="pb-4 bg-gradient-to-r from-indigo-50 to-blue-50">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-indigo-100 p-2">
-                      <ImageIcon className="h-6 w-6 text-indigo-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl">Galerie d'images</CardTitle>
-                      <p className="text-sm text-muted-foreground">{images.length} image(s)</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                    {images.map((img) => (
-                      <motion.div
-                        key={img.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        whileHover={{ scale: 1.03 }}
-                        className="group relative overflow-hidden rounded-2xl border shadow-md cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
-                        onClick={() => handleImageClick(img)}
-                      >
-                        <img
-                          src={img.url}
-                          alt={img.name}
-                          className="w-full h-64 md:h-72 lg:h-80 object-cover"
-                          loading="lazy"
-                        />
-
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
-
-                        {/* Title */}
-                        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
-                        <p className="text-sm bg-black/70 text-white px-3 py-1 rounded-full truncate">
-                          {img.name}
-                        </p>
-                      </div>
-
-                      {/* Size */}
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition duration-300">
-                        <span className="bg-white/90 text-gray-900 text-xs px-3 py-1 rounded-full font-medium shadow">
-                          {Math.round(img.size / 1024)} KB
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                </CardContent>
-              </motion.div>
-
-              {/* Image Modal - Fixed */}
-              <Dialog open={!!selectedImage} onOpenChange={closeModal}>
-                <DialogPortal>
-                  <DialogOverlay />
-                  <DialogContent className="max-w-6xl max-h-[90vh] p-0 mx-auto">
-                    <div className="p-6 lg:p-8 max-h-[90vh] overflow-auto">
-                      <div className="flex justify-between items-center mb-6">
-                        <div>
-                          <h2 className="text-xl font-semibold">{selectedImage?.name}</h2>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedImage && Math.round(selectedImage.size / 1024)} KB •{' '}
-                            {selectedImage && new Date(selectedImage.uploadedAt).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                        <DialogClose asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-10 w-10 rounded-full p-0"
-                          >
-                            <XCircle className="h-5 w-5" />
-                          </Button>
-                        </DialogClose>
-                      </div>
-                      {selectedImage && (
-                        <div className="relative w-full max-h-[70vh] mx-auto flex items-center justify-center">
-                          <img
-                            src={selectedImage.url}
-                            alt={selectedImage.name}
-                            className="w-auto h-auto max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </DialogContent>
-                </DialogPortal>
-              </Dialog>
-            </>
-          )}
+         
 
           {/* Pending to review */}
           {pendingToReview.length > 0 && (
@@ -465,7 +370,7 @@ const pendingCount = myRequests.filter(
                   <div>
                     <h2 className="font-semibold">Demandes à traiter</h2>
                     <p className="text-sm text-muted-foreground">
-                      {pendingToReview.length} demande(s) en attente de votre validation
+                      {pendingToReview.length || 0} demande(s) en attente de votre validation
                     </p>
                   </div>
                 </div>
@@ -552,8 +457,8 @@ const pendingCount = myRequests.filter(
                     <div>
                       <p className="font-medium">{LEAVE_TYPE_LABELS[request.type]}</p>
                       <p className="text-sm text-muted-foreground">
-                        Du {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
-                        {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
+                        Du {format(new Date(request.start_date), 'dd MMM', { locale: fr })} au{' '}
+                        {format(new Date(request.end_date), 'dd MMM yyyy', { locale: fr })}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -561,6 +466,7 @@ const pendingCount = myRequests.filter(
                       <span className={getStatusBadgeClass(request.status)}>
                         {LEAVE_STATUS_LABELS[request.status]}
                       </span>
+                      
                     </div>
                   </div>
                 ))}
@@ -570,42 +476,7 @@ const pendingCount = myRequests.filter(
         </motion.div>
       </DashboardLayout>
 
-      {/* Image Modal */}
-      {selectedImage && (
-        <Dialog open={true} onOpenChange={closeModal}>
-          <DialogPortal>
-            <DialogOverlay className="z-[60]" />
-            <DialogContent className="z-[70] max-w-6xl max-h-[95vh] p-0 mx-auto">
-              <div className="p-4 lg:p-8 max-h-[95vh] overflow-auto">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b">
-                  <div>
-                    <h2 className="text-2xl font-semibold">{selectedImage.name}</h2>
-                    <p className="text-sm text-muted-foreground">
-                      {Math.round(selectedImage.size / 1024)} KB • {new Date(selectedImage.uploadedAt).toLocaleDateString('fr-FR')}
-                    </p>
-                  </div>
-                  <DialogClose asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-12 w-12 rounded-full p-0"
-                    >
-                      <XCircle className="h-6 w-6" />
-                    </Button>
-                  </DialogClose>
-                </div>
-                <div className="flex items-center justify-center py-8 px-4">
-                  <img
-                    src={selectedImage.url}
-                    alt={selectedImage.name}
-                    className="w-auto h-auto max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl"
-                  />
-                </div>
-              </div>
-            </DialogContent>
-          </DialogPortal>
-        </Dialog>
-      )}
+      
     </>
   );
 };

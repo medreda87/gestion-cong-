@@ -20,6 +20,8 @@ import { DataProvider } from "./contexts/DataContext";
 import { Navigate } from "react-router-dom";
 import Setting from './directeur/pages/paramettre'
 import DetailDemande from '@/directeur/pages/DetailDemande';
+import DocumentsDirecteur from "./directeur/pages/DocumentsDirecteur";
+import EmployeeDocuments from "./pages/DocumentEmploye";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +37,9 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/request" element={<LeaveRequest />} />
             <Route path="/employerDashboard" element={<EmployeeDashboard />} />
+            <Route path="/documents" element={<DocumentsDirecteur/>}/>
+            <Route path="/documentEmploye" element={<EmployeeDocuments/>}/>
+            <Route path='/paramettre' element={<Setting/>}/>
             <Route path="/history" element={<LeaveHistory />} />
             <Route path="/pramettre" element={<Setting/>} />
             <Route path="/pending" element={

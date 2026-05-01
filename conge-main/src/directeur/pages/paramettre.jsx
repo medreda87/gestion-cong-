@@ -19,12 +19,12 @@ import { DashboardLayout } from "../../components/layout/DashboardLayout";
 export default function Settings() {
   // État des paramètres
   const [params, setParams] = useState({
-    nomDirecteur: "Mohammed El Alaoui",
-    fonction: "Directeur des Ressources Humaines",
-    email: "m.elalaoui@example.gov.ma",
+    nomDirecteur: "Mohamed reda afellad",
+    fonction: "deirecteur de l'informatique",
+    email: "mohamedredaafellad98@gmail.com",
     refDocument: "REF-2024-001",
     numDecision: "DEC-2024-0156",
-    dateDecision: "2024-12-20",
+    dateDecision: "2026-05-30",
   });
 
   const [reviewOpen, setReviewOpen] = useState(false);

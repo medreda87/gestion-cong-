@@ -38,12 +38,12 @@ const LeaveRequest = () => {
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [subType, setSubType] = useState(''); // Add state for sub-type
+  const [subType, setSubType] = useState(''); 
   const [interimaireId, setInterimaireId] = useState('');
 
   if (!user) return null;
 
-  // Exceptional leave fixed durations (days)
+  
   const EXCEPTIONAL_DURATIONS = {
     "Mariage de l'agent": 5,
     "Manage d'un descendante": 2,
@@ -109,36 +109,40 @@ const previousSolde =
   const isDateValid = startDate && new Date(startDate) >= addDays(today,7);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!isDateValid) {
-      toast.error('La demande doit être faite au moins 8 jours avant le début du congé');
-      return;
-    }
+  e.preventDefault();
 
-    if (!isValidDuration) {
-      toast.error('Durée invalide ou solde insuffisant');
-      return;
-    }
+  if (!isDateValid) {
+    toast.error("La demande doit être faite au moins 8 jours avant le début du congé");
+    return;
+  }
 
+  if (!isValidDuration) {
+    toast.error("Durée invalide ou solde insuffisant");
+    return;
+  }
+
+  try {
     setIsSubmitting(true);
 
-    addRequest({
-      employeeId: user.id,
-      employeeName: user.name,
+    await addRequest({
       type,
-      startDate,
-      endDate,
-      duration,
-      subType: type === 'exceptional' ? subType : undefined, // Include subType if applicable
-      reason: reason || undefined,
-      interimaireId: interimaireId || undefined,
-      status: 'pending_manager',
+      start_date: startDate,
+      end_date: endDate,
+      duration: duration,
+      sub_type: type === "exceptional" ? subType : null,
+      reason: reason || null,
+      interimaire_id: interimaireId || null,
     });
 
-    toast.success('Demande soumise avec succès !');
-    navigate('/history');
-  };
+    toast.success("Demande soumise avec succès !");
+    navigate("/history");
+  } catch (error) {
+    toast.error("Erreur lors de la création de la demande");
+    console.error(error.response?.data || error.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
 const HOLIDAYS = [
   '2026-01-01',
