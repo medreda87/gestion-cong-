@@ -28,20 +28,13 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { StatCard } from '@/components/ui/StatCard';
 import * as XLSX from 'xlsx';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { useEffect } from 'react';
 
-const initialEmployees = [
-  { id: '1', name: 'Ahmed El Mansouri', email: 'ahmed.elmansouri@ofppt.ma', phone: '0612345678', department: 'Formation', role: 'employee', leaveBalance: 22, joinDate: '2020-03-15' },
-  { id: '2', name: 'Fatima Benali', email: 'fatima.benali@ofppt.ma', phone: '0623456789', department: 'Administration', role: 'employee', leaveBalance: 18, joinDate: '2019-07-01' },
-  { id: '3', name: 'Mohammed Alaoui', email: 'responsable@ofppt.ma', phone: '0634567890', department: 'Formation', role: 'manager', leaveBalance: 25, joinDate: '2018-01-10' },
-  { id: '4', name: 'Sara Tazi', email: 'sara.tazi@ofppt.ma', phone: '0645678901', department: 'RH', role: 'employee', leaveBalance: 20, joinDate: '2021-09-01' },
-  { id: '5', name: 'Youssef Idrissi', email: 'youssef.idrissi@ofppt.ma', phone: '0656789012', department: 'Technique', role: 'employee', leaveBalance: 15, joinDate: '2022-02-20' },
-  { id: '6', name: 'Khadija Moussaoui', email: 'directeur@ofppt.ma', phone: '0667890123', department: 'Direction', role: 'director', leaveBalance: 30, joinDate: '2015-06-01' },
-];
-
-const departments = ['Formation', 'Administration', 'RH', 'Technique', 'Direction', 'Finance'];
+const departments = ['Ntic', 'Solicode', 'ibn marhal'];
 
 const roleLabels = {
   employee: 'Employé',
@@ -60,153 +53,151 @@ const roleMapping = {
 };
 
 export default function Employees() {
-  const [employees, setEmployees] = useState(initialEmployees);
+  const [employees, setEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
+    matricule: '',
+    nom: '',
+    prenom: '',
+    nom_prenom: '',
+    nom_ar: '',
+    prenom_ar: '',  
+    genre: '',
+    actif: '',
+    efp_travail: '',  
+    fonction: '',
+    nature_fonction: '',
+    echelle: '',
+    categorie: '',
+    grade: '',
+    cin: '',
+    date_naissance: '',
+    adresse: '',
+    ville: '',
+    telephone: '',
     email: '',
-    phone: '',
-    department: '',
+    password: '',
+    diplome: '',
+    specialite: '',
+    date_recrutement: '',
+    date_prise_service: '',
+    recode_annee_ant: '',
+    solde_annee_precedente: '',
+    solde_annee_derniere: '',
+    observation: '',
+    photo: '',
+    affectation: '',
     role: 'employee',
-    leaveBalance: 22,
   });
+
+  const getAllEmployees = async () => {
+    try{
+      const res = await axios.get("http://localhost:8000/api/users");
+      setEmployees(res.data);
+    }
+    catch(error){
+      toast.error("Erreur lors du chargement des employés");
+    }
+  }
+useEffect(() => {
+  getAllEmployees();
+}, []);
   const fileInputRef = useRef(null);
-  const { toast } = useToast();
+const handleImportExcel = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-  const handleImportExcel = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        if (!jsonData || jsonData.length === 0) {
-          toast({ title: 'Fichier vide', description: 'Le fichier Excel ne contient aucune donnée.', variant: 'destructive' });
-          return;
-        }
-
-        const newEmployees = [];
-        const errors = [];
-
-        jsonData.forEach((row, index) => {
-          const name = row['Nom'] || row['Name'] || row['NOM'] || row['name'];
-          const email = row['Email'] || row['EMAIL'] || row['email'];
-          const phone = row['Téléphone'] || row['Phone'] || row['TELEPHONE'] || row['phone'] || '';
-          const department = row['Département'] || row['Department'] || row['DEPARTEMENT'] || row['department'];
-          let roleRaw = row['Rôle'] || row['Role'] || row['ROLE'] || row['role'] || 'employee';
-          let leaveBalanceRaw = row['Solde congés'] || row['LeaveBalance'] || row['Solde'] || row['leaveBalance'];
-
-          const roleKey = roleRaw.toString().toLowerCase().trim();
-          const role = roleMapping[roleKey] || 'employee';
-
-          let leaveBalance = 22;
-          if (leaveBalanceRaw !== undefined) {
-            const parsed = parseInt(leaveBalanceRaw);
-            if (!isNaN(parsed)) leaveBalance = Math.min(60, Math.max(0, parsed));
-          }
-
-          if (!name || !email || !department) {
-            errors.push(`Ligne ${index + 2}: Nom, Email et Département sont requis.`);
-            return;
-          }
-          if (!email.includes('@')) {
-            errors.push(`Ligne ${index + 2}: Email invalide.`);
-            return;
-          }
-          const emailExists = employees.some(emp => emp.email === email) || newEmployees.some(emp => emp.email === email);
-          if (emailExists) {
-            errors.push(`Ligne ${index + 2}: L'email ${email} existe déjà.`);
-            return;
-          }
-
-          newEmployees.push({
-            id: Date.now() + index.toString(),
-            name: name.toString().trim(),
-            email: email.toString().trim(),
-            phone: phone.toString().trim(),
-            department: department.toString().trim(),
-            role,
-            leaveBalance,
-            joinDate: new Date().toISOString().split('T')[0],
-          });
-        });
-
-        if (errors.length > 0) {
-          toast({ title: 'Erreurs dans le fichier', description: errors.slice(0, 3).join(', ') + (errors.length > 3 ? ` et ${errors.length - 3} autres` : ''), variant: 'destructive' });
-        }
-        if (newEmployees.length > 0) {
-          setEmployees(prev => [...prev, ...newEmployees]);
-          toast({ title: 'Import réussi', description: `${newEmployees.length} employé(s) ont été ajoutés.` });
-        }
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      } catch (error) {
-        toast({ title: 'Erreur de lecture', description: 'Le fichier est invalide ou corrompu.', variant: 'destructive' });
-      }
-    };
-    reader.onerror = () => toast({ title: 'Erreur', description: 'Impossible de lire le fichier.', variant: 'destructive' });
-    reader.readAsBinaryString(file);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!editingEmployee) {
-      toast({ title: 'Action non autorisée', description: "Utilisez l'import Excel pour ajouter des employés.", variant: 'destructive' });
-      return;
+  try {
+    const res = await axios.post("http://localhost:8000/api/import-users", formData);
+    if (res.status === 200) {
+      toast.success("Employés importés avec succès");
+      getAllEmployees(); // refresh
+    } else {
+      toast.error("Erreur lors de l'import");
     }
-    if (!formData.name || !formData.email || !formData.department) {
-      toast({ title: 'Erreur', description: 'Veuillez remplir tous les champs obligatoires', variant: 'destructive' });
-      return;
-    }
-    setEmployees(employees.map(emp => emp.id === editingEmployee.id ? { ...emp, ...formData } : emp));
-    toast({ title: 'Employé modifié', description: `${formData.name} a été mis à jour` });
+  } catch (error) {
+    console.error("Import error:", error);
+    toast.error("Erreur lors de l'import");
+  }
+  if (fileInputRef.current) fileInputRef.current.value = "";
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    await axios.put(`http://localhost:8000/api/users/${editingEmployee.id}`, formData);
+
+    toast.success("Employé modifié avec succès");
+
+    getAllEmployees(); // refresh
     resetForm();
-  };
-
+  } catch (error) {
+    console.error(error);
+    toast.error("Erreur lors de la modification");
+  }
+};
   const resetForm = () => {
-    setFormData({ name: '', email: '', phone: '', department: '', role: 'employee', leaveBalance: 22 });
+    setFormData({ nom: '', email: '', telephone: '', affectation: '', role: 'employee'});
     setEditingEmployee(null);
     setIsDialogOpen(false);
   };
 
-  const handleEdit = (employee) => {
-    setEditingEmployee(employee);
-    setFormData({
-      name: employee.name,
-      email: employee.email,
-      phone: employee.phone,
-      department: employee.department,
-      role: employee.role,
-      leaveBalance: employee.leaveBalance,
-    });
-    setIsDialogOpen(true);
-  };
+ const handleEdit = (employee) => {
+  axios.get(`http://localhost:8000/api/users/${employee.id}`)
+    .then(response => {
+      const empData = response.data;
 
-  const handleDelete = (id) => {
-    const employee = employees.find(e => e.id === id);
-    setEmployees(employees.filter(e => e.id !== id));
-    toast({ title: 'Employé supprimé', description: `${employee?.name} a été retiré de l'équipe` });
+      setFormData({
+        ...empData
+      });
+      
+      console.log("Employee data for editing:", empData);
+      setEditingEmployee(employee);
+      setIsDialogOpen(true);
+    })
+    .catch(error => {
+      console.error("Error fetching employee:", error);
+      toast.error("Erreur lors du chargement");
+    });
+};
+  const handleDelete =async (id) => {
+      const supp=await axios.delete(`http://localhost:8000/api/users/${id}`);
+      if(supp.status===200){
+        toast.success("Employé supprimé avec succès");
+        getAllEmployees();
+      }
+      else{
+        toast.error("Erreur lors de la suppression");
+      }
   };
 
   const filteredEmployees = employees.filter(emp => {
-    const matchesSearch = emp.name.toLowerCase().includes(searchQuery.toLowerCase()) || emp.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDepartment = filterDepartment === 'all' || emp.department === filterDepartment;
+const matchesSearch =
+  (emp.nom?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+  (emp.email?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+const matchesDepartment = filterDepartment === 'all' || emp.affectation === filterDepartment;
     return matchesSearch && matchesDepartment;
   });
 
   const stats = {
     total: employees.length,
     managers: employees.filter(e => e.role === 'manager').length,
-    avgLeave: Math.round(employees.reduce((sum, e) => sum + e.leaveBalance, 0) / employees.length),
-  };
+avgLeave: Math.round(
+  employees.reduce(
+    (sum, e) =>
+      sum +
+      (Number(e.solde_annee_derniere) || 0) +
+      (Number(e.solde_annee_precedente) || 0),
+    0
+  ) / (employees.length || 1)
+),  };
 
   return (
     <DashboardLayout>
@@ -217,28 +208,318 @@ export default function Employees() {
             <p className="text-muted-foreground">Gérez les employés et leurs soldes de congés</p>
           </div>
           <div className="flex gap-2">
-            <Button className="gap-2" onClick={() => fileInputRef.current?.click()}>
-              <Upload className="h-4 w-4" />
-              Importer Excel
-            </Button>
+<Button
+  className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+  onClick={() => fileInputRef.current?.click()}
+>
+  <FileSpreadsheet className="h-4 w-4" />
+  Importer Excel
+</Button>
+
+<input
+  ref={fileInputRef}
+  type="file"
+  accept=".xlsx, .xls, .csv"
+  onChange={handleImportExcel}
+  className="hidden"
+/>
             <input ref={fileInputRef} type="file" accept=".xlsx, .xls, .csv" onChange={handleImportExcel} className="hidden" />
           </div>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setIsDialogOpen(open); }}>
-          <DialogContent className="max-w-md">
-            <DialogHeader><DialogTitle>Modifier l'employé</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2"><Label htmlFor="name">Nom complet *</Label><Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: Ahmed El Mansouri" /></div>
-              <div className="space-y-2"><Label htmlFor="email">Email *</Label><Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="email@ofppt.ma" /></div>
-              <div className="space-y-2"><Label htmlFor="phone">Téléphone</Label><Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="06XXXXXXXX" /></div>
-              <div className="space-y-2"><Label htmlFor="department">Département *</Label><Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}><SelectTrigger><SelectValue placeholder="Sélectionner un département" /></SelectTrigger><SelectContent>{departments.map((dept) => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}</SelectContent></Select></div>
-              <div className="space-y-2"><Label htmlFor="role">Rôle</Label><Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="employee">Employé</SelectItem><SelectItem value="manager">Responsable</SelectItem><SelectItem value="director">Directeur</SelectItem></SelectContent></Select></div>
-              <div className="space-y-2"><Label htmlFor="leaveBalance">Solde de congés (jours)</Label><Input id="leaveBalance" type="number" min="0" max="60" value={formData.leaveBalance} onChange={(e) => setFormData({ ...formData, leaveBalance: parseInt(e.target.value) || 0 })} /></div>
-              <div className="flex justify-end gap-2 pt-2"><Button type="button" variant="outline" onClick={resetForm}>Annuler</Button><Button type="submit">Modifier</Button></div>
-            </form>
-          </DialogContent>
-        </Dialog>
+<Dialog open={isDialogOpen} onOpenChange={(open) => { 
+  if (!open) resetForm(); 
+  setIsDialogOpen(open); 
+}}>
+  <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Modifier l'employé</DialogTitle>
+    </DialogHeader>
+    
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Nom */}
+        <div className="space-y-2">
+          <Label htmlFor="nom">Nom *</Label>
+          <Input 
+            id="nom" 
+            value={formData.nom} 
+            onChange={(e) => setFormData({ ...formData, nom: e.target.value })} 
+            placeholder="Ex: Mohamed reda" 
+          />
+        </div>
+
+        {/* Prénom */}
+        <div className="space-y-2">
+          <Label htmlFor="prenom">Prénom *</Label>
+          <Input 
+            id="prenom" 
+            value={formData.prenom} 
+            onChange={(e) => setFormData({ ...formData, prenom: e.target.value })} 
+            placeholder="Ex: Afellad" 
+          />
+        </div>
+
+        {/* Nom complet */}
+        <div className="space-y-2">
+          <Label htmlFor="nom_prenom">Nom complet *</Label>
+          <Input 
+            id="nom_prenom" 
+            value={formData.nom_prenom} 
+            onChange={(e) => setFormData({ ...formData, nom_prenom: e.target.value })} 
+            placeholder="Ex: Mohamed reda afellad" 
+          />
+        </div>
+
+        {/* Nom en arabe */}
+        <div className="space-y-2">
+          <Label htmlFor="nom_ar">Nom en arabe</Label>
+          <Input 
+            id="nom_ar" 
+            value={formData.nom_ar} 
+            onChange={(e) => setFormData({ ...formData, nom_ar: e.target.value })} 
+            placeholder="Ex: محمد رضا" 
+          />
+        </div>
+
+        {/* Prénom en arabe */}
+        <div className="space-y-2">
+          <Label htmlFor="prenom_ar">Prénom en arabe</Label>
+          <Input 
+            id="prenom_ar" 
+            value={formData.prenom_ar} 
+            onChange={(e) => setFormData({ ...formData, prenom_ar: e.target.value })} 
+            placeholder="Ex: أفلاط" 
+          />
+        </div>
+
+        {/* Genre */}
+        <div className="space-y-2">
+          <Label htmlFor="genre">Genre</Label>
+          <Input 
+            id="genre" 
+            value={formData.genre} 
+            onChange={(e) => setFormData({ ...formData, genre: e.target.value })} 
+            placeholder="Ex: Masculin" 
+          />
+        </div>
+
+        {/* Actif */}
+        <div className="space-y-2">
+          <Label htmlFor="actif">Actif</Label>
+          <Input 
+            id="actif" 
+            value={formData.actif} 
+            onChange={(e) => setFormData({ ...formData, actif: e.target.value })} 
+            placeholder="Ex: Oui/Non" 
+          />
+        </div>
+
+        {/* EFP travail */}
+        <div className="space-y-2">
+          <Label htmlFor="efp_travail">EFP travail</Label>
+          <Input 
+            id="efp_travail" 
+            value={formData.efp_travail} 
+            onChange={(e) => setFormData({ ...formData, efp_travail: e.target.value })} 
+            placeholder="Ex: EFP1" 
+          />
+        </div>
+
+        {/* Fonction */}
+        <div className="space-y-2">
+          <Label htmlFor="fonction">Fonction</Label>
+          <Input 
+            id="fonction" 
+            value={formData.fonction} 
+            onChange={(e) => setFormData({ ...formData, fonction: e.target.value })} 
+            placeholder="Ex: Développeur" 
+          />
+        </div>
+
+        {/* Nature de la fonction */}
+        <div className="space-y-2">
+          <Label htmlFor="nature_fonction">Nature de la fonction</Label>
+          <Input 
+            id="nature_fonction" 
+            value={formData.nature_fonction} 
+            onChange={(e) => setFormData({ ...formData, nature_fonction: e.target.value })} 
+            placeholder="Ex: Permanent" 
+          />
+        </div>
+
+        {/* Echelle */}
+        <div className="space-y-2">
+          <Label htmlFor="echelle">Echelle</Label>
+          <Input 
+            id="echelle" 
+            value={formData.echelle} 
+            onChange={(e) => setFormData({ ...formData, echelle: e.target.value })} 
+            placeholder="Ex: Echelle 5" 
+          />
+        </div>
+
+        {/* Catégorie */}
+        <div className="space-y-2">
+          <Label htmlFor="categorie">Catégorie</Label>
+          <Input 
+            id="categorie" 
+            value={formData.categorie} 
+            onChange={(e) => setFormData({ ...formData, categorie: e.target.value })} 
+            placeholder="Ex: Catégorie A" 
+          />
+        </div>
+
+        {/* Grade */}
+        <div className="space-y-2">
+          <Label htmlFor="grade">Grade</Label>
+          <Input 
+            id="grade" 
+            value={formData.grade} 
+            onChange={(e) => setFormData({ ...formData, grade: e.target.value })} 
+            placeholder="Ex: Grade 1" 
+          />
+        </div>
+
+        {/* CIN */}
+        <div className="space-y-2">
+          <Label htmlFor="cin">CIN</Label>
+          <Input 
+            id="cin" 
+            value={formData.cin} 
+            onChange={(e) => setFormData({ ...formData, cin: e.target.value })} 
+            placeholder="Ex: AB123456" 
+          />
+        </div>
+
+        {/* Date de naissance */}
+        <div className="space-y-2">
+          <Label htmlFor="date_naissance">Date de naissance</Label>
+          <Input 
+            id="date_naissance" 
+            type="date" 
+            value={formData.date_naissance} 
+            onChange={(e) => setFormData({ ...formData, date_naissance: e.target.value })} 
+          />
+        </div>
+
+        {/* Adresse */}
+        <div className="space-y-2">
+          <Label htmlFor="adresse">Adresse</Label>
+          <Input 
+            id="adresse" 
+            value={formData.adresse} 
+            onChange={(e) => setFormData({ ...formData, adresse: e.target.value })} 
+            placeholder="Ex: 123 Rue de Tanger" 
+          />
+        </div>
+
+        {/* Ville */}
+        <div className="space-y-2">
+          <Label htmlFor="ville">Ville</Label>
+          <Input 
+            id="ville" 
+            value={formData.ville} 
+            onChange={(e) => setFormData({ ...formData, ville: e.target.value })} 
+            placeholder="Ex: Tanger" 
+          />
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <Label htmlFor="email">Email *</Label>
+          <Input 
+            id="email" 
+            type="email" 
+            value={formData.email} 
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
+            placeholder="email@ofppt.ma" 
+          />
+        </div>
+
+        {/* Téléphone */}
+        <div className="space-y-2">
+          <Label htmlFor="telephone">Téléphone</Label>
+          <Input 
+            id="telephone" 
+            value={formData.telephone} 
+            onChange={(e) => setFormData({ ...formData, telephone: e.target.value })} 
+            placeholder="06XXXXXXXX" 
+          />
+        </div>
+
+        {/* Affectation */}
+        <div className="space-y-2">
+          <Label htmlFor="affectation">Affectation *</Label>
+          <Select 
+            value={formData.affectation} 
+            onValueChange={(value) => setFormData({ ...formData, affectation: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner un département" />
+            </SelectTrigger>
+            <SelectContent>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Solde année précédente */}
+        <div className="space-y-2">
+          <Label htmlFor="solde_annee_precedente">Solde année précédente</Label>
+          <Input
+            id="solde_annee_precedente"
+            type="number"
+            value={formData.solde_annee_precedente}
+            onChange={(e) => setFormData({ ...formData, solde_annee_precedente: e.target.value })}
+            placeholder="Ex: 5"
+          />
+        </div>
+
+        {/* Solde année dernière */}
+        <div>
+          <Label htmlFor="solde_annee_derniere">Solde année dernière</Label>
+          <Input
+            id="solde_annee_derniere"
+            type="number"
+            value={formData.solde_annee_derniere}
+            onChange={(e) => setFormData({ ...formData, solde_annee_derniere: e.target.value })}
+            placeholder="Ex: 10"
+          />
+        </div>
+
+        {/* Rôle */}
+        <div className="space-y-2">
+          <Label htmlFor="role">Rôle</Label>
+          <Select 
+            value={formData.role} 
+            onValueChange={(value) => setFormData({ ...formData, role: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="employee">Employé</SelectItem>
+              <SelectItem value="manager">Responsable</SelectItem>
+              <SelectItem value="director">Directeur</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Boutons */}
+      <div className="flex justify-end gap-2 pt-4">
+        <Button type="button" variant="outline" onClick={resetForm}>
+          Annuler
+        </Button>
+        <Button type="submit">
+          Modifier
+        </Button>
+      </div>
+    </form>
+  </DialogContent>
+</Dialog>
 
         <div className="grid gap-4 md:grid-cols-3">
           <StatCard title="Total employés" value={stats.total} icon={Users} />
@@ -248,7 +529,10 @@ export default function Employees() {
 
         <div className="flex flex-col gap-4 sm:flex-row">
           <div className="relative flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Rechercher par nom ou email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" /></div>
-          <Select value={filterDepartment} onValueChange={setFilterDepartment}><SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Département" /></SelectTrigger><SelectContent><SelectItem value="all">Tous les départements</SelectItem>{departments.map((dept) => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}</SelectContent></Select>
+          <Select value={filterDepartment} onValueChange={setFilterDepartment}><SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Département" />
+          </SelectTrigger><SelectContent><SelectItem value="all">Tous les départements</SelectItem>
+          {departments.map((dept) => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}</SelectContent>
+          </Select>
         </div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -256,14 +540,14 @@ export default function Employees() {
             <CardHeader><CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" />Liste des employés ({filteredEmployees.length})</CardTitle></CardHeader>
             <CardContent>
               <Table>
-                <TableHeader><TableRow><TableHead>Employé</TableHead><TableHead>Département</TableHead><TableHead>Rôle</TableHead><TableHead>Solde congés</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow><TableHead>Employé</TableHead><TableHead>Affectation</TableHead><TableHead>Rôle</TableHead><TableHead>Solde congés</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {filteredEmployees.map((employee) => (
                     <TableRow key={employee.id}>
-                      <TableCell><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">{employee.name.split(' ').map(n => n[0]).join('')}</div><div><p className="font-medium">{employee.name}</p><div className="flex items-center gap-2 text-xs text-muted-foreground"><Mail className="h-3 w-3" />{employee.email}</div></div></div></TableCell>
-                      <TableCell>{employee.department}</TableCell>
-                      <TableCell><Badge variant={employee.role === 'director' ? 'default' : employee.role === 'manager' ? 'secondary' : 'outline'}>{roleLabels[employee.role]}</Badge></TableCell>
-                      <TableCell><span className={employee.leaveBalance < 10 ? 'text-destructive font-medium' : ''}>{employee.leaveBalance} jours</span></TableCell>
+                      <TableCell><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">{employee.nom.split(' ').map(n => n[0]).join('')}</div><div><p className="font-medium">{employee.nom}</p><div className="flex items-center gap-2 text-xs text-muted-foreground"><Mail className="h-3 w-3" />{employee.email}</div></div></div></TableCell>
+                      <TableCell>{employee.affectation}</TableCell>
+                      <TableCell><Badge variant={employee.role}>{employee.role}</Badge></TableCell>
+                      <TableCell><span>{(Number(employee.solde_annee_derniere) || 0) + (Number(employee.solde_annee_precedente) || 0)}  jours</span></TableCell>
                       <TableCell className="text-right"><div className="flex justify-end gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(employee)}><Edit2 className="h-4 w-4" /></Button><Button variant="ghost" size="icon" onClick={() => handleDelete(employee.id)} className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button></div></TableCell>
                     </TableRow>
                   ))}

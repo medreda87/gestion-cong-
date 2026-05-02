@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\authController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\SoldeCongeController;
-
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -38,3 +38,10 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/demandes/{id}/cancel', [DemandeController::class, 'cancel']);
     Route::delete('/demandes/{id}', [DemandeController::class, 'destroy']);
 });
+
+    Route::post('/import-users', [UserController::class, 'import']);
+    Route::get('/users', [UserController::class, 'getAllUsers']);
+    Route::put('/users/{id}', [UserController::class, 'updatUser']);   
+    Route::get('/users/{id}', [UserController::class, 'show']); 
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+

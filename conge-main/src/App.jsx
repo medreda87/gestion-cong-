@@ -22,6 +22,7 @@ import Setting from './directeur/pages/paramettre'
 import DetailDemande from '@/directeur/pages/DetailDemande';
 import DocumentsDirecteur from "./directeur/pages/DocumentsDirecteur";
 import EmployeeDocuments from "./pages/DocumentEmploye";
+import { Toaster } from "react-hot-toast";  
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +32,19 @@ const App = () => (
         <DataProvider>
         <LeaveProvider>
           <BrowserRouter>
+<Toaster
+  position="top-right"  // better for mobile & general UX
+  reverseOrder={true}       // newer toasts on top (or bottom, pick one)
+  toastOptions={{
+    duration: 3000,         // shorter, less intrusive
+    style: {
+      background: 'var(--toast-bg, #1a1a1a)',
+      color: 'var(--toast-text, #fff)',
+      borderRadius: '8px',
+      padding: '12px 20px',
+    },
+  }}
+/>
           <Routes>
            <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
