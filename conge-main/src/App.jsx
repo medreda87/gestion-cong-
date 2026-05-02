@@ -19,6 +19,7 @@ import EmployeeDashboard from "./directeur/pages/employerDashboard";
 import { DataProvider } from "./contexts/DataContext";
 import { Navigate } from "react-router-dom";
 import Setting from './directeur/pages/paramettre'
+import DetailDemande from '@/directeur/pages/DetailDemande';
 import DocumentsDirecteur from "./directeur/pages/DocumentsDirecteur";
 import EmployeeDocuments from "./pages/DocumentEmploye";
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
               </RoleGuard>
             } />
             <Route path="/absences" element={<Absences />} />
+            <Route path="/demande/:id" element={<DetailDemande />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
