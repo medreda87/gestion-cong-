@@ -47,9 +47,14 @@ const PendingRequests = () => {
     setSelectedRequest(null);
     setAction(null);
     setComment('');
+    console.log(requests);
   };
 
   const isModalOpen = !!selectedRequest && !!action;
+
+  const getInitials = (nom, prenom) => {
+  return `${nom?.charAt(0) || ""}${prenom?.charAt(0) || ""}`.toUpperCase();
+};
 
   return (
     <DashboardLayout>
@@ -100,7 +105,7 @@ const PendingRequests = () => {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
-              {request.employeeName.split(" ").map((n) => n[0]).join("")}
+              {getInitials(request.user?.nom, request.user?.prenom)}
             </div>
 
             <div>
@@ -112,8 +117,8 @@ const PendingRequests = () => {
 
               <div className="mt-2 flex flex-wrap gap-4 text-sm">
                 <span>
-                  {format(new Date(request.startDate), "dd MMM", { locale: fr })} au{" "}
-                  {format(new Date(request.endDate), "dd MMM yyyy", { locale: fr })}
+                  {format(new Date(request.start_date), "dd MMM", { locale: fr })} au{" "}
+                  {format(new Date(request.end_date), "dd MMM yyyy", { locale: fr })}
                 </span>
 
                 <p className="flex">
@@ -140,16 +145,18 @@ const PendingRequests = () => {
 
           <div className="flex flex-col items-end gap-3">
             <div className='flex'>
-              <span className="inline-flex mr-2 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary border-warning/20">
+              {request.user?.role === 'employee' && (
+                <span className="inline-flex mr-2 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary border-warning/20">
               Approuvé par le responsable 
-            </span>
+              </span>
+              )}
             <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20">
               En attente 
             </span>
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Demandé le {format(new Date(request.createdAt), "dd/MM/yyyy", { locale: fr })}
+              Demandé le {format(new Date(request.created_at), "dd/MM/yyyy", { locale: fr })}
             </p>
 
             <div className="flex gap-2">
@@ -201,8 +208,8 @@ onClick={(e) => e.stopPropagation()}
                       {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Du {format(new Date(selectedRequest.startDate), 'dd MMM', { locale: fr })} au{' '}
-                      {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', { locale: fr })}
+                      Du {format(new Date(selectedRequest.start_date), 'dd MMM', { locale: fr })} au{' '}
+                      {format(new Date(selectedRequest.end_date), 'dd MMM yyyy', { locale: fr })}
                     </p>
                   </div>
                 )}

@@ -23,7 +23,7 @@ if (!user) return null;
 const pendingRequests =
   user.role === 'manager'
     ? getPendingForManager()
-    : user.role === 'director'
+    : user.role === 'directeur'
     ? getPendingForDirector()
     : [];
 

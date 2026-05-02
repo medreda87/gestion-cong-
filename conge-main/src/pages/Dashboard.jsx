@@ -149,6 +149,10 @@ const pendingToReview =
     return variants[status] || 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium';
   };
 
+  const getInitials = (nom, prenom) => {
+  return `${nom?.charAt(0) || ""}${prenom?.charAt(0) || ""}`.toUpperCase();
+};
+
   return (
     <>
       <DashboardLayout>
@@ -388,7 +392,7 @@ const pendingToReview =
                   >
                     <div className="flex items-center gap-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
-                        {request.employeeName.split(' ').map((n) => n[0]).join('')}
+                        {getInitials(request.user?.nom, request.user?.prenom)}
                       </div>
                       <div>
                         <p className="font-medium">{request.employeeName}</p>
@@ -399,7 +403,7 @@ const pendingToReview =
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">
-                        {format(new Date(request.startDate), 'dd MMM yyyy', { locale: fr })}
+                        {format(new Date(request.start_date), 'dd MMM yyyy', { locale: fr })}
                       </p>
                       <span className={getStatusBadgeClass(request.status)}>
                         {LEAVE_STATUS_LABELS[request.status]}

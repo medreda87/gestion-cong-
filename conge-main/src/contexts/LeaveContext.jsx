@@ -147,24 +147,6 @@ const getPendingForDirector = () =>
       {children}
     </LeaveContext.Provider>
   );
-  return (
-    <LeaveContext.Provider 
-      value={{ 
-        requests, 
-        images,
-        addRequest, 
-        addImage,
-        deleteLeave,
-        updateRequestStatus, 
-        cancelLeave,
-        getRequestsByEmployee,
-        getPendingForManager,
-        getPendingForDirector
-      }}
-    >
-      {children}
-    </LeaveContext.Provider>
-  );
 };
 
 export const useLeave = () => {
