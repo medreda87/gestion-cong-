@@ -14,11 +14,15 @@ class DemandeController extends Controller
 
     if ($user->role === 'manager') {
         $demandes = Demande::with('user')
-            ->where('status', 'pending_manager')
-            ->orderBy('id', 'desc')
-            ->get();
-    } elseif ($user->role === 'director') {
-        $demandes = Demande::where('status', 'pending_director')
+        ->where(function ($query) use ($user) {
+            $query->where('status', 'pending_manager')
+                  ->orWhere('user_id', $user->id); 
+        })
+        ->orderBy('id', 'desc')
+        ->get();
+    } elseif ($user->role === 'directeur') {
+        $demandes = Demande::with('user')
+            ->where('status', 'pending_director')
             ->orderBy('id', 'desc')
             ->get();
     } else {
@@ -75,7 +79,7 @@ class DemandeController extends Controller
         'comment' => 'nullable|string',
     ]);
 
-    // ROLE LOGIC
+    
     if ($user->role === 'manager' && $validated['status'] === 'pending_director') {
         $demande->manager_comment = $validated['comment'];
     }

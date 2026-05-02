@@ -180,18 +180,21 @@ const LeaveHistory = () => {
                     </span>
 
                   {/* Bouton Annuler */}
-                 {request.status === 'pending_manager' && (
-                  <button
-                    onClick={() => {
-                      if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
-                        updateRequestStatus(request.id, "cancelled");
-                      }
-                    }}
-                    className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300"
-                  >
-                    Annuler
-                  </button>
-                )}
+                 {request.user_id === user.id && (
+                (user.role === 'employee' && request.status === 'pending_manager') ||
+                (user.role === 'manager' && request.status.startsWith('pending'))
+              ) && (
+                <button
+                  onClick={() => {
+                    if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                      updateRequestStatus(request.id, "cancelled");
+                    }
+                  }}
+                  className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                >
+                  Annuler
+                </button>
+              )}
                   </div>
                 </motion.div>
               ))}
