@@ -67,33 +67,4 @@ class TransferAnnualLeaveBalance extends Command
     return Command::SUCCESS;
 }
 
-// public function handle()
-// {
-//     $users = User::whereIn('role', ['employee', 'manager'])->get();
-
-//     foreach ($users as $user) {
-
-//         if ((float) $user->solde_annee_precedente >= 22) {
-
-//             $soldeConge = SoldeConge::where('user_id', $user->id)->first();
-
-//             if (!$soldeConge) {
-//                 continue;
-//             }
-
-//             $ancienSoldePrecedent = (float) $user->solde_annee_precedente;
-
-//             $user->solde_annee_derniere = $ancienSoldePrecedent;
-//             $user->solde_annee_precedente = 0;
-//             $user->save();
-
-//             $soldeConge->solde_utilise = 0;
-//             $soldeConge->total_annuel = $ancienSoldePrecedent;
-//             $soldeConge->solde_restant = $ancienSoldePrecedent;
-//             $soldeConge->save();
-//         }
-//     }
-
-//     return Command::SUCCESS;
-// }
 }

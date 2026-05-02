@@ -200,11 +200,11 @@ const Absences = () => {
 
                       <p className="text-sm text-muted-foreground">
                         Du{" "}
-                        {format(new Date(request.startDate), "dd MMMM", {
+                        {format(new Date(request.start_date), "dd MMMM", {
                           locale: fr,
                         })}{" "}
                         au{" "}
-                        {format(new Date(request.endDate), "dd MMMM yyyy", {
+                        {format(new Date(request.end_date), "dd MMMM yyyy", {
                           locale: fr,
                         })}
                       </p>
@@ -225,7 +225,7 @@ const Absences = () => {
 
                       <p className="text-xs text-muted-foreground">
                         Créé le{" "}
-                        {format(new Date(request.createdAt), "dd/MM/yyyy", {
+                        {format(new Date(request.created_at), "dd/MM/yyyy", {
                           locale: fr,
                         })}
                       </p>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle } from 'lucide-react';
+import { ClipboardList, CheckCircle, XCircle, MessageSquare, Clock, Clock10Icon, AlarmClock, MessageCircle, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -9,10 +9,12 @@ import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
 import { createPortal } from "react-dom";
+import { useNavigate } from 'react-router-dom';
 
 const PendingRequests = () => {
 const { user } = useAuth();
 const { getPendingForManager, getPendingForDirector, updateRequestStatus } = useLeave();
+const navigate = useNavigate();
 
 const [selectedRequest, setSelectedRequest] = useState(null);
 const [action, setAction] = useState(null);
@@ -46,6 +48,11 @@ const confirmAction = () => {
 };
 
 const isModalOpen = !!selectedRequest && !!action;
+
+
+const getInitials = (nom, prenom) => {
+  return `${nom?.charAt(0) || ""}${prenom?.charAt(0) || ""}`.toUpperCase();
+};
 
   return (
     <DashboardLayout>
@@ -96,7 +103,7 @@ const isModalOpen = !!selectedRequest && !!action;
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
-                        {request.employeeName.split(' ').map((n) => n[0]).join('')}
+                        {getInitials(request.user?.nom, request.user?.prenom)}
                         </div>
                         <div>
                           <h3 className="font-semibold">{request.employeeName}</h3>
@@ -105,8 +112,8 @@ const isModalOpen = !!selectedRequest && !!action;
                           </p>
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
-                          {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
-                         {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
+                          {format(new Date(request.start_date), 'dd MMM', { locale: fr })} au{' '}
+                         {format(new Date(request.end_date), 'dd MMM yyyy', { locale: fr })}
                             </span>
                             <p className='flex '><AlarmClock className='mr-2 mt-1'  size={16}/> {request.duration} jours</p>
                           </div>
@@ -129,10 +136,16 @@ const isModalOpen = !!selectedRequest && !!action;
                       {request.status === 'cancelled' ? 'Annulée' : 'En attente'}
                     </span>
                         <p className="text-xs text-muted-foreground">
-                          Demandé le {format(new Date(request.createdAt), 'dd/MM/yyyy', { locale: fr })}
+                          Demandé le {format(new Date(request.created_at), 'dd/MM/yyyy', { locale: fr })}
                         </p>
                         <div className="flex gap-2">
-
+                        <button
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
+                          onClick={() => navigate(`/demande/${request.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          Détail
+                        </button>
                         {request.status !== 'cancelled' && (
                         <button
                           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
@@ -186,8 +199,8 @@ const isModalOpen = !!selectedRequest && !!action;
                             {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Du {format(new Date(selectedRequest.startDate), 'dd MMM', { locale: fr })} au{' '}
-                            {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', { locale: fr })}
+                            Du {format(new Date(selectedRequest.start_date), 'dd MMM', { locale: fr })} au{' '}
+                            {format(new Date(selectedRequest.end_date), 'dd MMM yyyy', { locale: fr })}
                           </p>
                         </div>
                       )}

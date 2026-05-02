@@ -58,4 +58,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(SoldeConge::class);
     }
+    public function Demande(){
+        $this->hasMany(Demande::class);
+    }
 }
