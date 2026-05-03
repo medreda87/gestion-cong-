@@ -262,7 +262,7 @@ useEffect(() => {
                 </select>
               </div>
             </div>
- {type === 'exceptional' && (
+            {type === 'exceptional' && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}

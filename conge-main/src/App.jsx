@@ -18,10 +18,12 @@ import Holidays from "@/directeur/pages/Holidays";
 import EmployeeDashboard from "./directeur/pages/employerDashboard";
 import { DataProvider } from "./contexts/DataContext";
 import { Navigate } from "react-router-dom";
-import Setting from './directeur/pages/paramettre'
+import Setting from './directeur/pages/paramettre';
 import DetailDemande from '@/directeur/pages/DetailDemande';
 import DocumentsDirecteur from "./directeur/pages/DocumentsDirecteur";
 import EmployeeDocuments from "./pages/DocumentEmploye";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -67,12 +69,14 @@ const App = () => (
             <Route path="/demande/:id" element={<DetailDemande />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+            <ToastContainer />
         </BrowserRouter>
         </LeaveProvider>
         </DataProvider>
       </BalanceProvider>
     </AuthProvider>
   </QueryClientProvider>
+  
 );
 
 export default App;

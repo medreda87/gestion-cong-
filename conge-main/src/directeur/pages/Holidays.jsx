@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calendar as CalendarIcon, Plus, Trash2, Edit2, Check, X, 
@@ -9,82 +9,117 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useData } from '@/contexts/DataContext';
+import { toast } from "sonner";
 
-const initialHolidays = [
-  { id: '1', name: "Jour de l'An",type: "national",date: '2026-01-01', isRecurring: true },
-  { id: '2', name: "Manifeste de l'Indépendance",type: "national", date: '2026-01-11', isRecurring: true },
-  { id: '3', name: "Fête du Travail",type: "national", date: '2026-05-01', isRecurring: true },
-  { id: '4', name: "Fête du Trône",type: "national", date: '2026-07-30', isRecurring: true },
-  { id: '5', name: "Oued Ed-Dahab",type: "national", date: '2026-08-14', isRecurring: true },
-  { id: '6', name: "Révolution du Roi et du Peuple",type: "national", date: '2026-08-20', isRecurring: true },
-  { id: '7', name: "Fête de la Jeunesse",type: "national", date: '2026-08-21', isRecurring: true },
-  { id: '8', name: "Marche Verte",type: "national", date: '2026-11-06', isRecurring: true },
-  { id: '9', name: "Fête de l'Indépendance",type: "national",date: '2026-11-18', isRecurring: true },
-];
+// const initialHolidays = [
+//   { id: '1', name: "Jour de l'An",type: "national",date: '2026-01-01', is_recurring: true },
+//   { id: '2', name: "Manifeste de l'Indépendance",type: "national", date: '2026-01-11', is_recurring: true },
+//   { id: '3', name: "Fête du Travail",type: "national", date: '2026-05-01', is_recurring: true },
+//   { id: '4', name: "Fête du Trône",type: "national", date: '2026-07-30', is_recurring: true },
+//   { id: '5', name: "Oued Ed-Dahab",type: "national", date: '2026-08-14', is_recurring: true },
+//   { id: '6', name: "Révolution du Roi et du Peuple",type: "national", date: '2026-08-20', is_recurring: true },
+//   { id: '7', name: "Fête de la Jeunesse",type: "national", date: '2026-08-21', is_recurring: true },
+//   { id: '8', name: "Marche Verte",type: "national", date: '2026-11-06', is_recurring: true },
+//   { id: '9', name: "Fête de l'Indépendance",type: "national",date: '2026-11-18', is_recurring: true },
+// ];
 
 const Holidays = () => {
-  const [holidays, setHolidays] = useState(initialHolidays);
+  const { removeHoliday, addHoliday, updateHoliday,holidays} = useData();
+  const [initialHolidays, setHolidays] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRecurring, setFilterRecurring] = useState('all'); // all, recurring, once
+  const [filterRecurring, setFilterRecurring] = useState('all'); 
   const [filterMonth, setFilterMonth] = useState('all');
-  const [viewMode, setViewMode] = useState('table'); // table, calendar
+  const [viewMode, setViewMode] = useState('table'); 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState(null);
-  const [formData, setFormData] = useState({ name: '',type:'',date: '', isRecurring: true });
+  const [formData, setFormData] = useState({ name: '',type:'',date: '', is_recurring: true });
   const [showStats, setShowStats] = useState(true);
+
+  useEffect(() => {
+  if (holidays) {
+    setHolidays(holidays);
+  }
+}, [holidays]);
+
 
   const currentYear = new Date().getFullYear();
   const months = eachMonthOfInterval({ start: new Date(currentYear, 0, 1), end: new Date(currentYear, 11, 31) });
 
-  // Filtrage
+  
   const filteredHolidays = useMemo(() => {
-    return holidays.filter(h => {
+    console.log(holidays);
+    return initialHolidays.filter(h => {
       const matchSearch = h.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchRecurring = filterRecurring === 'all' ? true : (filterRecurring === 'recurring' ? h.isRecurring : !h.isRecurring);
+      const matchRecurring = filterRecurring === 'all' ? true : (filterRecurring === 'recurring' ? h.is_recurring : !h.is_recurring);
       const matchMonth = filterMonth === 'all' ? true : isSameMonth(new Date(h.date), new Date(currentYear, parseInt(filterMonth), 1));
       return matchSearch && matchRecurring && matchMonth;
     });
-  }, [holidays, searchTerm, filterRecurring, filterMonth, currentYear]);
+  }, [initialHolidays, searchTerm, filterRecurring, filterMonth, currentYear]);
 
   const sortedHolidays = [...filteredHolidays].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // Statistiques
-  const total = holidays.length;
-  const recurringCount = holidays.filter(h => h.isRecurring).length;
-  const upcomingCount = holidays.filter(h => new Date(h.date) >= new Date()).length;
-  const monthlyCount = months.map(month => holidays.filter(h => isSameMonth(new Date(h.date), month)).length);
+  const total = initialHolidays.length;
+  const recurringCount = initialHolidays.filter(h => h.is_recurring).length;
+  const upcomingCount = initialHolidays.filter(h => new Date(h.date) >= new Date()).length;
+  const monthlyCount = months.map(month => initialHolidays.filter(h => isSameMonth(new Date(h.date), month)).length);
   const maxCount = Math.max(...monthlyCount, 1);
 
   // Répartition par mois pour le pie chart (simplifié)
   const pieData = months.map((month, idx) => ({ month: format(month, 'MMM', { locale: fr }), count: monthlyCount[idx] })).filter(d => d.count > 0);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.date) return;
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!formData.name || !formData.date) {
+    alert("Veuillez remplir tous les champs");
+    return;
+  }
+
+  try {
     if (editingHoliday) {
-      setHolidays(holidays.map(h => h.id === editingHoliday.id ? { ...h, ...formData } : h));
+      await updateHoliday(editingHoliday.id, formData);
+      toast.success(`${formData.name} a été mis à jour`);
     } else {
-      setHolidays([...holidays, { id: Date.now().toString(), ...formData }]);
+      await addHoliday(formData);
+      toast.success(`${formData.name} a été ajouté au calendrier`);
     }
-    setFormData({ name: '',type:'', date: '', isRecurring: true });
+
+    setFormData({ name: '', date: '', is_recurring: true });
     setEditingHoliday(null);
     setIsDialogOpen(false);
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur serveur");
+  }
+};
 
   const handleEdit = (holiday) => {
     setEditingHoliday(holiday);
-    setFormData({ name: holiday.name,type:holiday.type, date: holiday.date, isRecurring: holiday.isRecurring });
+    setFormData({ name: holiday.name, date: holiday.date, isRecurring: holiday.isRecurring });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Confirmer la suppression ?")) setHolidays(holidays.filter(h => h.id !== id));
-  };
+ const handleDelete = async (id) => {
+  try {
+    const holiday = initialHolidays.find(h => h.id === id);
+
+    await removeHoliday(id); 
+
+    alert(`${holiday?.name} a été retiré du calendrier`);
+  } catch (error) {
+    console.error(error);
+    alert("Erreur suppression");
+  }
+};
+
 
   const exportCSV = () => {
     const csv = [["Nom","Type","Date", "Récurrent"]];
-    holidays.forEach(h => csv.push([h.name,h.type,h.date, h.isRecurring ? "Oui" : "Non"]));
+    initialHolidays.forEach(h => csv.push([h.name,h.type,h.date, h.is_recurring ? "Oui" : "Non"]));
     const blob = new Blob([csv.map(row => row.join(",")).join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -109,7 +144,7 @@ const Holidays = () => {
         {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(d => <div key={d} className="p-2 text-center text-xs font-semibold text-slate-500">{d}</div>)}
         {Array(start.getDay() === 0 ? 6 : start.getDay() - 1).fill(null).map((_, i) => <div key={`empty-${i}`} className="p-2" />)}
         {days.map(day => {
-          const holiday = holidays.find(h => isSameDay(new Date(h.date), day));
+          const holiday = initialHolidays.find(h => isSameDay(new Date(h.date), day));
           return (
             <div key={day.toString()} className={`p-2 text-center rounded-lg ${holiday ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-50'}`}>
               <div className="text-sm">{format(day, 'd')}</div>
@@ -337,7 +372,7 @@ const Holidays = () => {
 
                         {/* RECURRING */}
                         <td className="px-6 py-4">
-                          {holiday.isRecurring ? (
+                          {holiday.is_recurring ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
                               <Check className="h-3 w-3" />
                               Annuel
@@ -473,9 +508,17 @@ const Holidays = () => {
 </div>
 <div>
   <label className="block text-sm font-medium">Date</label>
-  <input type="date" value={formData.date} onChange={e=>setFormData({...formData,date:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" required />
-  </div><label className="flex items-center gap-2 text-sm">
-    <input type="checkbox" checked={formData.isRecurring} onChange={e=>setFormData({...formData,isRecurring:e.target.checked})} className="rounded" />
+<input
+  type="date"
+  value={formData.date}
+  onChange={e => setFormData({ ...formData, date: e.target.value })}
+  onMouseDown={(e) => {
+    e.currentTarget.showPicker?.();
+  }}
+  className="mt-1 w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2"
+  required
+/>  </div><label className="flex items-center gap-2 text-sm">
+    <input type="checkbox" checked={formData.is_recurring} onChange={e=>setFormData({...formData,is_recurring:e.target.checked})} className="rounded" />
      Récurrent chaque année</label>
      <div className="flex gap-3 pt-4">
       <button type="button" onClick={()=>setIsDialogOpen(false)} className="flex-1 rounded-lg border border-slate-200 px-4 py-2">Annuler</button>

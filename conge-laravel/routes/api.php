@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\authController;
 use App\Http\Controllers\DemandeController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\SoldeCongeController;
 
 /*
@@ -37,4 +38,12 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/demandes/{id}/status', [DemandeController::class, 'updateStatus']);
     Route::put('/demandes/{id}/cancel', [DemandeController::class, 'cancel']);
     Route::delete('/demandes/{id}', [DemandeController::class, 'destroy']);
+});
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/holidays', [HolidayController::class, 'index']);
+    Route::post('/holidays', [HolidayController::class, 'store']);
+    Route::delete('/holidays/{id}', [HolidayController::class, 'destroy']);
+    Route::put('/holidays/{id}', [HolidayController::class, 'update']);
 });
