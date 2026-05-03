@@ -10,8 +10,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useData } from '@/contexts/DataContext';
-import { toast } from "sonner";
-
+import toast from "react-hot-toast";
 // const initialHolidays = [
 //   { id: '1', name: "Jour de l'An",type: "national",date: '2026-01-01', is_recurring: true },
 //   { id: '2', name: "Manifeste de l'Indépendance",type: "national", date: '2026-01-11', is_recurring: true },
@@ -101,6 +100,7 @@ const Holidays = () => {
     setEditingHoliday(holiday);
     setFormData({ name: holiday.name, date: holiday.date, isRecurring: holiday.isRecurring });
     setIsDialogOpen(true);
+    
   };
 
  const handleDelete = async (id) => {
@@ -109,7 +109,7 @@ const Holidays = () => {
 
     await removeHoliday(id); 
 
-    alert(`${holiday?.name} a été retiré du calendrier`);
+    toast.success(`${holiday?.name} a été retiré du calendrier`);
   } catch (error) {
     console.error(error);
     alert("Erreur suppression");

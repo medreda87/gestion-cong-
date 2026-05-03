@@ -6,7 +6,7 @@ use App\Http\Controllers\authController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\SoldeCongeController;
-
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -46,4 +46,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/holidays', [HolidayController::class, 'store']);
     Route::delete('/holidays/{id}', [HolidayController::class, 'destroy']);
     Route::put('/holidays/{id}', [HolidayController::class, 'update']);
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/import-users', [UserController::class, 'import']);
+    Route::get('/users', [UserController::class, 'getAllUsers']);
+    Route::put('/users/{id}', [UserController::class, 'updatUser']);   
+    Route::get('/users/{id}', [UserController::class, 'show']); 
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
 });

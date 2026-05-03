@@ -29,9 +29,8 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { StatCard } from '@/components/ui/StatCard';
-
+import toast from 'react-hot-toast';
 const initialEmployees = [
   { id: '1', name: 'Ahmed El Mansouri', email: 'ahmed.elmansouri@ofppt.ma', phone: '0612345678', department: 'Formation', role: 'employee', leaveBalance: 22, joinDate: '2020-03-15' },
   { id: '2', name: 'Fatima Benali', email: 'fatima.benali@ofppt.ma', phone: '0623456789', department: 'Administration', role: 'employee', leaveBalance: 18, joinDate: '2019-07-01' },
@@ -63,17 +62,11 @@ export default function Employees() {
     role: 'employee',
     leaveBalance: 22,
   });
-  const { toast } = useToast();
-
   const handleSubmit = (e) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.department) {
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez remplir tous les champs obligatoires',
-        variant: 'destructive',
-      });
+
       return;
     }
 
@@ -83,10 +76,7 @@ export default function Employees() {
           ? { ...emp, ...formData }
           : emp
       ));
-      toast({
-        title: 'Employé modifié',
-        description: `${formData.name} a été mis à jour`,
-      });
+
     } else {
       const newEmployee = {
         id: Date.now().toString(),
@@ -94,10 +84,7 @@ export default function Employees() {
         joinDate: new Date().toISOString().split('T')[0],
       };
       setEmployees([...employees, newEmployee]);
-      toast({
-        title: 'Employé ajouté',
-        description: `${formData.name} a été ajouté à l'équipe`,
-      });
+toast.success("Employé ajouté 🎉");
     }
 
     resetForm();
@@ -132,10 +119,7 @@ export default function Employees() {
   const handleDelete = (id) => {
     const employee = employees.find(e => e.id === id);
     setEmployees(employees.filter(e => e.id !== id));
-    toast({
-      title: 'Employé supprimé',
-      description: `${employee?.name} a été retiré de l'équipe`,
-    });
+
   };
 
   const filteredEmployees = employees.filter(emp => {
