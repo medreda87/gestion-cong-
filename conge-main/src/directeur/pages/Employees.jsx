@@ -95,7 +95,11 @@ export default function Employees() {
 
   const getAllEmployees = async () => {
     try{
-      const res = await axios.get("http://localhost:8000/api/users");
+      const res = await axios.get("http://localhost:8000/api/users" , {
+      headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    });
       setEmployees(res.data);
     }
     catch(error){
@@ -132,7 +136,11 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    await axios.put(`http://localhost:8000/api/users/${editingEmployee.id}`, formData);
+    await axios.put(`http://localhost:8000/api/users/${editingEmployee.id}`, formData , {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    }
+  });
 
     toast.success("Employé modifié avec succès");
 

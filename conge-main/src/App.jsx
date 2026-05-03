@@ -81,7 +81,6 @@ const App = () => (
             <Route path="/demande/:id" element={<DetailDemande />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-            <ToastContainer />
         </BrowserRouter>
         </LeaveProvider>
         </DataProvider>
