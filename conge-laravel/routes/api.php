@@ -6,6 +6,7 @@ use App\Http\Controllers\authController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\SoldeCongeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DocumentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -44,4 +45,8 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'updatUser']);   
     Route::get('/users/{id}', [UserController::class, 'show']); 
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    Route::post('/documents', [DocumentController::class, 'store']);
+    Route::get('/documents', [DocumentController::class, 'index']);
+    Route::delete('/documents/{id}', [DocumentController::class, 'destroy']);
+
 
