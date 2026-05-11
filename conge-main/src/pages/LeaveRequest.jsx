@@ -30,7 +30,7 @@ import { useEffect } from 'react';
 
 const LeaveRequest = () => {
   const { user } = useAuth();
-  const { addRequest } = useLeave();
+  const { addRequest,solde } = useLeave();
   const navigate = useNavigate();
 
   const [type, setType] = useState('administratif');
@@ -40,6 +40,7 @@ const LeaveRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subType, setSubType] = useState(''); 
   const [interimaireId, setInterimaireId] = useState('');
+
 
   if (!user) return null;
 
@@ -92,17 +93,8 @@ const previousBalance = balances.find(
   (b) => b.year === previousYear
 );
 
-// نحسبو solde لكل عام
-const currentSolde =
-  (currentBalance?.earnedDays || 0) -
-  (currentBalance?.usedDays || 0);
+const totalSolde = solde?.solde_restant ?? 0;
 
-const previousSolde =
-  (previousBalance?.earnedDays || 0) -
-  (previousBalance?.usedDays || 0);
-
-  // المجموع
-  const totalSolde = currentSolde + previousSolde;
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totalSolde : duration > 0);
