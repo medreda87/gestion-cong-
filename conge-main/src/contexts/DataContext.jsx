@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { RequestStatus } from '@/types/leave';
+import { ImageOff } from 'lucide-react';
+import axios from 'axios';
 
 const DataContext = createContext(undefined);
 const INITIAL_HOLIDAYS = [
@@ -44,7 +46,7 @@ const INITIAL_REQUESTS = [
 
 export const DataProvider = ({ children }) => {
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
-  const [holidays, setHolidays] = useState(INITIAL_HOLIDAYS);
+  const [holidays, setHolidays] = useState();
 
   const addRequest = (req) => {
     setRequests(prev => [
@@ -70,24 +72,65 @@ export const DataProvider = ({ children }) => {
         if (status === 'valide_directeur' && comment)
           updates.directeurComment = comment;
 
-        if (status === 'refuse' && comment)
-          updates.responsableComment = comment;
-
         return { ...r, ...updates };
       })
     );
   };
 
-  const addHoliday = (holiday) => {
-    setHolidays(prev => [
-      ...prev,
-      { ...holiday, id: `h${Date.now()}` },
-    ]);
-  };
+ const addHoliday = async (holiday) => {
+  const response = await axios.post(
+    "http://127.0.0.1:8000/api/holidays",
+    holiday,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Accept: "application/json",
+      },
+    }
+  );
+  setHolidays(prev => [...prev, response.data]);
+};
 
-  const removeHoliday = (id) => {
-    setHolidays(prev => prev.filter(h => h.id !== id));
-  };
+const updateHoliday = async (id, data) => {
+  const response = await axios.put(
+    `http://127.0.0.1:8000/api/holidays/${id}`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Accept: "application/json",
+      },
+    }
+  );
+
+  setHolidays(prev =>
+    prev.map(h => (h.id === id ? response.data : h))
+  );
+};
+
+const removeHoliday = async (id) => {
+  await axios.delete(`http://127.0.0.1:8000/api/holidays/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  setHolidays(prev => prev.filter(h => h.id !== id));
+};
+
+const getHolidays = async () => {
+  const response = await axios.get("http://127.0.0.1:8000/api/holidays", {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  setHolidays(response.data);
+};
+
+useEffect(() => {
+    getHolidays();
+},[])
 
   return (
     <DataContext.Provider
@@ -98,6 +141,8 @@ export const DataProvider = ({ children }) => {
         updateRequestStatus,
         addHoliday,
         removeHoliday,
+        getHolidays,
+        updateHoliday
       }}
     >
       {children}
