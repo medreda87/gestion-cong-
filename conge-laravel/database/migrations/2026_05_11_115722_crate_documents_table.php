@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('documents', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('url');
-            $table->timestamps();
+       $table->id();
+        $table->string('title');
+        $table->string('file_url');
+        $table->string('mime_type')->nullable();
+        $table->timestamps();
         });
     }
 

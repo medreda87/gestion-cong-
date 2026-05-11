@@ -10,6 +10,7 @@ class Document extends Model
     use HasFactory;
     protected $fillable = [
         'title',
-        'url',
+        'file_url',
+        'mime_type',
     ];
 }

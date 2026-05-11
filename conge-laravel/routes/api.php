@@ -56,3 +56,7 @@ Route::put('/users/{id}', [UserController::class, 'updatUser']);
 Route::get('/users/{id}', [UserController::class, 'show']); 
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
+
+Route::get('/documents', [DocumentController::class, 'index']);
+Route::post('/documents', [DocumentController::class, 'store']);
+Route::delete('/documents/{id}', [DocumentController::class, 'destroy']); 
