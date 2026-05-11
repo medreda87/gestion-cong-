@@ -8,6 +8,7 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\SoldeCongeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DocumentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -55,7 +56,11 @@ Route::get('/users', [UserController::class, 'getAllUsers']);
 Route::put('/users/{id}', [UserController::class, 'updatUser']);   
 Route::get('/users/{id}', [UserController::class, 'show']); 
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
+Route::get('/interimaires/{id}', [UserController::class, 'getInterimaires']);
 
 
 Route::put('/demandes/{id}/validate', [LeaveController::class, 'validateLeave']);
 
+Route::get('/documents', [DocumentController::class, 'index']);
+Route::post('/documents', [DocumentController::class, 'store']);
+Route::delete('/documents/{id}', [DocumentController::class, 'destroy']); 
