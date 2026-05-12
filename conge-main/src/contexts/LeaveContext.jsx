@@ -13,8 +13,6 @@ export const LeaveProvider = ({ children }) => {
 
   const { user } = useAuth();
   const getToken = () => localStorage.getItem("token");
-
-<<<<<<< HEAD
   const getDemandes = async () => {
     setLoading(true);
     try {
@@ -48,21 +46,20 @@ export const LeaveProvider = ({ children }) => {
   }, []);
 
   const addRequest = async (request) => {
-    const response = await axios.post(`${API_URL}/store_demande`, request, {
-=======
-const getDemandes = async () => {
-  try {
-    const response = await axios.get("http://127.0.0.1:8000/api/demandes",{
->>>>>>> 29a8d6eecbf17a8d6e60c0cc21c95fdd97e46716
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-        Accept: "application/json",
-      },
-    });
+      const response = await axios.post(
+        `${API_URL}/store_demande`,
+        request,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
-    await getDemandes();
-    return response.data;
-  };
+      await getDemandes();
+      return response.data;
+    };
 
   const updateRequestStatus = async (id, status, comment = "") => {
     await axios.put(

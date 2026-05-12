@@ -19,10 +19,6 @@ const PendingRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
-<<<<<<< HEAD
-=======
-
-
   const handleValidate = async (id) => {
   try {
 
@@ -39,7 +35,6 @@ const PendingRequests = () => {
   }
 };
 
->>>>>>> 29a8d6eecbf17a8d6e60c0cc21c95fdd97e46716
   if (!user) return null;
 
   const pendingRequests = user.role === 'directeur' 
