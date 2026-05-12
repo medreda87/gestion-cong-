@@ -19,7 +19,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const balance = useBalance();
   const { getEmployeeTotalBalance, getEmployeeYearBalance } = balance;
-  const { requests, images, getRequestsByEmployee, getPendingForManager, getPendingForDirector, addImage } = useLeave();
+  const { requests, images,solde, getRequestsByEmployee, getPendingForManager, getPendingForDirector, addImage } = useLeave();
   const [uploadFile, setUploadFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -56,15 +56,7 @@ const previousBalance = balances.find(
   (b) => b.year === previousYear
 );
 
-const currentSolde =
-  (currentBalance?.earnedDays || 0) -
-  (currentBalance?.usedDays || 0);
-
-const previousSolde =
-  (previousBalance?.earnedDays || 0) -
-  (previousBalance?.usedDays || 0);
-
-const totalSolde = currentSolde + previousSolde;
+const totalSolde = solde?.total_annuel ?? 0;
 
   const handleUpload = async () => {
     if (!uploadFile) return;
@@ -286,7 +278,7 @@ const pendingToReview =
     {
       title: "Solde de congés",
       value: totalSolde,
-      subtitle: `${previousYear}: ${previousSolde} j • ${currentYear}: ${currentSolde} j`,
+      subtitle: `Restant: ${solde?.solde_restant ?? 0} j`,
       icon: Calendar,
       color: "from-blue-500 to-cyan-500",
       bg: "bg-blue-50",

@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\SoldeConge;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -11,7 +12,9 @@ class UsersImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        return User::firstOrCreate(
+       
+        
+        $user = User::firstOrCreate(
             [
                 // التحقق واش user déjà kayen
                 'email' => $row['email'] ?? null,
@@ -61,9 +64,23 @@ class UsersImport implements ToModel, WithHeadingRow
                 'solde_annee_precedente' => $row['solde_annee_precedente'] ?? 0,
             ]
         );
+
+        $soldePrecedent = $row['solde_annee_precedente'] ?? 0;
+        $soldeDerniere = $row['solde_annee_derniere'] ?? 0;
+
+        $soldeConge = new SoldeConge();
+        $soldeConge->user_id = $user->id;
+        $soldeConge->solde_annee_precedente = $soldePrecedent;
+        $soldeConge->total_annuel = $soldePrecedent + $soldeDerniere;
+        $soldeConge->solde_utilise = 0;
+        $soldeConge->solde_restant = $soldePrecedent + $soldeDerniere;
+        $soldeConge->save();
+    
+    return $user;
     }
 
-    private function formatDate($value)
+    
+    public function formatDate($value)
     {
         if (!$value) {
             return null;

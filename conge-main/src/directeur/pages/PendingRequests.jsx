@@ -14,11 +14,26 @@ import { useNavigate } from 'react-router-dom';
 
 const PendingRequests = () => {
   const { user } = useAuth();
-  const { getPendingForDirector, updateRequestStatus } = useLeave();
+  const { getPendingForDirector, updateRequestStatus,validateLeave } = useLeave();
   const navigate = useNavigate();
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
+  const handleValidate = async (id) => {
+  try {
+
+    await validateLeave(id);
+
+    toast.success("Demande validée");
+
+  } catch (error) {
+
+    toast.error(
+      error.response?.data?.message ||
+      "Erreur validation"
+    );
+  }
+};
 
   if (!user) return null;
 
@@ -128,7 +143,6 @@ const PendingRequests = () => {
                   {request.duration} jours
                 </p>
               </div>
-
               {request.reason && (
                 <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
                   <MessageCircle size={14} className="mt-0.5" />
@@ -172,7 +186,10 @@ const PendingRequests = () => {
               {request.status !== "cancelled" && (
                 <button
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                  onClick={() => handleAction(request, "approve")}
+                  onClick={() => {
+                    handleAction(request, "approve")
+                    
+                  }}
                 >
                   <CheckCircle className="h-4 w-4" />
                   Approuver
@@ -249,7 +266,11 @@ onClick={(e) => e.stopPropagation()}
                     Annuler
                   </button>
                   <button
-                    onClick={confirmAction}
+                    onClick={() => {
+                      handleValidate(selectedRequest.id);
+                      setSelectedRequest(null);
+                      setAction(null);
+                    }}
                     className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
                       action === 'approve' 
                         ? 'bg-success text-success-foreground hover:bg-success/90' 

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LeaveContext = createContext(undefined);
 
@@ -8,132 +9,167 @@ const API_URL = "http://127.0.0.1:8000/api";
 export const LeaveProvider = ({ children }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [solde, setSolde] = useState(null);
 
+  const { user } = useAuth();
   const getToken = () => localStorage.getItem("token");
-
-  
-const getDemandes = async () => {
-  try {
-    const response = await axios.get("http://127.0.0.1:8000/api/demandes",{
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        Accept: "application/json",
-      },
-    });
-    
-    console.log("DEMANDES API:", response.data);
-
-    const data = response.data;
-
-    setRequests(
-      Array.isArray(data)
-        ? data
-        : Array.isArray(data.demandes)
-        ? data.demandes
-        : []
-    );
-  } catch (error) {
-    console.error("GET DEMANDES ERROR:", error.response?.data || error.message);
-  }
-};
-
-useEffect(() => {
-  getDemandes();
-}, []);
-
-  const addRequest = async (request) => {
+  const getDemandes = async () => {
+    setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/store_demande`, request, {
+      const response = await axios.get(`${API_URL}/demandes`, {
         headers: {
           Authorization: `Bearer ${getToken()}`,
           Accept: "application/json",
         },
       });
+
+      const data = response.data;
+
+      setRequests(
+        Array.isArray(data)
+          ? data
+          : Array.isArray(data.demandes)
+          ? data.demandes
+          : []
+      );
+    } catch (error) {
+      console.error("GET DEMANDES ERROR:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (getToken()) {
+      getDemandes();
+    }
+  }, []);
+
+  const addRequest = async (request) => {
+      const response = await axios.post(
+        `${API_URL}/store_demande`,
+        request,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
       await getDemandes();
       return response.data;
-    } catch (error) {
-      console.error("Erreur addRequest:", error.response?.data || error.message);
-      throw error;
-    }
-  };
+    };
 
   const updateRequestStatus = async (id, status, comment = "") => {
-    try {
-      await axios.put(
-        `${API_URL}/demandes/${id}/status`,
-        { status, comment },
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-            Accept: "application/json",
-          },
-        }
-      );
-
-      await getDemandes();
-    } catch (error) {
-      console.error("Erreur updateRequestStatus:", error.response?.data || error.message);
-      throw error;
-    }
-  };
-
-  const cancelLeave = async (id) => {
-    try {
-      await axios.put(
-        `${API_URL}/demandes/${id}/cancel`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-            Accept: "application/json",
-          },
-        }
-      );
-
-      await getDemandes();
-    } catch (error) {
-      console.error("Erreur cancelLeave:", error.response?.data || error.message);
-      throw error;
-    }
-  };
-
-  const deleteLeave = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/demandes/${id}`,{
+    await axios.put(
+      `${API_URL}/demandes/${id}/status`,
+      { status, comment },
+      {
         headers: {
           Authorization: `Bearer ${getToken()}`,
           Accept: "application/json",
         },
-      });
+      }
+    );
 
-      await getDemandes();
-    } catch (error) {
-      console.error("Erreur deleteLeave:", error.response?.data || error.message);
-      throw error;
-    }
+    await getDemandes();
   };
 
- const getRequestsByEmployee = (employeeId) =>
-  (Array.isArray(requests) ? requests : []).filter(
-    (r) => String(r.user_id) === String(employeeId)
-  );
+  const cancelLeave = async (id) => {
+    await axios.put(
+      `${API_URL}/demandes/${id}/cancel`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      }
+    );
 
- const getPendingForManager = () =>
-  (Array.isArray(requests) ? requests : []).filter(
-    (r) => r.status === "pending_manager"
-  );
+    await getDemandes();
+  };
 
-const getPendingForDirector = () =>
-  (Array.isArray(requests) ? requests : []).filter(
-    (r) => r.status === "pending_director"
-  );
+  const deleteLeave = async (id) => {
+    await axios.delete(`${API_URL}/demandes/${id}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        Accept: "application/json",
+      },
+    });
+
+    await getDemandes();
+  };
+  
+  const getRequestsByEmployee = (employeeId) =>
+    requests.filter((r) => String(r.user_id) === String(employeeId));
+
+  const getPendingForManager = () =>
+    requests.filter((r) => r.status === "pending_manager");
+
+  const getPendingForDirector = () =>
+    requests.filter((r) => r.status === "pending_director");
+
+  const getSolde = async (user_id) => {
+  try {
+    const res = await axios.get(`${API_URL}/users/${user_id}/solde`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        Accept: "application/json",
+      },
+    });
+
+    setSolde(res.data);
+  } catch (error) {
+    console.error("SOLDE ERROR:", error.response?.data || error.message);
+  }
+};
+useEffect(() => {
+  if (user?.id) {
+    getSolde(user.id);
+  } else {
+    setSolde(null);
+  }
+}, [user]);
+
+
+const validateLeave = async (id) => {
+  try {
+
+    const response = await axios.put(
+      `${API_URL}/demandes/${id}/validate`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    await getDemandes();
+
+    return response.data;
+
+  } catch (error) {
+
+    console.error(
+      "VALIDATE ERROR:",
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
 
   return (
     <LeaveContext.Provider
       value={{
         requests,
         loading,
+        solde,
         getDemandes,
         addRequest,
         updateRequestStatus,
@@ -142,6 +178,7 @@ const getPendingForDirector = () =>
         getRequestsByEmployee,
         getPendingForManager,
         getPendingForDirector,
+        validateLeave
       }}
     >
       {children}
@@ -151,9 +188,8 @@ const getPendingForDirector = () =>
 
 export const useLeave = () => {
   const context = useContext(LeaveContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useLeave must be used within a LeaveProvider');
   }
   return context;
 };
-

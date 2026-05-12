@@ -20,7 +20,7 @@ import { useEffect } from 'react';
 
 const LeaveRequest = () => {
   const { user } = useAuth();
-  const { addRequest } = useLeave();
+  const { addRequest,solde } = useLeave();
   const navigate = useNavigate();
 
   const [type, setType] = useState('administratif');
@@ -30,7 +30,12 @@ const LeaveRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subType, setSubType] = useState(''); 
   const [interimaireId, setInterimaireId] = useState('');
+<<<<<<< HEAD
   const [employees, setEmployees] = useState([]);
+=======
+
+
+>>>>>>> 56fb4a237bfa033cde95f194d4cfacd47cda744b
   if (!user) return null;
 
   
@@ -84,11 +89,9 @@ const previousBalance = balances.find(
   (b) => b.year === previousYear
 );
 
-// نحسبو solde لكل عام
-const currentSolde =
-  (currentBalance?.earnedDays || 0) -
-  (currentBalance?.usedDays || 0);
+const totalSolde = solde?.solde_restant ?? 0;
 
+<<<<<<< HEAD
 const previousSolde =
   (previousBalance?.earnedDays || 0) -
   (previousBalance?.usedDays || 0);
@@ -97,6 +100,8 @@ const previousSolde =
 
 
   const totalSolde = currentSolde + previousSolde;
+=======
+>>>>>>> 56fb4a237bfa033cde95f194d4cfacd47cda744b
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totalSolde : duration > 0);

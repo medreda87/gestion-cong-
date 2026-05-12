@@ -4,48 +4,10 @@ import { ImageOff } from 'lucide-react';
 import axios from 'axios';
 
 const DataContext = createContext(undefined);
-const INITIAL_HOLIDAYS = [
-  { id: 'h1', name: "Nouvel An", date: '2026-01-01' },
-  { id: 'h2', name: "Manifeste de l'Indépendance", date: '2026-01-11' },
-  { id: 'h3', name: "Fête du Travail", date: '2026-05-01' },
-  { id: 'h4', name: "Fête du Trône", date: '2026-07-30' },
-  { id: 'h5', name: "Révolution du Roi et du Peuple", date: '2026-08-20' },
-  { id: 'h6', name: "Fête de la Jeunesse", date: '2026-08-21' },
-  { id: 'h7', name: "Marche Verte", date: '2026-11-06' },
-  { id: 'h8', name: "Fête de l'Indépendance", date: '2026-11-18' },
-];
 
-
-const INITIAL_REQUESTS = [
-  {
-    id: 'r1',
-    employeeId: '1',
-    employeeName: 'Ahmed Benali',
-    type: 'administratif',
-    interimaire: 'Youssef Tahiri',
-    startDate: '2026-03-15',
-    endDate: '2026-03-20',
-    duration: 5,
-    status: 'en_attente',
-    createdAt: '2026-03-01',
-  },
-  {
-    id: 'r2',
-    employeeId: '1',
-    employeeName: 'Ahmed Benali',
-    type: 'exceptionnel',
-    exceptionalReason: 'naissance',
-    interimaire: 'Karim Mansouri',
-    startDate: '2026-02-10',
-    endDate: '2026-02-12',
-    duration: 3,
-    status: 'valide_directeur',
-    createdAt: '2026-02-05',
-  },
-];
 
 export const DataProvider = ({ children }) => {
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [requests, setRequests] = useState();
   const [holidays, setHolidays] = useState();
 
   const addRequest = (req) => {
