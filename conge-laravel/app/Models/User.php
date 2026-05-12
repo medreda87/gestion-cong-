@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\SoldeConge;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -81,8 +82,14 @@ protected $fillable = [
     }
     public function soldeConges()
     {
-        return $this->hasMany(SoldeConge::class);
+        return $this->hasOne(SoldeConge::class);
     }
+
+    public function soldeConge()
+    {
+        return $this->hasOne(SoldeConge::class);
+    }
+
     public function Demande(){
         $this->hasMany(Demande::class);
     }

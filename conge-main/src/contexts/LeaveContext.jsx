@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LeaveContext = createContext(undefined);
 
@@ -8,9 +9,12 @@ const API_URL = "http://127.0.0.1:8000/api";
 export const LeaveProvider = ({ children }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [solde, setSolde] = useState(null);
 
+  const { user } = useAuth();
   const getToken = () => localStorage.getItem("token");
 
+<<<<<<< HEAD
   const getDemandes = async () => {
     setLoading(true);
     try {
@@ -45,6 +49,11 @@ export const LeaveProvider = ({ children }) => {
 
   const addRequest = async (request) => {
     const response = await axios.post(`${API_URL}/store_demande`, request, {
+=======
+const getDemandes = async () => {
+  try {
+    const response = await axios.get("http://127.0.0.1:8000/api/demandes",{
+>>>>>>> 29a8d6eecbf17a8d6e60c0cc21c95fdd97e46716
       headers: {
         Authorization: `Bearer ${getToken()}`,
         Accept: "application/json",
@@ -105,11 +114,65 @@ export const LeaveProvider = ({ children }) => {
   const getPendingForDirector = () =>
     requests.filter((r) => r.status === "pending_director");
 
+  const getSolde = async (user_id) => {
+  try {
+    const res = await axios.get(`${API_URL}/users/${user_id}/solde`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        Accept: "application/json",
+      },
+    });
+
+    setSolde(res.data);
+  } catch (error) {
+    console.error("SOLDE ERROR:", error.response?.data || error.message);
+  }
+};
+useEffect(() => {
+  if (user?.id) {
+    getSolde(user.id);
+  } else {
+    setSolde(null);
+  }
+}, [user]);
+
+
+const validateLeave = async (id) => {
+  try {
+
+    const response = await axios.put(
+      `${API_URL}/demandes/${id}/validate`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    await getDemandes();
+
+    return response.data;
+
+  } catch (error) {
+
+    console.error(
+      "VALIDATE ERROR:",
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+
   return (
     <LeaveContext.Provider
       value={{
         requests,
         loading,
+        solde,
         getDemandes,
         addRequest,
         updateRequestStatus,
@@ -118,6 +181,7 @@ export const LeaveProvider = ({ children }) => {
         getRequestsByEmployee,
         getPendingForManager,
         getPendingForDirector,
+        validateLeave
       }}
     >
       {children}
