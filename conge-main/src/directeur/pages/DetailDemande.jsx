@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   ArrowLeft, User, Mail, Phone, Building2, Briefcase,
@@ -18,124 +17,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
 import { createPortal } from 'react-dom';
+import { format, isValid } from 'date-fns';
 
-// ─── Mock employee profiles ────────────────────────────────────────────────
-const MOCK_EMPLOYEES = {
-  '1': {
-    nomComplet: 'Mohamed Reda',
-    email: 'mohamed.reda@ofppt.ma',
-    telephone: '+212 6 12 34 56 78',
-    departement: 'Département Informatique',
-    poste: 'Développeur Senior',
-    matricule: 'EMP-2021-001',
-    dateEmbauche: '2021-03-15',
-    responsableDirect: 'Hassan El Mansouri',
-    statut: 'Actif',
-  },
-  '2': {
-    nomComplet: 'Ahmed Bennani',
-    email: 'ahmed.bennani@ofppt.ma',
-    telephone: '+212 6 98 76 54 32',
-    departement: 'Ressources Humaines',
-    poste: 'Chargé RH',
-    matricule: 'EMP-2019-042',
-    dateEmbauche: '2019-09-01',
-    responsableDirect: 'Fatima Zahra Alami',
-    statut: 'Actif',
-  },
-  '3': {
-    nomComplet: 'Sara El Amrani',
-    email: 'sara.elamrani@ofppt.ma',
-    telephone: '+212 6 77 88 99 00',
-    departement: 'Finance & Comptabilité',
-    poste: 'Comptable Principal',
-    matricule: 'EMP-2018-075',
-    dateEmbauche: '2018-04-10',
-    responsableDirect: 'Rachid Bensaid',
-    statut: 'Actif',
-  },
-  '4': {
-    nomComplet: 'Karim Idrissi',
-    email: 'karim.idrissi@ofppt.ma',
-    telephone: '+212 6 55 44 33 22',
-    departement: 'Formation Continue',
-    poste: 'Formateur Principal',
-    matricule: 'EMP-2020-117',
-    dateEmbauche: '2020-01-20',
-    responsableDirect: 'Nadia Benali',
-    statut: 'Actif',
-  },
+const safeFormat = (date, pattern, locale) => {
+  const d = new Date(date);
+  return isValid(d) ? format(d, pattern, { locale }) : '—';
 };
-
-// ─── Mock attachments ──────────────────────────────────────────────────────
-const MOCK_ATTACHMENTS = [
-  {
-    id: '1',
-    nom: 'Certificat_Medical_2026.pdf',
-    type: 'pdf',
-    taille: '245 KB',
-    description: 'Certificat médical',
-  },
-  {
-    id: '2',
-    nom: 'Justificatif_Conge.pdf',
-    type: 'pdf',
-    taille: '128 KB',
-    description: 'Justificatif de congé',
-  },
-];
-
-// ─── Mock leave balances per employee ─────────────────────────────────────
-const MOCK_BALANCES = {
-  '1': { total: 28, anneeDerniere: 10, anneePrecedente: 8 },
-  '2': { total: 22, anneeDerniere: 12, anneePrecedente: 10 },
-  '3': { total: 35, anneeDerniere: 15, anneePrecedente: 12 },
-  '4': { total: 18, anneeDerniere: 8,  anneePrecedente: 10 },
-};
-
-// ─── Status configuration ──────────────────────────────────────────────────
-const STATUS_CONFIG = {
-  pending_manager: {
-    label: 'En attente (Responsable)',
-    color: 'bg-amber-100 text-amber-700 border-amber-200',
-    icon: Clock,
-    dot: 'bg-amber-500',
-  },
-  pending_director: {
-    label: 'En attente (Directeur)',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
-    icon: Clock,
-    dot: 'bg-blue-500',
-  },
-  approved: {
-    label: 'Approuvée',
-    color: 'bg-green-100 text-green-700 border-green-200',
-    icon: CheckCircle,
-    dot: 'bg-green-500',
-  },
-  rejected: {
-    label: 'Refusée',
-    color: 'bg-red-100 text-red-700 border-red-200',
-    icon: XCircle,
-    dot: 'bg-red-500',
-  },
-  cancelled: {
-    label: 'Annulée',
-    color: 'bg-gray-100 text-gray-600 border-gray-200',
-    icon: XCircle,
-    dot: 'bg-gray-400',
-  },
-};
-
 // ─── PDF decision document generator ──────────────────────────────────────
 const buildDecisionHTML = (request, employee, actionStatus) => {
-  const today = format(new Date(), 'dd MMMM yyyy', { locale: fr });
+  const today = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
   const isApproved = actionStatus === 'approved';
   const actionLabel = isApproved ? 'APPROUVÉE' : 'REFUSÉE';
   const badgeColor = isApproved ? '#16a34a' : '#dc2626';
-  const startFmt = format(new Date(request.startDate), 'dd MMMM yyyy', { locale: fr });
-  const endFmt   = format(new Date(request.endDate),   'dd MMMM yyyy', { locale: fr });
-
+  const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
+  const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
+  
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -222,9 +118,9 @@ const buildDecisionHTML = (request, employee, actionStatus) => {
 
 // ─── Leave request document generator ────────────────────────────────────
 const buildDemandeHTML = (request, employee) => {
-  const today    = format(new Date(), 'dd MMMM yyyy', { locale: fr });
-  const startFmt = format(new Date(request.startDate), 'dd MMMM yyyy', { locale: fr });
-  const endFmt   = format(new Date(request.endDate),   'dd MMMM yyyy', { locale: fr });
+  const today    = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
+  const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
+  const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -343,6 +239,42 @@ const card = {
 //  MAIN COMPONENT
 // ══════════════════════════════════════════════════════════════════════════
 const DetailDemande = () => {
+  const STATUS_CONFIG = {
+      pending_manager: {
+        label: 'En attente Responsable',
+        color: 'bg-orange-100 text-orange-700 border-orange-200',
+        dot: 'bg-orange-500',
+        icon: Clock,
+      },
+
+      pending_director: {
+        label: 'En attente Directeur',
+        color: 'bg-blue-100 text-blue-700 border-blue-200',
+        dot: 'bg-blue-500',
+        icon: Eye,
+      },
+
+      approved: {
+        label: 'Approuvée',
+        color: 'bg-green-100 text-green-700 border-green-200',
+        dot: 'bg-green-500',
+        icon: CheckCircle,
+      },
+
+      rejected: {
+        label: 'Refusée',
+        color: 'bg-red-100 text-red-700 border-red-200',
+        dot: 'bg-red-500',
+        icon: XCircle,
+      },
+
+      cancelled: {
+        label: 'Annulée',
+        color: 'bg-gray-100 text-gray-700 border-gray-200',
+        dot: 'bg-gray-500',
+        icon: XCircle,
+      },
+    };
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -355,55 +287,46 @@ const DetailDemande = () => {
   const [employeeData, setEmployeeData] = useState(null);
   const [soldeLoading, setSoldeLoading] = useState(false);
 
-  const request = requests.find(r => r.id === id);
+  const request = requests.find(r => String(r.id) === String(id));
 
   // ── Fetch employee profile + solde depuis l'API ──
-  useEffect(() => {
-    if (!request) return;
-    setSoldeLoading(true);
-    const token = localStorage.getItem('token');
+ useEffect(() => {
+  if (!request?.user_id) return;
 
-    axios
-      .get('http://127.0.0.1:8000/api/my-solde', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        const u = res.data?.user ?? {};
-        const s = res.data?.solde ?? {};
+  setSoldeLoading(true);
+  const token = localStorage.getItem('token');
 
-        const nomComplet =
+  axios
+    .get(`http://127.0.0.1:8000/api/users/${request.user_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    })
+    .then(res => {
+      const u = res.data ?? {};
+
+      setEmployeeData({
+        nomComplet:
           u.nom_prenom?.trim() ||
           (u.prenom && u.nom ? `${u.prenom} ${u.nom}` : null) ||
           u.nom ||
-          null;
+          null,
 
-        setEmployeeData({
-          nomComplet,
-          email:        u.email        ?? null,
-          telephone:    u.telephone    ?? null,
-          departement:  u.affectation  ?? null,
-          poste:        u.fonction     ?? null,
-          matricule:    u.matricule    ?? null,
-          dateEmbauche: u.date_recrutement ?? u.date_prise_service ?? null,
-          statut:       u.actif === false ? 'Inactif' : 'Actif',
-        });
-
-        setSoldeData({
-          total:           s.solde_restant          ?? 0,
-          anneeDerniere:   u.solde_annee_derniere   ?? s.solde_annee_derniere ?? 0,
-          anneePrecedente: s.solde_annee_precedente ?? u.solde_annee_precedente ?? 0,
-        });
-      })
-      .catch(() => {
-        const fallback = MOCK_BALANCES[request.employeeId];
-        if (fallback) setSoldeData(fallback);
-      })
-      .finally(() => setSoldeLoading(false));
-  }, [request?.employeeId]);
-
+        email: u.email ?? null,
+        telephone: u.telephone ?? null,
+        departement: u.affectation ?? null,
+        poste: u.fonction ?? null,
+        matricule: u.matricule ?? null,
+        dateEmbauche: u.date_recrutement ?? null,
+        statut: u.actif === false ? 'Inactif' : 'Actif',
+      });
+    })
+    .catch(() => {
+      setEmployeeData(null);
+    })
+    .finally(() => setSoldeLoading(false));
+}, [request?.user_id]);
   // ── Not found guard ──
   if (!request) {
     return (
@@ -422,7 +345,17 @@ const DetailDemande = () => {
     );
   }
 
-  const employee    = employeeData ?? MOCK_EMPLOYEES[request.employeeId];
+  const employee = employeeData ?? {
+  nomComplet: request.employeeName || 'Employé',
+  email: '—',
+  telephone: '—',
+  departement: '—',
+  poste: '—',
+  matricule: '—',
+  dateEmbauche: null,
+  statut: 'Actif',
+  responsableDirect: '—',
+  };
   const statusCfg   = STATUS_CONFIG[request.status] ?? STATUS_CONFIG.pending_manager;
   const StatusIcon  = statusCfg.icon;
 
@@ -437,12 +370,15 @@ const DetailDemande = () => {
     setComment('');
     setShowModal(true);
   };
-
+  const getNextStatus = (action) => {
+  return action === 'approve' ? 'approved' : 'rejected';
+};
   const confirmAction = () => {
-    const newStatus =
-      modalAction === 'approve'
-        ? user?.role === 'manager' ? 'pending_director' : 'approved'
-        : 'rejected';
+    const newStatus = getNextStatus(
+          modalAction,
+          user?.role,
+          request.status
+        );
 
     updateRequestStatus(request.id, newStatus, comment || undefined);
     toast.success(
@@ -524,7 +460,7 @@ const DetailDemande = () => {
           </div>
 
           {/* Right: download buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+         {user?.role === 'directeur' &&  (<div className="flex items-center gap-2 flex-shrink-0">
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -545,7 +481,7 @@ const DetailDemande = () => {
               <span className="hidden sm:inline">Télécharger Demande</span>
               <span className="sm:hidden">Demande</span>
             </motion.button>
-          </div>
+          </div>) }
         </motion.div>
 
         {/* ══ EMPLOYEE + REQUEST ══════════════════════════════════════════ */}
@@ -601,7 +537,8 @@ const DetailDemande = () => {
               <InfoField icon={<Briefcase size={14} className="text-blue-500" />} label="Poste"            value={employee?.poste            ?? '—'} />
               <InfoField icon={<Hash size={14} className="text-blue-500" />}      label="Matricule"        value={employee?.matricule        ?? '—'} />
               <InfoField icon={<Calendar size={14} className="text-blue-500" />}  label="Date d'embauche"  value={
-                employee?.dateEmbauche
+                employee?.dateEmbauche &&
+                !isNaN(new Date(employee.dateEmbauche).getTime())
                   ? format(new Date(employee.dateEmbauche), 'dd MMM yyyy', { locale: fr })
                   : '—'
               } />
@@ -648,7 +585,7 @@ const DetailDemande = () => {
                     <Calendar size={11} /> Date début
                   </p>
                   <p className="font-semibold text-sm">
-                    {format(new Date(request.startDate), 'dd MMM yyyy', { locale: fr })}
+                    {safeFormat(request.start_date, 'dd MMM yyyy', fr)}
                   </p>
                 </div>
                 <div className="rounded-xl border p-3.5">
@@ -656,7 +593,7 @@ const DetailDemande = () => {
                     <Calendar size={11} /> Date fin
                   </p>
                   <p className="font-semibold text-sm">
-                    {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
+                    {safeFormat(request.end_date, 'dd MMM yyyy', fr)}
                   </p>
                 </div>
               </div>
@@ -695,7 +632,7 @@ const DetailDemande = () => {
               <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <AlarmClock size={11} />
-                  Créée le {format(new Date(request.createdAt), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                  Créée le {safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)}
                 </span>
                 <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusCfg.color}`}>
                   <StatusIcon size={10} /> {statusCfg.label}
@@ -707,7 +644,11 @@ const DetailDemande = () => {
 
         {/* ══ SOLDE DE CONGÉ ═══════════════════════════════════════════════ */}
         {(() => {
-            const bal = soldeData ?? MOCK_BALANCES[request.employeeId] ?? { total: 0, anneeDerniere: 0, anneePrecedente: 0 };
+            const bal = soldeData ?? {
+                                      total: 0,
+                                      anneeDerniere: 0,
+                                      anneePrecedente: 0
+                                    };
 
             const soldeApres = Math.max(0, bal.total - request.duration);
             const pct = bal.total > 0 ? Math.min(100, Math.round((request.duration / bal.total) * 100)) : 0;
@@ -906,8 +847,8 @@ const DetailDemande = () => {
                   {LEAVE_TYPE_LABELS[request.type]} &bull; {request.duration} jour(s)
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {format(new Date(request.startDate), 'dd MMM', { locale: fr })} &rarr;{' '}
-                  {format(new Date(request.endDate),   'dd MMM yyyy', { locale: fr })}
+                  {safeFormat(request.start_date, 'dd MMM yyyy', fr)} &rarr;{' '}
+                  {safeFormat(request.end_date, 'dd MMM yyyy', fr)}
                 </p>
               </div>
 

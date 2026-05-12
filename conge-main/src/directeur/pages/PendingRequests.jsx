@@ -19,7 +19,6 @@ const PendingRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
-
   if (!user) return null;
 
   const pendingRequests = user.role === 'directeur' 
@@ -128,7 +127,6 @@ const PendingRequests = () => {
                   {request.duration} jours
                 </p>
               </div>
-
               {request.reason && (
                 <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
                   <MessageCircle size={14} className="mt-0.5" />
