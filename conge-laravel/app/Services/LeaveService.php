@@ -32,51 +32,97 @@ class LeaveService
     }
 
     // deduction solde
-    public function consumeSolde($user, $days)
-    {
-        $solde = $user->soldeConge;
+ public function consumeSolde($user, $days, $type)
+{
+    $solde = $user->soldeConge;
 
-        if (!$solde) {
-            return [
-                'success' => false,
-                'message' => 'Solde introuvable'
-            ];
-        }
-
-        $remaining = $days;
-
-        // Deduct from current remaining balance first
-        if ($solde->solde_restant >= $remaining) {
-            $solde->solde_restant -= $remaining;
-            $remaining = 0;
-        } else {
-            $remaining -= $solde->solde_restant;
-            $solde->solde_restant = 0;
-        }
-
-        // If still remaining, deduct from previous year balance
-        if ($remaining > 0) {
-            if ($solde->solde_annee_precedente < $remaining) {
-                return [
-                    'success' => false,
-                    'message' => 'Solde insuffisant'
-                ];
-            }
-            $solde->solde_annee_precedente -= $remaining;
-            $solde->solde_restant += $solde->solde_annee_precedente; // Wait, no: solde_restant is already 0, but actually, solde_restant should be the total remaining after deduction.
-        }
-
-        // Update used balance
-        $solde->solde_utilise += $days;
-
-        // Recalculate total remaining (though it should be solde_restant + solde_annee_precedente, but since we deducted, it's already updated)
-        // Actually, solde_restant is the remaining after deduction from current, and solde_annee_precedente is adjusted.
-
-        $solde->save();
+    // Congé exceptionnel => no deduction
+    if ($type !== 'administratif') {
 
         return [
             'success' => true,
+            'message' => 'Congé exceptionnel - aucun solde consommé',
             'solde' => $solde
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | vérification solde restant
+    |--------------------------------------------------------------------------
+    */
+
+    if ($solde->solde_restant < $days) {
+
+        return [
+            'success' => false,
+            'message' => 'Solde insuffisant'
+        ];
+    }
+
+    $remaining = $days;
+
+    /*
+    |--------------------------------------------------------------------------
+    | 1. deduction année dernière (table users)
+    |--------------------------------------------------------------------------
+    */
+
+    if ($user->solde_annee_derniere >= $remaining) {
+
+        $user->solde_annee_derniere -= $remaining;
+
+        $remaining = 0;
+
+    } else {
+
+        $remaining -= $user->solde_annee_derniere;
+
+        $user->solde_annee_derniere = 0;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 2. deduction année précédente (table users)
+    |--------------------------------------------------------------------------
+    */
+
+    if ($remaining > 0) {
+
+        $user->solde_annee_precedente -= $remaining;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | update solde_conges
+    |--------------------------------------------------------------------------
+    */
+
+    $solde->solde_utilise += $days;
+
+    $solde->solde_restant =
+        $user->solde_annee_derniere +
+        $user->solde_annee_precedente;
+
+    /*
+    |--------------------------------------------------------------------------
+    | save
+    |--------------------------------------------------------------------------
+    */
+
+   $user->update([
+    'solde_annee_derniere' => $user->solde_annee_derniere,
+    'solde_annee_precedente' => $user->solde_annee_precedente,
+]);
+
+$solde->update([
+    'solde_utilise' => $solde->solde_utilise,
+    'solde_restant' => $solde->solde_restant,
+]);
+
+    return [
+        'success' => true,
+        'solde' => $solde
+    ];
+}
 }

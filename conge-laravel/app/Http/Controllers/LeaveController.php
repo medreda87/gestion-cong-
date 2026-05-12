@@ -27,7 +27,7 @@ class LeaveController extends Controller
     }
 
     // consume
-    $result = $service->consumeSolde($user, $days);
+    $result = $service->consumeSolde($user, $days,$leave->type);
 
     if (!$result['success']) {
         return response()->json([
