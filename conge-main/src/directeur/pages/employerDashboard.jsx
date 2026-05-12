@@ -109,9 +109,8 @@ export default function DirecteurDashboard() {
   ];
 
   const sortedRequests = [...directorRequests].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
-
   return (
     <DashboardLayout>
       <motion.div
@@ -218,10 +217,10 @@ export default function DirecteurDashboard() {
             <TableBody>
               {sortedRequests.slice(0, 8).map((req) => (
                 <TableRow key={req.id}>
-                  <TableCell>{req.employeeName}</TableCell>
+                  <TableCell>{req.user.nom_prenom}</TableCell>
                   <TableCell>{req.type}</TableCell>
                   <TableCell>
-                    {req.startDate} → {req.endDate}
+                    {req.start_date} → {req.end_date}
                   </TableCell>
                   <TableCell>{req.duration}j</TableCell>
                   <TableCell>
