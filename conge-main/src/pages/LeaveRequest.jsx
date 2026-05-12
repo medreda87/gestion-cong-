@@ -1,14 +1,4 @@
 import { useState } from 'react';
-
-const initialEmployees = [
-  { id: '1', name: 'Ahmed El Mansouri', department: 'Formation' },
-  { id: '2', name: 'Fatima Benali', department: 'Administration' },
-  { id: '3', name: 'Mohammed Alaoui', department: 'Formation' },
-  { id: '4', name: 'Sara Tazi', department: 'RH' },
-  { id: '5', name: 'Youssef Idrissi', department: 'Technique' },
-  { id: '6', name: 'Khadija Moussaoui', department: 'Direction' },
-];
-
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CalendarPlus, AlertTriangle, CheckCircle } from 'lucide-react';
@@ -40,7 +30,7 @@ const LeaveRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subType, setSubType] = useState(''); 
   const [interimaireId, setInterimaireId] = useState('');
-
+  const [employees, setEmployees] = useState([]);
   if (!user) return null;
 
   
@@ -77,6 +67,8 @@ const calculateDuration = () => {
   }
 
 
+
+
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
 
@@ -102,12 +94,13 @@ const previousSolde =
   (previousBalance?.usedDays || 0);
 
   // المجموع
+
+
   const totalSolde = currentSolde + previousSolde;
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totalSolde : duration > 0);
   const isDateValid = startDate && new Date(startDate) >= addDays(today,7);
-
   const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -148,6 +141,8 @@ const HOLIDAYS = [
   '2026-01-01',
   '2026-01-11',
   '2026-05-01',
+  '2026-05-25',
+  '2026-05-26',
   '2026-07-30',
 ];
 
@@ -188,6 +183,26 @@ useEffect(() => {
 }, [type, subType, startDate]);
 
 
+
+useEffect(() => {
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/interimaires/${user.id}`
+      );
+
+      const data = await response.json();
+
+      setEmployees(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (user?.id) {
+    fetchEmployees();
+  }
+}, [user]);
   return (
     <DashboardLayout>
       <motion.div
@@ -388,25 +403,32 @@ useEffect(() => {
             </div>
 
             {/* Interimaire */}
-            <div className="space-y-2">
-              <label htmlFor="interimaire" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Interimaire (facultatif)
-              </label>
-              <Select value={interimaireId} onValueChange={setInterimaireId}>
-                <SelectTrigger id="interimaire" className="w-full h-10">
-                  <SelectValue placeholder="Sélectionner un interimaire (même département)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {initialEmployees
-                    .filter(emp => emp.department === user.department && emp.id !== user.id)
-                    .map((emp) => (
-                      <SelectItem key={emp.id} value={emp.id}>
-                        {emp.name}
-                      </SelectItem>
-                    )) || <SelectItem value="" disabled>Aucun interimaire disponible dans votre département</SelectItem>}
-                </SelectContent>
-              </Select>
-            </div>
+<div className="space-y-2">
+  <label htmlFor="interimaire" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+    Interimaire (facultatif)
+  </label>
+  <Select 
+    value={interimaireId || ""} 
+    onValueChange={(value) => setInterimaireId(value)}
+  >
+    <SelectTrigger id="interimaire" className="w-full h-10">
+      <SelectValue placeholder="Sélectionner un interimaire (même département)" />
+    </SelectTrigger>
+    <SelectContent>
+      {employees.length > 0 ? (
+        employees.map((emp) => (
+          <SelectItem key={emp.id} value={String(emp.id)}>
+            {emp.nom_prenom}
+          </SelectItem>
+        ))
+      ) : (
+        <SelectItem value="no-data" disabled>
+          Aucun interimaire disponible dans votre département
+        </SelectItem>
+      )}
+    </SelectContent>
+  </Select>
+</div>
 
             {/* Submit */}
             <div className="flex gap-3 pt-4">
