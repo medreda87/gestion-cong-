@@ -26,7 +26,8 @@ class DemandeController extends Controller
             ->orderBy('id', 'desc')
             ->get();
     } else {
-        $demandes = Demande::where('user_id', $user->id)
+        $demandes = Demande::with('user')
+            ->where('user_id', $user->id)
             ->orderBy('id', 'desc')
             ->get();
     }
