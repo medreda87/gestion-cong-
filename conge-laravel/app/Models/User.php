@@ -93,4 +93,10 @@ protected $fillable = [
     public function Demande(){
         $this->hasMany(Demande::class);
     }
+    public function DetailJobUser(){
+        return $this->hasOne(DetailJobUser::class);
+    }
+    public function DetailUser(){
+        return $this->hasOne(DetailUser::class);
+    }
 }
