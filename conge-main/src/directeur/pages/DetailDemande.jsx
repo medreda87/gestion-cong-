@@ -22,6 +22,7 @@ import { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import html2pdf from "html2pdf.js";
+
 import DecisionDocument from './DecisionDocument';
 
   const safeFormat = (date, pattern, locale) => {
@@ -326,6 +327,9 @@ const DetailDemande = () => {
         matricule: u.matricule ?? null,
         dateEmbauche: u.date_recrutement ?? null,
         statut: u.actif === false ? 'Inactif' : 'Actif',
+        anneeDerniere: u.solde_annee_derniere ?? 0,
+        anneePrecedente:u.solde_annee_precedente ??  0,
+
       });
     })
     .catch(() => {
@@ -333,6 +337,7 @@ const DetailDemande = () => {
     })
     .finally(() => setSoldeLoading(false));
 }, [request?.user_id]);
+  
   // ── Not found guard ──
   if (!request) {
     return (
@@ -361,6 +366,8 @@ const DetailDemande = () => {
   dateEmbauche: null,
   statut: 'Actif',
   responsableDirect: '—',
+  anneeDerniere:  0,
+  anneePrecedente:0,
   };
   const statusCfg   = STATUS_CONFIG[request.status] ?? STATUS_CONFIG.pending_manager;
   const StatusIcon  = statusCfg.icon;
@@ -691,11 +698,15 @@ const DetailDemande = () => {
               </div>
         {/* ══ SOLDE DE CONGÉ ═══════════════════════════════════════════════ */}
         {(() => {
-            const bal = soldeData ?? {
-                                      total: 0,
-                                      anneeDerniere: 0,
-                                      anneePrecedente: 0
-                                    };
+            const anneeDerniere = Number(employee?.anneeDerniere) || 0;
+            const anneePrecedente = Number(employee?.anneePrecedente) || 0;
+
+            const bal = {
+              total: anneeDerniere + anneePrecedente,
+
+              anneeDerniere,
+              anneePrecedente,
+            };
 
             const soldeApres = Math.max(0, bal.total - request.duration);
             const pct = bal.total > 0 ? Math.min(100, Math.round((request.duration / bal.total) * 100)) : 0;
