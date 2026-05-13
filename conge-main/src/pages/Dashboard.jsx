@@ -370,7 +370,13 @@ const pendingToReview =
                     </p>
                   </div>
                 </div>
-                <Link to="/pending">
+                <Link
+                  to={
+                  user.role === "manager"
+                  ? "/pending"
+                  : "/pending-director"
+                  }
+                  >
                   <Button variant="outline" size="sm">
                     Voir tout
                   </Button>

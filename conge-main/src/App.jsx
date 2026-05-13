@@ -22,9 +22,8 @@ import Setting from './directeur/pages/paramettre';
 import DetailDemande from '@/directeur/pages/DetailDemande';
 import DocumentsDirecteur from "./directeur/pages/DocumentsDirecteur";
 import EmployeeDocuments from "./pages/DocumentEmploye";
-import { Toaster } from "react-hot-toast";  
+import { Toaster } from "react-hot-toast"; 
 const queryClient = new QueryClient();
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -49,12 +48,20 @@ const App = () => (
            <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/request" element={<LeaveRequest />} />
+            <Route path="/request"
+            element={<RoleGuard roles={['employee','manager']}>
+            <LeaveRequest />
+            </RoleGuard>}
+             />
             <Route path="/employerDashboard" element={<EmployeeDashboard />} />
             <Route path="/documents" element={<DocumentsDirecteur/>}/>
             <Route path="/documentEmploye" element={<EmployeeDocuments/>}/>
             <Route path='/paramettre' element={<Setting/>}/>
-            <Route path="/history" element={<LeaveHistory />} />
+            <Route path="/history" element={
+              <RoleGuard roles={['employee']}>
+              <LeaveHistory />
+              </RoleGuard>} 
+              />
             <Route path="/pramettre" element={<Setting/>} />
             <Route path="/pending" element={
               <RoleGuard roles={['manager']}>

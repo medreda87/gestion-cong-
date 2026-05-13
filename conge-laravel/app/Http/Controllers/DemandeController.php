@@ -8,35 +8,35 @@ use Illuminate\Http\Request;
 
 class DemandeController extends Controller
 {
-    public function getdemande()
+public function getdemande()
 {
-     $user = auth('api')->user();
+    $user = auth('api')->user();
+
+    $query = Demande::with('user')->orderBy('id', 'desc');
 
     if ($user->role === 'manager') {
-        $demandes = Demande::with('user')
-        ->where(function ($query) use ($user) {
-            $query->where('status', 'pending_manager')
-                  ->orWhere('user_id', $user->id); 
-        })
-        ->orderBy('id', 'desc')
-        ->get();
-    } elseif ($user->role === 'directeur') {
-        $demandes = Demande::with('user')
-            ->where('status', 'pending_director')
-            ->orderBy('id', 'desc')
-            ->get();
-    } else {
-        $demandes = Demande::with('user')
-            ->where('user_id', $user->id)
-            ->orderBy('id', 'desc')
-            ->get();
+        $query->where(function ($q) use ($user) {
+            $q->where('status', 'pending_manager')
+              ->orWhere('user_id', $user->id);
+        });
+    }
+
+    if ($user->role === 'director') {
+        $query->whereIn('status', [
+            'pending_director',
+            'approved',
+            'rejected'
+        ]);
+    }
+
+    if ($user->role === 'employee') {
+        $query->where('user_id', $user->id);
     }
 
     return response()->json([
-        'demandes' => $demandes
+        'demandes' => $query->get()
     ]);
 }
-
     public function store(Request $request){
         $user = auth('api')->user();
 

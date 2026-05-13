@@ -30,12 +30,7 @@ const LeaveRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subType, setSubType] = useState(''); 
   const [interimaireId, setInterimaireId] = useState('');
-<<<<<<< HEAD
   const [employees, setEmployees] = useState([]);
-=======
-
-
->>>>>>> 56fb4a237bfa033cde95f194d4cfacd47cda744b
   if (!user) return null;
 
   
@@ -91,17 +86,6 @@ const previousBalance = balances.find(
 
 const totalSolde = solde?.solde_restant ?? 0;
 
-<<<<<<< HEAD
-const previousSolde =
-  (previousBalance?.earnedDays || 0) -
-  (previousBalance?.usedDays || 0);
-
-  // المجموع
-
-
-  const totalSolde = currentSolde + previousSolde;
-=======
->>>>>>> 56fb4a237bfa033cde95f194d4cfacd47cda744b
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totalSolde : duration > 0);
