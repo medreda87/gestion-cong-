@@ -14,6 +14,7 @@ import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLeave } from '@/contexts/LeaveContext';
+import { useData } from '@/contexts/DataContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
@@ -21,6 +22,7 @@ import { useEffect } from 'react';
 const LeaveRequest = () => {
   const { user } = useAuth();
   const { addRequest,solde } = useLeave();
+  const { holidays } = useData();
   const navigate = useNavigate();
 
   const [type, setType] = useState('administratif');
@@ -48,15 +50,47 @@ const LeaveRequest = () => {
   const minDate = format(addDays(today,8), 'yyyy-MM-dd');
 
 const calculateDuration = () => {
+
+  // exceptional leave
   if (type === 'exceptional' && subType) {
     return EXCEPTIONAL_DURATIONS[subType] || 0;
   }
+
   if (!startDate || !endDate) return 0;
+
   const start = new Date(startDate);
   const end = new Date(endDate);
+
   if (isBefore(end, start)) return 0;
-  return differenceInBusinessDays(end, start) + 1;
+
+  let count = 0;
+
+  // holidays from backend
+  const holdays = holidays.map(
+    holiday => new Date(holiday.date).toDateString()
+  );
+
+  const current = new Date(start);
+
+  while (current <= end) {
+
+    const isWeekend =
+      current.getDay() === 0 || current.getDay() === 6;
+
+    const isHoliday =
+      holdays.includes(current.toDateString());
+
+    if (!isWeekend && !isHoliday) {
+      count++;
+    }
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  return count;
 };
+
+
   const totall=()=>{
     if (!startDate || !endDate) return 0;
     const start = new Date(startDate);
@@ -86,16 +120,20 @@ const previousBalance = balances.find(
 
 const currentSolde = solde?.solde_restant ?? 0;
 
+
 const previousSolde =
   (previousBalance?.earnedDays || 0) -
   (previousBalance?.usedDays || 0);
 
 // المجموع النهائي
 const totalSolde = currentSolde + previousSolde;
+const totSolde = parseInt(totalSolde);
+
   const duration = calculateDuration();
   const total=totall()
-  const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totalSolde : duration > 0);
+  const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totSolde : duration > 0);
   const isDateValid = startDate && new Date(startDate) >= addDays(today,7);
+  
   const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -132,14 +170,7 @@ const totalSolde = currentSolde + previousSolde;
   }
 };
 
-const HOLIDAYS = [
-  '2026-01-01',
-  '2026-01-11',
-  '2026-05-01',
-  '2026-05-25',
-  '2026-05-26',
-  '2026-07-30',
-];
+
 
 const isWorkingDay = (date) => {
   const day = date.getDay();
@@ -229,13 +260,13 @@ useEffect(() => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Votre solde de congés</p>
-              <p className="text-2xl font-bold text-primary">{totalSolde} jours</p>
+              <p className="text-2xl font-bold text-primary">{totSolde} jours</p>
             </div>
             {duration > 0 && type !== 'exceptional' && (
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Après cette demande</p>
                 <p className={`text-2xl font-bold ${isValidDuration ? 'text-success' : 'text-destructive'}`}>
-                  {totalSolde - duration} jours
+                  {parseInt(totalSolde - duration)} jours
                 </p>
               </div>
             )}
