@@ -99,4 +99,8 @@ protected $fillable = [
     public function DetailUser(){
         return $this->hasOne(DetailUser::class);
     }
+    public function parametrages()
+    {
+        return $this->hasMany(Parametrage::class);
+    }
 }

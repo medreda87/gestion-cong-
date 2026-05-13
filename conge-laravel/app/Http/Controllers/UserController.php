@@ -30,45 +30,54 @@ class UserController extends Controller
         ], 500);
     }
 }
-public function getAllUsers()
-{
-    $users = User::all();
-    return response()->json($users);
-}
-public function updatUser(Request $request, $id)
-{
-    $user = User::find($id);
-    if (!$user) {
-        return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+    public function getAllUsers()
+    {
+        $users = User::with([
+            'detailUser',
+            'detailJobUser'
+        ])->get();
+
+        return response()->json($users);
     }
+    public function updatUser(Request $request, $id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
 
-    $user->update($request->all());
+        $user->update($request->all());
 
-    return response()->json(['message' => 'Utilisateur mis à jour avec succès', 'user' => $user]);
-}
-public function show($id)
-{
-    return User::findOrFail($id);
-}
-public function destroy($id)
-{
-    $user = User::find($id);
-    if (!$user) {
-        return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        return response()->json(['message' => 'Utilisateur mis à jour avec succès', 'user' => $user]);
     }
+    public function show($id)
+    {
+        $user = User::with([
+        'detailUser',
+        'detailJobUser'
+        ])->findOrFail($id);
 
-    $user->delete();
+        return response()->json($user);
+    }
+    public function destroy($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
 
-    return response()->json(['message' => 'Utilisateur supprimé avec succès']);
-}
-public function getInterimaires($id)
-{
-    $user = User::findOrFail($id);
+        $user->delete();
 
-    $interimaires = User::where('efp_travail', $user->efp_travail)
-        ->where('id', '!=', $user->id)
-        ->get();
+        return response()->json(['message' => 'Utilisateur supprimé avec succès']);
+    }
+    public function getInterimaires($id)
+    {
+        $user = User::findOrFail($id);
 
-    return response()->json($interimaires);
-}
-};
+        $interimaires = User::where('efp_travail', $user->efp_travail)
+            ->where('id', '!=', $user->id)
+            ->get();
+
+        return response()->json($interimaires);
+    }
+    };
