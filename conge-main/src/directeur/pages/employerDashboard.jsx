@@ -71,7 +71,6 @@ export default function DirecteurDashboard() {
     directorRequests.map((r) => r.employeeId)
   ).size;
 
-  // ✅ mapping status
   const mapStatus = (status) => {
     switch (status) {
       case 'pending_director':
@@ -88,7 +87,6 @@ export default function DirecteurDashboard() {
     }
   };
 
-  // ✅ charts data
   const pieData = [
     { name: 'En attente (Directeur)', value: pending, color: '#f59e0b' },
     { name: 'Approuvées', value: approved, color: '#10b981' },
@@ -111,6 +109,8 @@ export default function DirecteurDashboard() {
   const sortedRequests = [...directorRequests].sort(
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
+
+  console.log(requests.map(r => r.status));
   return (
     <DashboardLayout>
       <motion.div
@@ -217,7 +217,7 @@ export default function DirecteurDashboard() {
             <TableBody>
               {sortedRequests.slice(0, 8).map((req) => (
                 <TableRow key={req.id}>
-                  <TableCell>{req.user.nom_prenom}</TableCell>
+                  <TableCell>{req.user?.nom_prenom || '---'}</TableCell>
                   <TableCell>{req.type}</TableCell>
                   <TableCell>
                     {req.start_date} → {req.end_date}

@@ -7,7 +7,6 @@ use Carbon\Carbon;
 
 class LeaveService
 {
-    // حساب الأيام بدون weekends و holidays
     public function calculateDays($start, $end)
     {
         $days = 0;
