@@ -84,8 +84,14 @@ const previousBalance = balances.find(
   (b) => b.year === previousYear
 );
 
-const totalSolde = solde?.solde_restant ?? 0;
+const currentSolde = solde?.solde_restant ?? 0;
 
+const previousSolde =
+  (previousBalance?.earnedDays || 0) -
+  (previousBalance?.usedDays || 0);
+
+// المجموع النهائي
+const totalSolde = currentSolde + previousSolde;
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totalSolde : duration > 0);

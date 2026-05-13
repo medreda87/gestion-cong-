@@ -18,13 +18,18 @@ import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { toast } from 'sonner';
 import { createPortal } from 'react-dom';
 import { format, isValid } from 'date-fns';
+import { useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import html2pdf from "html2pdf.js";
+import DecisionDocument from './DecisionDocument';
 
-const safeFormat = (date, pattern, locale) => {
-  const d = new Date(date);
-  return isValid(d) ? format(d, pattern, { locale }) : '—';
-};
-// ─── PDF decision document generator ──────────────────────────────────────
-const buildDecisionHTML = (request, employee, actionStatus) => {
+  const safeFormat = (date, pattern, locale) => {
+    const d = new Date(date);
+    return isValid(d) ? format(d, pattern, { locale }) : '—';
+  };
+  // ─── PDF decision document generator ──────────────────────────────────────
+  const buildDecisionHTML = (request, employee, actionStatus) => {
   const today = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
   const isApproved = actionStatus === 'approved';
   const actionLabel = isApproved ? 'APPROUVÉE' : 'REFUSÉE';
@@ -275,19 +280,20 @@ const DetailDemande = () => {
         icon: XCircle,
       },
     };
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { requests, updateRequestStatus } = useLeave();
+    const pdfRef = useRef();
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const { requests, updateRequestStatus } = useLeave();
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalAction, setModalAction] = useState(null);
-  const [comment, setComment] = useState('');
-  const [soldeData, setSoldeData] = useState(null);
-  const [employeeData, setEmployeeData] = useState(null);
-  const [soldeLoading, setSoldeLoading] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [modalAction, setModalAction] = useState(null);
+    const [comment, setComment] = useState('');
+    const [soldeData, setSoldeData] = useState(null);
+    const [employeeData, setEmployeeData] = useState(null);
+    const [soldeLoading, setSoldeLoading] = useState(false);
 
-  const request = requests.find(r => String(r.id) === String(id));
+    const request = requests.find(r => String(r.id) === String(id));
 
   // ── Fetch employee profile + solde depuis l'API ──
  useEffect(() => {
@@ -392,19 +398,31 @@ const DetailDemande = () => {
     navigate(-1);
   };
 
-  const handleDownloadDemande = () => {
-    const html = buildDemandeHTML(request, employee);
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `Demande_Conge_${(employee?.nomComplet ?? request.employeeName).replace(/\s+/g, '_')}_${request.id}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Demande téléchargée');
+ const handleDownloadDemande = () => {
+  const html = buildDemandeHTML(request, employee);
+
+  // نحطو HTML فـ div مؤقت
+  const element = document.createElement("div");
+  element.innerHTML = html;
+  document.body.appendChild(element);
+
+  const opt = {
+    margin: 0,
+    filename: `Demande_Conge_${request.id}.pdf`,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
   };
+
+  html2pdf()
+    .set(opt)
+    .from(element)
+    .save()
+    .then(() => {
+      document.body.removeChild(element);
+      toast.success("PDF téléchargé avec succès");
+    });
+};
 
   const handlePrint = () => {
     const html = buildDecisionHTML(request, employee, request.status);
@@ -415,18 +433,34 @@ const DetailDemande = () => {
     setTimeout(() => w.print(), 500);
   };
 
-  const handleDownload = () => {
-    const html = buildDecisionHTML(request, employee, request.status);
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `Decision_Conge_${(employee?.nomComplet ?? request.employeeName).replace(/\s+/g, '_')}_${request.id}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Fichier téléchargé — ouvrez-le dans votre navigateur pour imprimer en PDF');
+ const handleDownload = async () => {
+  const canvas = await html2canvas(pdfRef.current, {
+    scale: 2,
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+
+  const pdf = new jsPDF('p', 'mm', 'a4');
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+
+  const pdfHeight =
+    (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(
+    imgData,
+    'PNG',
+    0,
+    0,
+    pdfWidth,
+    pdfHeight
+  );
+
+  pdf.save(
+    `Decision_${request.id}.pdf`
+  );
+
+  toast.success('PDF téléchargé');
   };
 
   // ── Render ──
@@ -641,7 +675,20 @@ const DetailDemande = () => {
             </div>
           </motion.div>
         </div>
-
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '-9999px',
+                  top: 0,
+                }}
+              >
+                <DecisionDocument
+                  ref={pdfRef}
+                  request={request}
+                  employee={employee}
+                  LEAVE_TYPE_LABELS={LEAVE_TYPE_LABELS}
+                />
+              </div>
         {/* ══ SOLDE DE CONGÉ ═══════════════════════════════════════════════ */}
         {(() => {
             const bal = soldeData ?? {
