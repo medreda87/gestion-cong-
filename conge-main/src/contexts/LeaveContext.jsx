@@ -22,6 +22,7 @@ export const LeaveProvider = ({ children }) => {
           Accept: "application/json",
         },
       });
+   
       const data = response.data;
 
       setRequests(
@@ -45,7 +46,6 @@ useEffect(() => {
     const interval = setInterval(() => {
       getDemandes();
     }, 5000);
-
     return () => clearInterval(interval);
   }
 }, []);
