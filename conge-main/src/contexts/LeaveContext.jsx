@@ -22,7 +22,7 @@ export const LeaveProvider = ({ children }) => {
           Accept: "application/json",
         },
       });
-    console.log("🔥 API RESPONSE RAW:", response.data); // 👈 هنا
+   
       const data = response.data;
 
       setRequests(
@@ -46,7 +46,6 @@ useEffect(() => {
     const interval = setInterval(() => {
       getDemandes();
     }, 5000);
-
     return () => clearInterval(interval);
   }
 }, []);
