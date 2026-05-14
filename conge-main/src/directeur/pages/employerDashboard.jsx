@@ -46,7 +46,7 @@ export default function DirecteurDashboard() {
   const { requests } = useLeave(); 
 
   const directorRequests = requests.filter((r) =>
-    ['pending_director', 'approved', 'rejected'].includes(r.status)
+    ['pending_director', 'approved'].includes(r.status)
   );
 
   console.log(
