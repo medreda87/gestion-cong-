@@ -13,7 +13,7 @@ const LeaveHistory = () => {
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { getRequestsByEmployee, updateRequestStatus,requests } = useLeave();  if (!user) return null;
+  const { getRequestsByEmployee, updateRequestStatus,requestsHistory } = useLeave();  if (!user) return null;
   
   const LEAVE_STATUS_LABELS = {
   pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
@@ -21,10 +21,10 @@ const LeaveHistory = () => {
   approved: 'Approuvé',
   cancelled: 'Annulé',
 };
-  console.log(requests.map(r => r.status));
+ 
   
-  const filteredRequests = requests.filter(request => {
-    const matchFilter = request.status === 'approved';
+ const filteredRequests = requestsHistory.filter(request => {
+  const matchFilter =  request.status === 'approved';
     const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
     const matchesSearch = 
       typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||

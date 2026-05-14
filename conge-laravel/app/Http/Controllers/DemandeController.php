@@ -14,12 +14,34 @@ public function getdemande()
 
     $query = Demande::with('user')->orderBy('id', 'desc');
 
-   
+    if ($user->role === 'manager') {
+
+        $query->where('status', 'pending_manager')
+              ->whereHas('user', function ($q) use ($user) {
+                  $q->where('efp_travail', $user->efp_travail);
+              });
+
+    } elseif ($user->role === 'directeur') {
+
+        $query->whereIn('status', ['pending_director','approved']);
+    }
 
     return response()->json([
         'demandes' => $query->get()
     ]);
 }
+
+public function getDemandeHistory()
+{
+    $user = auth('api')->user();
+
+    $query = Demande::with('user')->orderBy('id', 'desc');
+
+    return response()->json([
+        'demandes' => $query->get()
+    ]);
+}
+
     public function store(Request $request){
         $user = auth('api')->user();
 

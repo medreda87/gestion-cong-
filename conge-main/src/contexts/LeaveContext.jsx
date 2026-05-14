@@ -8,6 +8,7 @@ const API_URL = "http://127.0.0.1:8000/api";
 
 export const LeaveProvider = ({ children }) => {
   const [requests, setRequests] = useState([]);
+  const [requestsHistory, setRequestsHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [solde, setSolde] = useState(null);
 
@@ -45,6 +46,43 @@ useEffect(() => {
 
     const interval = setInterval(() => {
       getDemandes();
+    }, 5000);
+    return () => clearInterval(interval);
+  }
+}, []);
+
+const getDemandesHistory = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/demandeHistory`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      });
+   
+      const data = response.data;
+
+      setRequestsHistory(
+        Array.isArray(data)
+          ? data
+          : Array.isArray(data.demandes)
+          ? data.demandes
+          : []
+      );
+    } catch (error) {
+      console.error("GET DEMANDES ERROR:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+useEffect(() => {
+  if (getToken()) {
+    getDemandesHistory();
+
+    const interval = setInterval(() => {
+      getDemandesHistory();
     }, 5000);
     return () => clearInterval(interval);
   }
@@ -175,6 +213,7 @@ const validateLeave = async (id) => {
         requests,
         loading,
         solde,
+        requestsHistory,
         getDemandes,
         addRequest,
         updateRequestStatus,
