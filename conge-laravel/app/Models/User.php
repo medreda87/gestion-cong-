@@ -80,15 +80,9 @@ protected $fillable = [
     {
         return $this->hasOne(DetailUser::class);
     }
-<<<<<<< HEAD
 
     public function detailJobUser()
     {
         return $this->hasOne(DetailJobUser::class);
-=======
-    public function parametrages()
-    {
-        return $this->hasMany(Parametrage::class);
->>>>>>> 6bb89282d3e23193c074e7b57af103dadf166950
     }
 }
