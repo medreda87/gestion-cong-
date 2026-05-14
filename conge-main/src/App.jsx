@@ -22,9 +22,16 @@ import Setting from './directeur/pages/paramettre';
 import DetailDemande from '@/directeur/pages/DetailDemande';
 import DocumentsDirecteur from "./directeur/pages/DocumentsDirecteur";
 import EmployeeDocuments from "./pages/DocumentEmploye";
+import ManagerHistory from './responsable/pages/DemandeHistory';
+import DirectorHistory from './directeur/pages/DemandeHistory';
 import { Toaster } from "react-hot-toast"; 
+import { useAuth } from "./contexts/AuthContext";
 const queryClient = new QueryClient();
-const App = () => (
+
+const App = () => {
+ const user = JSON.parse(localStorage.getItem("user"));
+  return (
+  
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <BalanceProvider>
@@ -57,11 +64,25 @@ const App = () => (
             <Route path="/documents" element={<DocumentsDirecteur/>}/>
             <Route path="/documentEmploye" element={<EmployeeDocuments/>}/>
             <Route path='/paramettre' element={<Setting/>}/>
+
             <Route path="/history" element={
-              <RoleGuard roles={['employee']}>
+              <RoleGuard roles={['employee','manager']}>
               <LeaveHistory />
               </RoleGuard>} 
               />
+              <Route
+              path="/DemandeHistory"
+              element={
+                <RoleGuard roles={['manager', 'directeur']}>
+                  {user?.role === 'manager' ? (
+                    <ManagerHistory />
+                  ) : (
+                    <DirectorHistory />
+                  )}
+                </RoleGuard>
+              }
+            />
+            
             <Route path="/pramettre" element={<Setting/>} />
             <Route path="/pending" element={
               <RoleGuard roles={['manager']}>
@@ -95,6 +116,6 @@ const App = () => (
     </AuthProvider>
   </QueryClientProvider>
   
-);
+  )};
 
 export default App;

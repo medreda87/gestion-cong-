@@ -56,7 +56,7 @@ const previousBalance = balances.find(
   (b) => b.year === previousYear
 );
 
-const totalSolde = solde?.total_annuel ?? 0;
+const totalSolde = solde?.solde_restant ?? 0;
 
   const handleUpload = async () => {
     if (!uploadFile) return;

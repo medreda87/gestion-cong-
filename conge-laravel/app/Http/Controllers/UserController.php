@@ -119,29 +119,34 @@ public function getAllUsers()
             ], 500);
         }
     }
-public function show($id)
-{
-    return User::with(['detailUser', 'detailJobUser'])->findOrFail($id);
-}
-public function destroy($id)
-{
-    $user = User::find($id);
-    if (!$user) {
-        return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+
+    public function show($id)
+    {
+        $user = User::with([
+        'detailUser',
+        'detailJobUser'
+        ])->findOrFail($id);
+        return response()->json($user);
     }
+    public function destroy($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
 
-    $user->delete();
+        $user->delete();
 
-    return response()->json(['message' => 'Utilisateur supprimé avec succès']);
-}
-public function getInterimaires($id)
-{
-    $user = User::findOrFail($id);
+        return response()->json(['message' => 'Utilisateur supprimé avec succès']);
+    }
+    public function getInterimaires($id)
+    {
+        $user = User::findOrFail($id);
 
-    $interimaires = User::where('efp_travail', $user->efp_travail)
-        ->where('id', '!=', $user->id)
-        ->get();
+        $interimaires = User::where('efp_travail', $user->efp_travail)
+            ->where('id', '!=', $user->id)
+            ->get();
 
-    return response()->json($interimaires);
-}
-};
+        return response()->json($interimaires);
+    }
+    };

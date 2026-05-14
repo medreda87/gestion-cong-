@@ -22,7 +22,7 @@ export const LeaveProvider = ({ children }) => {
           Accept: "application/json",
         },
       });
-    console.log("🔥 API RESPONSE RAW:", response.data); // 👈 هنا
+   
       const data = response.data;
 
       setRequests(
@@ -39,11 +39,16 @@ export const LeaveProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (getToken()) {
+useEffect(() => {
+  if (getToken()) {
+    getDemandes();
+
+    const interval = setInterval(() => {
       getDemandes();
-    }
-  }, []);
+    }, 5000);
+    return () => clearInterval(interval);
+  }
+}, []);
 
   const addRequest = async (request) => {
       const response = await axios.post(
@@ -106,7 +111,7 @@ export const LeaveProvider = ({ children }) => {
     requests.filter((r) => String(r.user_id) === String(employeeId));
 
   const getPendingForManager = () =>
-    requests.filter((r) => r.status === "pending_manager");
+    requests.filter((r) => r.status === "pending_manager" && r.user?.efp_travail === user?.efp_travail);
 
   const getPendingForDirector = () =>
     requests.filter((r) => r.status === "pending_director");

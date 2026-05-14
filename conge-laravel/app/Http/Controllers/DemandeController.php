@@ -14,24 +14,7 @@ public function getdemande()
 
     $query = Demande::with('user')->orderBy('id', 'desc');
 
-    if ($user->role === 'manager') {
-        $query->where(function ($q) use ($user) {
-            $q->where('status', 'pending_manager')
-              ->orWhere('user_id', $user->id);
-        });
-    }
-
-    if ($user->role === 'director') {
-        $query->whereIn('status', [
-            'pending_director',
-            'approved',
-            'rejected'
-        ]);
-    }
-
-    if ($user->role === 'employee') {
-        $query->where('user_id', $user->id);
-    }
+   
 
     return response()->json([
         'demandes' => $query->get()

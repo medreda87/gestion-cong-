@@ -75,8 +75,8 @@ class UsersImport implements ToModel, WithHeadingRow, WithChunkReading
         );
 
         // ================= SOLDE =================
-        $pre = (float) ($row['solde_annee_precedente'] ?? 0);
-        $dern = (float) ($row['solde_annee_derniere'] ?? 0);
+        $pre = (int ) ($row['solde_annee_precedente'] ?? 0);
+        $dern = (int) ($row['solde_annee_derniere'] ?? 0);
         $total = $pre + $dern;
 
         SoldeConge::updateOrCreate(

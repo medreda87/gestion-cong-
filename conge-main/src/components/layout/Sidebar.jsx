@@ -27,6 +27,8 @@ const navItems = [
   { label: "Paramètres", href: "/paramettre", icon: Settings, roles: ["directeur"] },
   { label: "Documents", href: "/documents", icon: FileText, roles: ["directeur"] },
   { label: "Documents", href: "/documentEmploye", icon: FileText, roles: ["employee","manager"] },
+  { label: "DemandeHistory", href: "/DemandeHistory", icon: FileText, roles: ["manager"] },
+  { label: "DemandeHistory", href: "/DemandeHistory", icon: FileText, roles: ["directeur"] },
 
 ];
 
