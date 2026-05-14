@@ -9,7 +9,8 @@ class DocumentController extends Controller
 {
     public function index()
     {
-        return response()->json(Document::all());
+        $document=Document::with('user')->get();
+        return response()->json($document);
     }
 
     public function store(Request $request)
@@ -26,6 +27,7 @@ class DocumentController extends Controller
             'title' => $request->title,
             'file_url' => asset('storage/' . $path), 
             'mime_type' => $file->getClientMimeType(),
+            'user_id' => auth()->id(),
         ]);
 
         return response()->json($document);

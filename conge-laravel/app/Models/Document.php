@@ -12,5 +12,10 @@ class Document extends Model
         'title',
         'file_url',
         'mime_type',
+        'user_id',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

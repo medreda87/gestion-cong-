@@ -35,13 +35,14 @@ const LeaveHistory = () => {
       (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch && matchType;
   });
-
+const administrativeRequests = myRequests.filter(
+  (r) => r.type === "administratif"
+);
   const getStatusBadgeClass = (status) => {
     const variants = {
       pending_manager: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20',
       pending_director: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary border-primary/20',
       approved: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-success/10 text-success border-success/20',
-      rejected: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-destructive/10 text-destructive border-destructive/20',
       cancelled: "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 border-gray-300",
     };
     return variants[status] || 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium';
@@ -213,25 +214,25 @@ const LeaveHistory = () => {
             {[
               {
                 label: "Total des demandes",
-                count: myRequests.length,
+                count: administrativeRequests.length,
                 color: "from-slate-500 to-slate-700",
                 bg: "bg-slate-50",
               },
               {
                 label: "En attente",
-                count: myRequests.filter((r) => r.status.startsWith("pending")).length,
+                count: administrativeRequests.filter((r) => r.status.startsWith("pending")).length,
                 color: "from-amber-500 to-orange-500",
                 bg: "bg-amber-50",
               },
               {
                 label: "Approuvées",
-                count: myRequests.filter((r) => r.status === "approved").length,
+                count: administrativeRequests.filter((r) => r.status === "approved").length,
                 color: "from-emerald-500 to-green-500",
                 bg: "bg-emerald-50",
               },
               {
                 label: "Annulées",
-                count: myRequests.filter((r) => r.status === "cancelled").length,
+                count: administrativeRequests.filter((r) => r.status === "cancelled").length,
                 color: "from-rose-500 to-red-500",
                 bg: "bg-rose-50",
               },

@@ -85,4 +85,8 @@ protected $fillable = [
     {
         return $this->hasOne(DetailJobUser::class);
     }
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 }
