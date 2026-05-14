@@ -58,40 +58,41 @@ export default function Employees() {
   const [filterDepartment, setFilterDepartment] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [formData, setFormData] = useState({
-    matricule: '',
-    nom: '',
-    prenom: '',
-    nom_prenom: '',
-    nom_ar: '',
-    prenom_ar: '',  
-    genre: '',
-    actif: '',
-    efp_travail: '',  
-    fonction: '',
-    nature_fonction: '',
-    echelle: '',
-    categorie: '',
-    grade: '',
-    cin: '',
-    date_naissance: '',
-    adresse: '',
-    ville: '',
-    telephone: '',
-    email: '',
-    password: '',
-    diplome: '',
-    specialite: '',
-    date_recrutement: '',
-    date_prise_service: '',
-    recode_annee_ant: '',
-    solde_annee_precedente: '',
-    solde_annee_derniere: '',
-    observation: '',
-    photo: '',
-    affectation: '',
-    role: 'employee',
-  });
+  const initialFormData = {
+  matricule: '',
+  nom: '',
+  prenom: '',
+  nom_prenom: '',
+  nom_ar: '',
+  prenom_ar: '',
+  sexe: '',
+  actif: '',
+  efp_travail: '',
+  fonction: '',
+  nature_fonction: '',
+  echelle: '',
+  categorie: '',
+  grade: '',
+  cin: '',
+  date_naissance: '',
+  adresse: '',
+  ville: '',
+  telephone: '',
+  email: '',
+  password: '',
+  diplome: '',
+  specialite: '',
+  date_recrutement: '',
+  date_prise_service: '',
+  recode_annee_ant: '',
+  solde_annee_precedente: '',
+  solde_annee_derniere: '',
+  observation: '',
+  photo: '',
+  affectation: '',
+  role: 'employee',
+};
+  const [formData, setFormData] = useState(initialFormData);
 
   const getAllEmployees = async () => {
     try{
@@ -151,31 +152,35 @@ const handleSubmit = async (e) => {
     toast.error("Erreur lors de la modification");
   }
 };
-  const resetForm = () => {
-    setFormData({ nom: '', email: '', telephone: '', affectation: '', role: 'employee'});
-    setEditingEmployee(null);
-    setIsDialogOpen(false);
-  };
-
- const handleEdit = (employee) => {
+const resetForm = () => {
+  setFormData(initialFormData);
+  setEditingEmployee(null);
+  setIsDialogOpen(false);
+};
+const handleEdit = (employee) => {
   axios.get(`http://localhost:8000/api/users/${employee.id}`)
-    .then(response => {
-      const empData = response.data;
+    .then((response) => {
+      const emp = response.data;
 
-      setFormData({
-        ...empData
-      });
-      
-      console.log("Employee data for editing:", empData);
-      setEditingEmployee(employee);
+      const flat = {
+        ...initialFormData,
+        ...(emp || {}),
+        ...(emp.detail_user || {}),
+        ...(emp.detail_job_user || {}),
+      };
+      console.log(emp);
+console.log(emp.detail_user);
+console.log(emp.detail_job_user);
+
+      setFormData(flat);
+      setEditingEmployee(emp);
       setIsDialogOpen(true);
     })
-    .catch(error => {
-      console.error("Error fetching employee:", error);
+    .catch(() => {
       toast.error("Erreur lors du chargement");
     });
 };
-  const handleDelete =async (id) => {
+const handleDelete =async (id) => {
       const supp=await axios.delete(`http://localhost:8000/api/users/${id}`);
       if(supp.status===200){
         toast.success("Employé supprimé avec succès");
@@ -230,9 +235,8 @@ avgLeave: Math.round(
   accept=".xlsx, .xls, .csv"
   onChange={handleImportExcel}
   className="hidden"
-/>
-            <input ref={fileInputRef} type="file" accept=".xlsx, .xls, .csv" onChange={handleImportExcel} className="hidden" />
-          </div>
+/> 
+ </div>
         </div>
 
 <Dialog open={isDialogOpen} onOpenChange={(open) => { 
@@ -251,7 +255,7 @@ avgLeave: Math.round(
           <Label htmlFor="nom">Nom *</Label>
           <Input 
             id="nom" 
-            value={formData.nom} 
+            value={formData.nom || ''} 
             onChange={(e) => setFormData({ ...formData, nom: e.target.value })} 
             placeholder="Ex: Mohamed reda" 
           />
@@ -262,7 +266,7 @@ avgLeave: Math.round(
           <Label htmlFor="prenom">Prénom *</Label>
           <Input 
             id="prenom" 
-            value={formData.prenom} 
+            value={formData.prenom || ''} 
             onChange={(e) => setFormData({ ...formData, prenom: e.target.value })} 
             placeholder="Ex: Afellad" 
           />
@@ -273,7 +277,7 @@ avgLeave: Math.round(
           <Label htmlFor="nom_prenom">Nom complet *</Label>
           <Input 
             id="nom_prenom" 
-            value={formData.nom_prenom} 
+            value={formData.nom_prenom || ''} 
             onChange={(e) => setFormData({ ...formData, nom_prenom: e.target.value })} 
             placeholder="Ex: Mohamed reda afellad" 
           />
@@ -284,7 +288,7 @@ avgLeave: Math.round(
           <Label htmlFor="nom_ar">Nom en arabe</Label>
           <Input 
             id="nom_ar" 
-            value={formData.nom_ar} 
+            value={formData.nom_ar || ''} 
             onChange={(e) => setFormData({ ...formData, nom_ar: e.target.value })} 
             placeholder="Ex: محمد رضا" 
           />
@@ -295,19 +299,19 @@ avgLeave: Math.round(
           <Label htmlFor="prenom_ar">Prénom en arabe</Label>
           <Input 
             id="prenom_ar" 
-            value={formData.prenom_ar} 
+            value={formData.prenom_ar || ''} 
             onChange={(e) => setFormData({ ...formData, prenom_ar: e.target.value })} 
             placeholder="Ex: أفلاط" 
           />
         </div>
 
-        {/* Genre */}
+        {/* Sexe */}
         <div className="space-y-2">
-          <Label htmlFor="genre">Genre</Label>
+          <Label htmlFor="sexe">Sexe</Label>
           <Input 
-            id="genre" 
-            value={formData.genre} 
-            onChange={(e) => setFormData({ ...formData, genre: e.target.value })} 
+            id="sexe" 
+            value={formData.sexe || ''} 
+            onChange={(e) => setFormData({ ...formData, sexe: e.target.value })} 
             placeholder="Ex: Masculin" 
           />
         </div>
@@ -317,7 +321,7 @@ avgLeave: Math.round(
           <Label htmlFor="actif">Actif</Label>
           <Input 
             id="actif" 
-            value={formData.actif} 
+            value={formData.actif || ''} 
             onChange={(e) => setFormData({ ...formData, actif: e.target.value })} 
             placeholder="Ex: Oui/Non" 
           />
@@ -328,7 +332,7 @@ avgLeave: Math.round(
           <Label htmlFor="efp_travail">EFP travail</Label>
           <Input 
             id="efp_travail" 
-            value={formData.efp_travail} 
+            value={formData.efp_travail || ''} 
             onChange={(e) => setFormData({ ...formData, efp_travail: e.target.value })} 
             placeholder="Ex: EFP1" 
           />
@@ -339,7 +343,7 @@ avgLeave: Math.round(
           <Label htmlFor="fonction">Fonction</Label>
           <Input 
             id="fonction" 
-            value={formData.fonction} 
+            value={formData.fonction || ''} 
             onChange={(e) => setFormData({ ...formData, fonction: e.target.value })} 
             placeholder="Ex: Développeur" 
           />
@@ -350,7 +354,7 @@ avgLeave: Math.round(
           <Label htmlFor="nature_fonction">Nature de la fonction</Label>
           <Input 
             id="nature_fonction" 
-            value={formData.nature_fonction} 
+            value={formData.nature_fonction || ''} 
             onChange={(e) => setFormData({ ...formData, nature_fonction: e.target.value })} 
             placeholder="Ex: Permanent" 
           />
@@ -361,7 +365,7 @@ avgLeave: Math.round(
           <Label htmlFor="echelle">Echelle</Label>
           <Input 
             id="echelle" 
-            value={formData.echelle} 
+            value={formData.echelle || ''} 
             onChange={(e) => setFormData({ ...formData, echelle: e.target.value })} 
             placeholder="Ex: Echelle 5" 
           />
@@ -372,7 +376,7 @@ avgLeave: Math.round(
           <Label htmlFor="categorie">Catégorie</Label>
           <Input 
             id="categorie" 
-            value={formData.categorie} 
+            value={formData.categorie || ''} 
             onChange={(e) => setFormData({ ...formData, categorie: e.target.value })} 
             placeholder="Ex: Catégorie A" 
           />
@@ -383,7 +387,7 @@ avgLeave: Math.round(
           <Label htmlFor="grade">Grade</Label>
           <Input 
             id="grade" 
-            value={formData.grade} 
+            value={formData.grade || ''} 
             onChange={(e) => setFormData({ ...formData, grade: e.target.value })} 
             placeholder="Ex: Grade 1" 
           />
@@ -394,7 +398,7 @@ avgLeave: Math.round(
           <Label htmlFor="cin">CIN</Label>
           <Input 
             id="cin" 
-            value={formData.cin} 
+            value={formData.cin || ''} 
             onChange={(e) => setFormData({ ...formData, cin: e.target.value })} 
             placeholder="Ex: AB123456" 
           />
@@ -406,7 +410,7 @@ avgLeave: Math.round(
           <Input 
             id="date_naissance" 
             type="date" 
-            value={formData.date_naissance} 
+            value={formData.date_naissance || ''} 
             onChange={(e) => setFormData({ ...formData, date_naissance: e.target.value })} 
           />
         </div>
@@ -416,7 +420,7 @@ avgLeave: Math.round(
           <Label htmlFor="adresse">Adresse</Label>
           <Input 
             id="adresse" 
-            value={formData.adresse} 
+            value={formData.adresse || ''} 
             onChange={(e) => setFormData({ ...formData, adresse: e.target.value })} 
             placeholder="Ex: 123 Rue de Tanger" 
           />
@@ -427,7 +431,7 @@ avgLeave: Math.round(
           <Label htmlFor="ville">Ville</Label>
           <Input 
             id="ville" 
-            value={formData.ville} 
+            value={formData.ville || ''} 
             onChange={(e) => setFormData({ ...formData, ville: e.target.value })} 
             placeholder="Ex: Tanger" 
           />
@@ -439,7 +443,7 @@ avgLeave: Math.round(
           <Input 
             id="email" 
             type="email" 
-            value={formData.email} 
+            value={formData.email || ''} 
             onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
             placeholder="email@ofppt.ma" 
           />
@@ -450,7 +454,7 @@ avgLeave: Math.round(
           <Label htmlFor="telephone">Téléphone</Label>
           <Input 
             id="telephone" 
-            value={formData.telephone} 
+            value={formData.telephone || ''} 
             onChange={(e) => setFormData({ ...formData, telephone: e.target.value })} 
             placeholder="06XXXXXXXX" 
           />
@@ -460,7 +464,7 @@ avgLeave: Math.round(
         <div className="space-y-2">
           <Label htmlFor="affectation">Affectation *</Label>
           <Select 
-            value={formData.affectation} 
+            value={formData.affectation || ''} 
             onValueChange={(value) => setFormData({ ...formData, affectation: value })}
           >
             <SelectTrigger>
@@ -479,7 +483,7 @@ avgLeave: Math.round(
           <Input
             id="solde_annee_precedente"
             type="number"
-            value={formData.solde_annee_precedente}
+            value={formData.solde_annee_precedente || ''}
             onChange={(e) => setFormData({ ...formData, solde_annee_precedente: e.target.value })}
             placeholder="Ex: 5"
           />
@@ -491,7 +495,7 @@ avgLeave: Math.round(
           <Input
             id="solde_annee_derniere"
             type="number"
-            value={formData.solde_annee_derniere}
+            value={formData.solde_annee_derniere || ''}
             onChange={(e) => setFormData({ ...formData, solde_annee_derniere: e.target.value })}
             placeholder="Ex: 10"
           />
@@ -501,7 +505,7 @@ avgLeave: Math.round(
         <div className="space-y-2">
           <Label htmlFor="role">Rôle</Label>
           <Select 
-            value={formData.role} 
+            value={formData.role || ''} 
             onValueChange={(value) => setFormData({ ...formData, role: value })}
           >
             <SelectTrigger>

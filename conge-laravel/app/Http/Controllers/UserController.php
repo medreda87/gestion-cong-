@@ -6,15 +6,21 @@ use Illuminate\Http\Request;
 use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\User;
+use App\Models\DetailUser;
+use App\Models\DetailJobUser;
+use App\Models\SoldeConge;
+use Illuminate\Support\Facades\DB;
 class UserController extends Controller
 {
-    public function import(Request $request)
+public function import(Request $request)
 {
     $request->validate([
-        'file' => 'required|mimes:xlsx,xls,csv|max:2048'
+        'file' => 'required|mimes:xlsx,xls,csv|max:10240'
     ]);
 
     try {
+        set_time_limit(0); // مهم للـ big files
+
         Excel::import(new UsersImport, $request->file('file'));
 
         return response()->json([
@@ -22,33 +28,100 @@ class UserController extends Controller
             'message' => 'Import terminé ✅'
         ]);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
+
+        \Log::error('IMPORT ERROR', [
+            'msg' => $e->getMessage(),
+            'line' => $e->getLine()
+        ]);
+
         return response()->json([
             'status' => false,
-            'message' => 'Erreur import ❌',
+            'message' => 'Import failed ❌',
             'error' => $e->getMessage()
         ], 500);
     }
 }
 public function getAllUsers()
 {
-    $users = User::all();
+    $users = User::with(['detailUser', 'detailJobUser'])->get();
+;
     return response()->json($users);
 }
-public function updatUser(Request $request, $id)
-{
-    $user = User::find($id);
-    if (!$user) {
-        return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+    public function updatUser(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $user =User::with(['detailUser', 'detailJobUser'])->findOrFail($id);
+
+            $user->update([
+                'matricule' => $request->matricule,
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'nom_prenom' => $request->nom_prenom,
+                'nom_ar' => $request->nom_ar,
+                'prenom_ar' => $request->prenom_ar,
+                'actif' => $request->actif,
+                'affectation' => $request->affectation,
+                'efp_travail' => $request->efp_travail,
+                'observation' => $request->observation,
+                'role' => $request->role,
+                'email' => $request->email,
+                'solde_annee_derniere' => $request->solde_annee_derniere,
+                'solde_annee_precedente' => $request->solde_annee_precedente,
+            ]);
+
+            // 🔥 DETAIL USER
+            $user->detailUser()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'sexe' => $request->sexe,
+                    'cin' => $request->cin,
+                    'date_naissance' => $request->date_naissance,
+                    'adresse' => $request->adresse,
+                    'ville' => $request->ville,
+                    'telephone' => $request->telephone,
+                    'photo' => $request->photo,
+                ]
+            );
+
+            // 🔥 DETAIL JOB USER
+            $user->detailJobUser()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'fonction' => $request->fonction,
+                    'nature_fonction' => $request->nature_fonction,
+                    'echelle' => $request->echelle,
+                    'categorie' => $request->categorie,
+                    'grade' => $request->grade,
+                    'diplome' => $request->diplome,
+                    'specialite' => $request->specialite,
+                    'date_recrutement' => $request->date_recrutement,
+                    'date_prise_service' => $request->date_prise_service,
+                    'recode_annee_ant' => $request->recode_annee_ant,
+                ]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Utilisateur mis à jour avec succès'
+            ]);
+
+        } catch (\Throwable $e) {
+
+            DB::rollback();
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-
-    $user->update($request->all());
-
-    return response()->json(['message' => 'Utilisateur mis à jour avec succès', 'user' => $user]);
-}
 public function show($id)
 {
-    return User::findOrFail($id);
+    return User::with(['detailUser', 'detailJobUser'])->findOrFail($id);
 }
 public function destroy($id)
 {
