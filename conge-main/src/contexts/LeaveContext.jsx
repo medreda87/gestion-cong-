@@ -11,9 +11,11 @@ export const LeaveProvider = ({ children }) => {
   const [requestsHistory, setRequestsHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [solde, setSolde] = useState(null);
+  const [refreshHistory, setRefreshHistory] = useState(false);
 
   const { user } = useAuth();
   const getToken = () => localStorage.getItem("token");
+  const token = getToken();
   const getDemandes = async () => {
     setLoading(true);
     try {
@@ -70,6 +72,7 @@ const getDemandesHistory = async () => {
           ? data.demandes
           : []
       );
+      
     } catch (error) {
       console.error("GET DEMANDES ERROR:", error.response?.data || error.message);
     } finally {
@@ -86,7 +89,11 @@ useEffect(() => {
     }, 5000);
     return () => clearInterval(interval);
   }
-}, []);
+}, [token,user?.id,refreshHistory]);
+
+const triggerRefreshHistory = () => {
+  setRefreshHistory(prev => !prev);
+};
 
   const addRequest = async (request) => {
       const response = await axios.post(
@@ -222,7 +229,8 @@ const validateLeave = async (id) => {
         getRequestsByEmployee,
         getPendingForManager,
         getPendingForDirector,
-        validateLeave
+        validateLeave,
+        triggerRefreshHistory
       }}
     >
       {children}

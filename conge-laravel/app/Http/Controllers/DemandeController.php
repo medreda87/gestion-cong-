@@ -37,6 +37,27 @@ public function getDemandeHistory()
 
     $query = Demande::with('user')->orderBy('id', 'desc');
 
+    // RESPONSABLE
+    if ($user->role === 'manager') {
+
+        $query->whereHas('user', function ($q) use ($user) {
+            $q->where('efp_travail', $user->efp_travail);
+        })
+        ->whereIn('status', ['pending_director', 'approved']);
+    }
+
+    // DIRECTEUR
+    elseif ($user->role === 'directeur') {
+
+        $query->where('status', 'approved');
+    }
+
+    // EMPLOYEE
+    else {
+
+        $query->where('user_id', $user->id);
+    }
+
     return response()->json([
         'demandes' => $query->get()
     ]);

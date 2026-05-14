@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 const PendingRequests = () => {
 const { user } = useAuth();
-const { getPendingForManager, getPendingForDirector, updateRequestStatus } = useLeave();
+const { getPendingForManager, getPendingForDirector, updateRequestStatus,triggerRefreshHistory } = useLeave();
 const navigate = useNavigate();
 
 const [selectedRequest, setSelectedRequest] = useState(null);
@@ -149,7 +149,10 @@ const getInitials = (nom, prenom) => {
                         {request.status !== 'cancelled' && (
                         <button
                           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                          onClick={() => handleAction(request, 'approve')}
+                          onClick={async () => {
+                          await handleAction(request, 'approve');
+                          triggerRefreshHistory();
+                        }}
                         >
                           <CheckCircle className="h-4 w-4" />
                           Valider

@@ -13,7 +13,8 @@ const LeaveHistory = () => {
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { getRequestsByEmployee, updateRequestStatus,requestsHistory } = useLeave();  if (!user) return null;
+  const { getRequestsByEmployee, updateRequestStatus,requestsHistory,triggerRefreshHistory } = useLeave();  if (!user) return null;
+  
   
   const LEAVE_STATUS_LABELS = {
   pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
