@@ -85,8 +85,8 @@ protected $fillable = [
     {
         return $this->hasOne(DetailJobUser::class);
     }
-    public function parametrages()
+    public function documents()
     {
-        return $this->hasMany(Parametrage::class);
+        return $this->hasMany(Document::class);
     }
 }

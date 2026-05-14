@@ -19,13 +19,13 @@ public function import(Request $request)
     ]);
 
     try {
-        set_time_limit(0); // مهم للـ big files
+        set_time_limit(0); 
 
         Excel::import(new UsersImport, $request->file('file'));
 
         return response()->json([
             'status' => true,
-            'message' => 'Import terminé ✅'
+            'message' => 'Import terminé avec succès '
         ]);
 
     } catch (\Throwable $e) {
@@ -45,7 +45,6 @@ public function import(Request $request)
 public function getAllUsers()
 {
     $users = User::with(['detailUser', 'detailJobUser'])->get();
-;
     return response()->json($users);
 }
     public function updatUser(Request $request, $id)
@@ -119,13 +118,13 @@ public function getAllUsers()
             ], 500);
         }
     }
-
     public function show($id)
     {
         $user = User::with([
         'detailUser',
         'detailJobUser'
         ])->findOrFail($id);
+
         return response()->json($user);
     }
     public function destroy($id)

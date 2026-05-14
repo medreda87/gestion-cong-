@@ -194,8 +194,12 @@ export default function EmployeeDocuments() {
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(doc.created_at)}
                       </p>
+
                     )}
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Créer Par <strong>{doc.user.nom}</strong></p>
+
                   </div>
+
 
                   {/* Actions (only view/download, no delete) */}
                   <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-3 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">

@@ -11,6 +11,7 @@ import { format, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth, isS
 import { fr } from 'date-fns/locale';
 import { useData } from '@/contexts/DataContext';
 import toast from "react-hot-toast";
+
 // const initialHolidays = [
 //   { id: '1', name: "Jour de l'An",type: "national",date: '2026-01-01', is_recurring: true },
 //   { id: '2', name: "Manifeste de l'Indépendance",type: "national", date: '2026-01-11', is_recurring: true },
