@@ -86,14 +86,50 @@ import DecisionDocument from './DecisionDocument';
   </div>
 
   <div class="section">
-    <div class="section-title">Informations de l'employé</div>
-    <div class="grid">
-      <div class="field"><div class="lbl">Nom complet</div><div class="val">${employee?.nomComplet ?? request.employeeName}</div></div>
-      <div class="field"><div class="lbl">Matricule</div><div class="val">${employee?.matricule ?? '—'}</div></div>
-      <div class="field"><div class="lbl">Département</div><div class="val">${employee?.departement ?? '—'}</div></div>
-      <div class="field"><div class="lbl">Poste</div><div class="val">${employee?.poste ?? '—'}</div></div>
+  <div class="section-title">Informations de l'employé</div>
+
+  <div class="grid">
+    <div class="field">
+      <div class="lbl">Nom complet</div>
+      <div class="val">${employee?.nomComplet ?? request.employeeName}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Matricule</div>
+      <div class="val">${employee?.matricule ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">CIN</div>
+      <div class="val">${employee?.cin ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Ville</div>
+      <div class="val">${employee?.ville ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Efp Travail</div>
+      <div class="val">${employee?.efp_travail ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Fonction</div>
+      <div class="val">${employee?.poste ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Echelle</div>
+      <div class="val">${employee?.echelle ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Spécialité</div>
+      <div class="val">${employee?.specialite ?? '—'}</div>
     </div>
   </div>
+</div>
 
   <div class="section">
     <div class="section-title">Détails de la demande</div>
@@ -172,14 +208,50 @@ const buildDemandeHTML = (request, employee) => {
   <div class="doc-title">Demande de Congé</div>
 
   <div class="section">
-    <div class="section-title">Informations de l'employé</div>
-    <div class="grid">
-      <div class="field"><div class="lbl">Nom complet</div><div class="val">${employee?.nomComplet ?? request.employeeName}</div></div>
-      <div class="field"><div class="lbl">Matricule</div><div class="val">${employee?.matricule ?? '—'}</div></div>
-      <div class="field"><div class="lbl">Département</div><div class="val">${employee?.departement ?? '—'}</div></div>
-      <div class="field"><div class="lbl">Poste</div><div class="val">${employee?.poste ?? '—'}</div></div>
+  <div class="section-title">Informations de l'employé</div>
+
+  <div class="grid">
+    <div class="field">
+      <div class="lbl">Nom complet</div>
+      <div class="val">${employee?.nomComplet ?? request.employeeName}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Matricule</div>
+      <div class="val">${employee?.matricule ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">CIN</div>
+      <div class="val">${employee?.cin ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Ville</div>
+      <div class="val">${employee?.ville ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Efp Travail</div>
+      <div class="val">${employee?.efp_travail ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Fonction</div>
+      <div class="val">${employee?.poste ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Echelle</div>
+      <div class="val">${employee?.echelle ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Spécialité</div>
+      <div class="val">${employee?.specialite ?? '—'}</div>
     </div>
   </div>
+</div>
 
   <div class="section">
     <div class="section-title">Détails de la demande</div>
@@ -313,31 +385,72 @@ const DetailDemande = () => {
     .then(res => {
       const u = res.data ?? {};
 
-      setEmployeeData({
-        nomComplet:
-          u.nom_prenom?.trim() ||
-          (u.prenom && u.nom ? `${u.prenom} ${u.nom}` : null) ||
-          u.nom ||
-          null,
+     setEmployeeData({
+      nomComplet:
+      (u.prenom && u.nom)
+        ? `${u.prenom} ${u.nom}`
+        : u.nom || null,
 
-        email: u.email ?? null,
-        telephone: u.telephone ?? null,
-        departement: u.affectation ?? null,
-        poste: u.fonction ?? null,
-        matricule: u.matricule ?? null,
-        dateEmbauche: u.date_recrutement ?? null,
-        statut: u.actif === false ? 'Inactif' : 'Actif',
-        anneeDerniere: u.solde_annee_derniere ?? 0,
-        anneePrecedente:u.solde_annee_precedente ??  0,
+    email: u.email ?? null,
 
-      });
+    efp_travail:
+      u.efp_travail ?? null,
+
+    telephone:
+      u.detail_user?.telephone ?? null,
+
+    poste:
+      u.detail_job_user?.fonction ?? null,
+
+    matricule:
+      u.matricule ?? null,
+
+    dateEmbauche:
+      u.detail_job_user?.date_recrutement ?? null,
+
+    statut:
+      u.actif === false ? 'Inactif' : 'Actif',
+
+    anneeDerniere:
+      u.solde_annee_derniere ?? 0,
+
+    anneePrecedente:
+      u.solde_annee_precedente ?? 0,
+
+    adresse:
+      u.detail_user?.adresse ?? null,
+
+    ville:
+      u.detail_user?.ville ?? null,
+
+    cin:
+      u.detail_user?.cin ?? null,
+
+    sexe:
+      u.detail_user?.sexe ?? null,
+      
+    grade:
+      u.detail_job_user?.grade ?? null,
+
+    categorie:
+      u.detail_job_user?.categorie ?? null,
+
+    echelle:
+      u.detail_job_user?.echelle ?? null,
+
+    diplome:
+      u.detail_job_user?.diplome ?? null,
+
+    specialite:
+      u.detail_job_user?.specialite ?? null,
+  });
     })
     .catch(() => {
       setEmployeeData(null);
     })
     .finally(() => setSoldeLoading(false));
 }, [request?.user_id]);
-  
+  console.log()
   // ── Not found guard ──
   if (!request) {
     return (
@@ -357,17 +470,30 @@ const DetailDemande = () => {
   }
 
   const employee = employeeData ?? {
-  nomComplet: request.employeeName || 'Employé',
-  email: '—',
-  telephone: '—',
-  departement: '—',
-  poste: '—',
-  matricule: '—',
-  dateEmbauche: null,
-  statut: 'Actif',
-  responsableDirect: '—',
-  anneeDerniere:  0,
-  anneePrecedente:0,
+    nomComplet: request.employeeName || 'Employé',
+
+    email: '—',
+    telephone: '—',
+
+    efp_travail: '—',
+    poste: '—',
+
+    matricule: '—',
+    cin: '—',
+
+    ville: '—',
+
+    echelle: '—',
+    specialite: '—',
+
+    dateEmbauche: null,
+
+    statut: 'Actif',
+
+    responsableDirect: '—',
+
+    anneeDerniere: 0,
+    anneePrecedente: 0,
   };
   const statusCfg   = STATUS_CONFIG[request.status] ?? STATUS_CONFIG.pending_manager;
   const StatusIcon  = statusCfg.icon;
@@ -574,21 +700,38 @@ const DetailDemande = () => {
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
               <InfoField icon={<Mail size={14} className="text-blue-500" />}      label="Email"            value={employee?.email            ?? '—'} />
               <InfoField icon={<Phone size={14} className="text-blue-500" />}     label="Téléphone"        value={employee?.telephone        ?? '—'} />
-              <InfoField icon={<Building2 size={14} className="text-blue-500" />} label="Département"      value={employee?.departement      ?? '—'} />
+              <InfoField icon={<Building2 size={14} className="text-blue-500" />} label="Efp_Travail"      value={employee?.efp_travail      ?? '—'} />
               <InfoField icon={<Briefcase size={14} className="text-blue-500" />} label="Poste"            value={employee?.poste            ?? '—'} />
               <InfoField icon={<Hash size={14} className="text-blue-500" />}      label="Matricule"        value={employee?.matricule        ?? '—'} />
+              <InfoField
+                icon={<Hash size={14} className="text-blue-500" />}
+                label="CIN"
+                value={employee?.cin ?? '—'}
+              />
+
+              <InfoField
+                icon={<Building2 size={14} className="text-blue-500" />}
+                label="Ville"
+                value={employee?.ville ?? '—'}
+              />
+
+              <InfoField
+                icon={<Award size={14} className="text-blue-500" />}
+                label="Echelle"
+                value={employee?.echelle ?? '—'}
+              />
+
+              <InfoField
+                icon={<Briefcase size={14} className="text-blue-500" />}
+                label="Spécialité"
+                value={employee?.specialite ?? '—'}
+              />
               <InfoField icon={<Calendar size={14} className="text-blue-500" />}  label="Date d'embauche"  value={
                 employee?.dateEmbauche &&
                 !isNaN(new Date(employee.dateEmbauche).getTime())
                   ? format(new Date(employee.dateEmbauche), 'dd MMM yyyy', { locale: fr })
                   : '—'
               } />
-              <InfoField
-                icon={<Users size={14} className="text-blue-500" />}
-                label="Responsable direct"
-                value={employee?.responsableDirect ?? '—'}
-                wide
-              />
             </div>
           </motion.div>
 

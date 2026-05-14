@@ -20,38 +20,21 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
 protected $fillable = [
-    'matricule',
-    'nom',
-    'prenom',
-    'nom_prenom',
-    'nom_ar',
-    'prenom_ar',
-    'genre',
-    'actif',
-    'affectation',
-    'efp_travail',
-    'fonction',
-    'nature_fonction',
-    'echelle',
-    'categorie',
-    'grade',
-    'cin',
-    'date_naissance',
-    'adresse',
-    'ville',
-    'telephone',
-    'email',
-    'password',
-    'diplome',
-    'specialite',
-    'date_recrutement',
-    'date_prise_service',
-    'recode_annee_ant',
-    'observation',
-    'photo',
-    'role',
-    'solde_annee_derniere',
-    'solde_annee_precedente',
+        'matricule',
+        'nom',
+        'prenom',
+        'nom_prenom',
+        'nom_ar',
+        'prenom_ar',
+        'email',
+        'password',
+        'actif',
+        'affectation',
+        'efp_travail',
+        'observation',
+        'role',
+        'solde_annee_precedente',   
+        'solde_annee_derniere',
 ];
     /**
      * The attributes that should be hidden for serialization.
@@ -91,12 +74,21 @@ protected $fillable = [
     }
 
     public function Demande(){
-        $this->hasMany(Demande::class);
+        return $this->hasMany(Demande::class);
     }
-    public function DetailJobUser(){
-        return $this->hasOne(DetailJobUser::class);
-    }
-    public function DetailUser(){
+    public function detailUser()
+    {
         return $this->hasOne(DetailUser::class);
+    }
+<<<<<<< HEAD
+
+    public function detailJobUser()
+    {
+        return $this->hasOne(DetailJobUser::class);
+=======
+    public function parametrages()
+    {
+        return $this->hasMany(Parametrage::class);
+>>>>>>> 6bb89282d3e23193c074e7b57af103dadf166950
     }
 }
