@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Demande;
+use App\Notifications\LeaveStatusChangedNotification;
 use App\Services\LeaveService;
 use Illuminate\Http\Request;
 
@@ -10,7 +11,7 @@ class LeaveController extends Controller
 {
     public function validateLeave($id, LeaveService $service)
 {
-    $leave = Demande::findOrFail($id);
+    $leave = Demande::with('user')->findOrFail($id);
     $user = $leave->user;
 
     // calculate days
@@ -39,6 +40,11 @@ class LeaveController extends Controller
     $leave->status = 'approved';
     $leave->duration = $days;
     $leave->save();
+
+    // notify employee
+    if ($user && !empty($user->email)) {
+        $user->notify(new LeaveStatusChangedNotification($leave, 'approved'));
+    }
 
     return response()->json([
         'message' => 'Demande validée avec succès',
