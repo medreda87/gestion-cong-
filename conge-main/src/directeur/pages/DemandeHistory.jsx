@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { History, Filter, Calendar, Search } from 'lucide-react';
-import { format } from 'date-fns';
+import { History, Filter, Calendar, Search, CheckCircle } from 'lucide-react';import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { Link } from 'react-router-dom';
+import { Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LeaveHistory = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -146,6 +148,15 @@ const LeaveHistory = () => {
                         Créé le {format(new Date(request.created_at), 'dd/MM/yyyy', { locale: fr })}
                       </p>
                     </div>
+                    <div className="flex gap-2">
+                    <button
+                      className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors"
+                      onClick={() => navigate(`/demande/${request.id}`)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      Détail
+                    </button>
+                  </div>
                     <span className={getStatusBadgeClass(request.status)}>
                       {LEAVE_STATUS_LABELS[request.status]}
                     </span>
