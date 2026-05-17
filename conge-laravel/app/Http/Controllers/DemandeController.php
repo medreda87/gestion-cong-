@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DemandeCongeNotification;
 use App\Models\Demande;
 use App\Models\User;
+use App\Notifications\DirectorLeaveRequestNotification;
+use App\Notifications\LeaveStatusChangedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class DemandeController extends Controller
 {
 public function getdemande()
 {
     $user = auth('api')->user();
+
+   
 
     $query = Demande::with('user')->orderBy('id', 'desc');
 
@@ -90,44 +96,90 @@ public function getDemandeHistory()
                 : 'pending_manager',
         ]);
 
+        $users = User::where('efp_travail', $user->efp_travail)->get();
+
+        // managers / responsables
+        $managers = $users->where('role', 'manager');
+
+        // interimaire(s)
+        $interimaires = $users->where('role', 'employee');
+
+        // 1. send to managers
+        foreach($managers as $manager){
+            Mail::to($manager->email)
+                ->send(new DemandeCongeNotification($demande, $user));
+        }
+
+        // 2. send to interimaire(s)
+        foreach($interimaires as $interimaire){
+            Mail::to($interimaire->email)
+                ->send(new DemandeCongeNotification($demande, $user));
+        }
+
         return response()->json([
-            'message' => 'Demande créée avec succès',
-            'demande' => $demande,
-        ], 201);
+        'responsable_id' => $user->responsable_id,
+        'interimaire_id' => $user->interimaire_id,
+        ]);
     }
 
-    public function updateStatus(Request $request,string $id){
-      $user = auth('api')->user();
+  public function updateStatus(Request $request, string $id)
+{
+    $user = auth('api')->user();
 
-    $demande = Demande::findOrFail($id);
+    // ✅ Eager-load the user relation
+    $demande = Demande::with('user')->findOrFail($id);
 
     $validated = $request->validate([
-        'status' => 'required|in:pending_manager,pending_director,approved,rejected,cancelled',
+        'status' => 'required|in:pending_director,approved,cancelled',
         'comment' => 'nullable|string',
     ]);
 
-    
+    /*
+    |-----------------------------------
+    | MANAGER VALIDATION
+    |-----------------------------------
+    */
     if ($user->role === 'manager' && $validated['status'] === 'pending_director') {
+
         $demande->manager_comment = $validated['comment'];
+        $demande->status = 'pending_director';
+        $demande->save();
+
+        $director = User::where('role', 'directeur')->first();
+
+        if ($director) {
+            $director->notify(new DirectorLeaveRequestNotification($demande));
+        }
+
+        $demande->user->notify(
+            new LeaveStatusChangedNotification($demande, 'pending_director')
+        );
     }
 
-    if ($user->role === 'director' && in_array($validated['status'], ['approved', 'rejected'])) {
-        $demande->director_comment = $validated['comment'];
-    }
+    /*
+    |-----------------------------------
+    | CANCELLED
+    |-----------------------------------
+    */
+    elseif ($validated['status'] === 'cancelled') { // ✅ handle cancel here too
+        $demande->status = 'cancelled';
+        $demande->save();
 
-    $demande->status = $validated['status'];
-    $demande->save();
+        $demande->user->notify(
+            new LeaveStatusChangedNotification($demande, 'cancelled')
+        );
+    }
 
     return response()->json([
         'message' => 'Status updated',
         'demande' => $demande
     ]);
-    }
+}
 
     public function cancel(string $id){
         $demande = Demande::findOrFail($id);
 
-        $demande->status = 'canceled';
+        $demande->status = 'cancelled';
         $demande->save();
     }
 

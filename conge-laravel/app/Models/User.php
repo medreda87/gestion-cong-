@@ -89,4 +89,14 @@ protected $fillable = [
     {
         return $this->hasMany(Document::class);
     }
+
+    public function responsable()
+    {
+    return $this->belongsTo(User::class, 'responsable_id');
+    }
+
+    public function interimaire()
+    {
+    return $this->belongsTo(User::class, 'interimaire_id');
+    }
 }

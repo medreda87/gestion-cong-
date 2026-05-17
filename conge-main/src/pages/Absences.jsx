@@ -269,13 +269,13 @@ const Absences = () => {
             {[
               {
                 label: "Total absences",
-                count: exceptionalRequests.length,
+                count: filteredRequests.length,
                 color: "from-slate-500 to-slate-700",
                 bg: "bg-slate-50",
               },
               {
                 label: "En attente",
-                count: exceptionalRequests.filter((r) =>
+                count: filteredRequests.filter((r) =>
                   r.status.startsWith("pending")
                 ).length,
                 color: "from-amber-500 to-orange-500",
@@ -283,7 +283,7 @@ const Absences = () => {
               },
               {
                 label: "Approuvées",
-                count: exceptionalRequests.filter(
+                count: filteredRequests.filter(
                   (r) => r.status === "approved"
                 ).length,
                 color: "from-emerald-500 to-green-500",
@@ -291,7 +291,7 @@ const Absences = () => {
               },
               {
                 label: "Annulées",
-                count: exceptionalRequests.filter(
+                count: filteredRequests.filter(
                   (r) => r.status === "cancelled"
                 ).length,
                 color: "from-rose-500 to-red-500",
