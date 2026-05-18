@@ -66,7 +66,7 @@ const calculateDuration = () => {
   let count = 0;
 
   // holidays from backend
-  const holdays = holidays.map(
+  const holdays = (holidays || []).map(
     holiday => new Date(holiday.date).toDateString()
   );
 

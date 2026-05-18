@@ -108,8 +108,8 @@ const PendingRequests = () => {
                           </p>
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
-                              📅 Du {format(new Date(request.startDate), 'dd MMM', { locale: fr })} au{' '}
-                              {format(new Date(request.endDate), 'dd MMM yyyy', { locale: fr })}
+                              📅 Du {format(new Date(request.startDate || request.start_date), 'dd MMM', { locale: fr })} au{' '}
+                              {format(new Date(request.endDate || request.end_date), 'dd MMM yyyy', { locale: fr })}
                             </span>
                             <span>⏱️ {request.duration} jours</span>
                           </div>
@@ -131,7 +131,7 @@ const PendingRequests = () => {
                           {request.status === 'pending_manager' ? 'En attente' : 'En cours'}
                         </span>
                         <p className="text-xs text-muted-foreground">
-                          Demandé le {format(new Date(request.createdAt), 'dd/MM/yyyy', { locale: fr })}
+                          Demandé le {format(new Date(request.createdAt || request.created_at), 'dd/MM/yyyy', { locale: fr })}
                         </p>
                         <div className="flex gap-2">
                           <button
@@ -192,8 +192,8 @@ const PendingRequests = () => {
                       {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Du {format(new Date(selectedRequest.startDate), 'dd MMM', { locale: fr })} au{' '}
-                      {format(new Date(selectedRequest.endDate), 'dd MMM yyyy', { locale: fr })}
+                      Du {format(new Date(selectedRequest.startDate || selectedRequest.start_date), 'dd MMM', { locale: fr })} au{' '}
+                      {format(new Date(selectedRequest.endDate || selectedRequest.end_date), 'dd MMM yyyy', { locale: fr })}
                     </p>
                   </div>
                 )}

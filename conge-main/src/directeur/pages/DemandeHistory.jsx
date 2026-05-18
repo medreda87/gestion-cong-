@@ -29,7 +29,7 @@ const filteredRequests = requestsHistory.filter((request) => {
 
   const matchFilter =
     request.status === "approved" &&
-    String(request.user_id) === String(user.id);
+    (String(request.userId) === String(user.id) || String(request.user_id) === String(user.id));
 
   const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
 
@@ -137,8 +137,8 @@ const filteredRequests = requestsHistory.filter((request) => {
                     <div>
                       <p className="font-medium">{LEAVE_TYPE_LABELS[request.type]}</p>
                       <p className="text-sm text-muted-foreground">
-                        Du {format(new Date(request.start_date), 'dd MMMM', { locale: fr })} au{' '}
-                        {format(new Date(request.end_date), 'dd MMMM yyyy', { locale: fr })}
+                        Du {format(new Date(request.startDate || request.start_date), 'dd MMMM', { locale: fr })} au{' '}
+                        {format(new Date(request.endDate || request.end_date), 'dd MMMM yyyy', { locale: fr })}
                       </p>
                       {request.reason && (
                         <p className="mt-1 text-xs text-muted-foreground">
@@ -151,7 +151,7 @@ const filteredRequests = requestsHistory.filter((request) => {
                     <div className="text-right">
                       <p className="text-lg font-semibold">{request.duration} jours</p>
                       <p className="text-xs text-muted-foreground">
-                        Créé le {format(new Date(request.created_at), 'dd/MM/yyyy', { locale: fr })}
+                        Créé le {format(new Date(request.createdAt || request.created_at), 'dd/MM/yyyy', { locale: fr })}
                       </p>
                     </div>
                     <div className="flex gap-2">

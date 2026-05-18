@@ -112,8 +112,8 @@ const getInitials = (nom, prenom) => {
                           </p>
                           <div className="mt-2 flex flex-wrap gap-4 text-sm">
                             <span>
-                          {format(new Date(request.start_date), 'dd MMM', { locale: fr })} au{' '}
-                         {format(new Date(request.end_date), 'dd MMM yyyy', { locale: fr })}
+                          {format(new Date(request.startDate || request.start_date), 'dd MMM', { locale: fr })} au{' '}
+                         {format(new Date(request.endDate || request.end_date), 'dd MMM yyyy', { locale: fr })}
                             </span>
                             <p className='flex '><AlarmClock className='mr-2 mt-1'  size={16}/> {request.duration} jours</p>
                           </div>
@@ -136,7 +136,7 @@ const getInitials = (nom, prenom) => {
                       {request.status === 'cancelled' ? 'Annulée' : 'En attente'}
                     </span>
                         <p className="text-xs text-muted-foreground">
-                          Demandé le {format(new Date(request.created_at), 'dd/MM/yyyy', { locale: fr })}
+                          Demandé le {format(new Date(request.createdAt || request.created_at), 'dd/MM/yyyy', { locale: fr })}
                         </p>
                         <div className="flex gap-2">
                         <button
