@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const Absences = () => {
   const { user } = useAuth();
-  const { requests = [], updateRequestStatus } = useLeave();
+  const { requests = [], updateRequestStatus, requestsHistory } = useLeave();
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +28,9 @@ const Absences = () => {
     cancelled: "Annulée",
   };
 
-  const exceptionalRequests = requests.filter(
+  const requestsSource = user.role === 'manager' ? (requestsHistory || []) : requests;
+
+  const exceptionalRequests = requestsSource.filter(
     (r) => r.type === "exceptionnel" || r.type === "exceptional"
   );
 

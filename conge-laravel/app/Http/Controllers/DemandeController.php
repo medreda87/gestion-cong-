@@ -104,17 +104,30 @@ public function getDemandeHistory()
         // interimaire(s)
         $interimaires = $users->where('role', 'employee');
 
-        // 1. send to managers
+        if ($user->role === 'manager') {
+
+            $director = User::where('role', 'directeur')->first();
+
+            if (!$director) {
+                return response()->json([
+                    'error' => 'Director not found'
+                ], 500);
+            }
+
+            $director->notify(new DirectorLeaveRequestNotification($demande));
+        }else{
+        // employee -> managers
         foreach($managers as $manager){
             Mail::to($manager->email)
                 ->send(new DemandeCongeNotification($demande, $user));
         }
 
-        // 2. send to interimaire(s)
+        // employee -> interimaires
         foreach($interimaires as $interimaire){
             Mail::to($interimaire->email)
                 ->send(new DemandeCongeNotification($demande, $user));
         }
+    }
 
         return response()->json([
         'responsable_id' => $user->responsable_id,

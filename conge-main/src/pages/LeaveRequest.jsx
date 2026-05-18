@@ -177,7 +177,7 @@ const isWorkingDay = (date) => {
   const formatted = format(date, 'yyyy-MM-dd');
 
   const isWeekend = day === 0 || day === 6;
-  const isHoliday = holidays.includes(formatted);
+  const isHoliday = holidays?.includes(formatted);
 
   return !isWeekend && !isHoliday;
 };
