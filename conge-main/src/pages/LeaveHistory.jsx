@@ -15,7 +15,7 @@ const LeaveHistory = () => {
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { getRequestsByEmployee, updateRequestStatus } = useLeave();  if (!user) return null;
+  const { getRequestsByEmployee, updateRequestStatus, requestsHistory, requests } = useLeave();  if (!user) return null;
 
   const LEAVE_STATUS_LABELS = {
   pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
@@ -24,7 +24,10 @@ const LeaveHistory = () => {
   cancelled: 'Annulé',
 };
 
-  const myRequests = getRequestsByEmployee(user.id);
+  // Managers should see their own demandes including those with status 'pending_director'
+  const myRequests = user.role === 'manager'
+    ? (requestsHistory || []).filter((r) => String(r.user_id) === String(user.id))
+    : getRequestsByEmployee(user.id);
 
   const filteredRequests = myRequests.filter((request) => {
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
