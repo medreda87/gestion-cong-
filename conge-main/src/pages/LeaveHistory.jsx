@@ -136,7 +136,7 @@ const administrativeRequests = myRequests.filter(
             </div>
           ) : (
             <div className="divide-y">
-              {filteredRequests.map((request, index) => (
+              {filteredRequests?.map((request, index) => (
                 <motion.div
                   key={request.id}
                   initial={{ opacity: 0, x: -20 }}

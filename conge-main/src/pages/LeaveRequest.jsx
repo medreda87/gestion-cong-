@@ -66,7 +66,7 @@ const calculateDuration = () => {
   let count = 0;
 
   // holidays from backend
-  const holdays = holidays.map(
+  const holdays = (holidays || []).map(
     holiday => new Date(holiday.date).toDateString()
   );
 
@@ -177,7 +177,7 @@ const isWorkingDay = (date) => {
   const formatted = format(date, 'yyyy-MM-dd');
 
   const isWeekend = day === 0 || day === 6;
-  const isHoliday = holidays.includes(formatted);
+  const isHoliday = holidays?.includes(formatted);
 
   return !isWeekend && !isHoliday;
 };
