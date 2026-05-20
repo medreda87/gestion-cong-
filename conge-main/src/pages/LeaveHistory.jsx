@@ -31,7 +31,9 @@ const LeaveHistory = () => {
 
   const filteredRequests = myRequests.filter((request) => {
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-    const matchType = request.type!== 'exceptional';
+const matchType =
+  request.type !== "exceptional" &&
+  request.type !== "exceptionnel";
     const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
     const matchesSearch = 
       typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
