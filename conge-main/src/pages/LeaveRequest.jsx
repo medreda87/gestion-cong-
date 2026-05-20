@@ -132,7 +132,7 @@ const totSolde = parseInt(totalSolde);
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totSolde : duration > 0);
-  const isDateValid = startDate && new Date(startDate) >= addDays(today,7);
+  const isDateValid = startDate && new Date(startDate) >= addDays(today,8);
   
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -213,8 +213,15 @@ useEffect(() => {
 useEffect(() => {
   const fetchEmployees = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://127.0.0.1:8000/api/interimaires/${user.id}`
+        `http://127.0.0.1:8000/api/interimaires/${user.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        }
       );
 
       const data = await response.json();

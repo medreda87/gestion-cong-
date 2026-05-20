@@ -2,11 +2,11 @@
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #1d4ed8;">Bonjour {{ $director->nom }},</h2>
 
-        <p>Une demande de congé a été <strong>validée par le responsable</strong> et est en attente de votre approbation finale.</p>
+        <p>Un <strong>responsable</strong> a soumis une demande de congé qui nécessite votre approbation.</p>
 
         <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
             <tr>
-                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Employé</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Responsable</td>
                 <td style="padding: 8px; border: 1px solid #e2e8f0;">{{ $demande->user->nom }} {{ $demande->user->prenom }}</td>
             </tr>
             <tr>
@@ -27,7 +27,7 @@
             </tr>
             <tr>
                 <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Statut</td>
-                <td style="padding: 8px; border: 1px solid #e2e8f0; color: #d97706;">En attente de l'approbation du directeur</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; color: #d97706;">En attente de votre approbation</td>
             </tr>
         </table>
 

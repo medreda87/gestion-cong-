@@ -30,7 +30,7 @@ import DecisionDocument from './DecisionDocument';
     return isValid(d) ? format(d, pattern, { locale }) : '—';
   };
   // ─── PDF decision document generator ──────────────────────────────────────
-  const buildDecisionHTML = (request, employee, actionStatus) => {
+  const buildDecisionHTML = (request, employee, actionStatus, interimaire) => {
   const today = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
   const isApproved = actionStatus === 'approved';
   const actionLabel = isApproved ? 'APPROUVÉE' : 'REFUSÉE';
@@ -125,6 +125,11 @@ import DecisionDocument from './DecisionDocument';
     </div>
 
     <div class="field">
+      <div class="lbl">Intérimaire</div>
+      <div class="val">${interimaire?.nomComplet ?? '—'}</div>
+    </div>
+
+    <div class="field">
       <div class="lbl">Spécialité</div>
       <div class="val">${employee?.specialite ?? '—'}</div>
     </div>
@@ -159,7 +164,7 @@ import DecisionDocument from './DecisionDocument';
 };
 
 // ─── Leave request document generator ────────────────────────────────────
-const buildDemandeHTML = (request, employee) => {
+const buildDemandeHTML = (request, employee, interimaire) => {
   const today    = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
   const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
   const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
@@ -244,6 +249,11 @@ const buildDemandeHTML = (request, employee) => {
     <div class="field">
       <div class="lbl">Echelle</div>
       <div class="val">${employee?.echelle ?? '—'}</div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">Intérimaire</div>
+      <div class="val">${interimaire?.nomComplet ?? '—'}</div>
     </div>
 
     <div class="field">
@@ -364,6 +374,7 @@ const DetailDemande = () => {
     const [comment, setComment] = useState('');
     const [soldeData, setSoldeData] = useState(null);
     const [employeeData, setEmployeeData] = useState(null);
+    const [interimaireData, setInterimaireData] = useState(null);
     const [soldeLoading, setSoldeLoading] = useState(false);
 
     const request = requests.find(r => String(r.id) === String(id));
@@ -392,6 +403,13 @@ const DetailDemande = () => {
         : u.nom || null,
 
     email: u.email ?? null,
+
+    affectation: u.affectation ?? null,
+    solde_annee_derniere: u.solde_annee_derniere ?? null,
+
+    solde_annee_precedente: u.solde_annee_precedente ?? null,
+    
+    affectation: u.affectation ?? null,
 
     efp_travail:
       u.efp_travail ?? null,
@@ -450,6 +468,33 @@ const DetailDemande = () => {
     })
     .finally(() => setSoldeLoading(false));
 }, [request?.user_id]);
+
+useEffect(() => {
+  if (!request?.interimaire_id) {
+    setInterimaireData(null);
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+
+  axios
+    .get(`http://127.0.0.1:8000/api/users/${request.interimaire_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    })
+    .then(res => {
+      const u = res.data ?? {};
+
+      setInterimaireData({
+        nomComplet: (u.prenom && u.nom) ? `${u.prenom} ${u.nom}` : u.nom || u.nom_prenom || '—',
+      });
+    })
+    .catch(() => {
+      setInterimaireData(null);
+    });
+}, [request?.interimaire_id]);
   console.log()
   // ── Not found guard ──
   if (!request) {
@@ -532,7 +577,7 @@ const DetailDemande = () => {
   };
 
  const handleDownloadDemande = () => {
-  const html = buildDemandeHTML(request, employee);
+  const html = buildDemandeHTML(request, employee, interimaireData);
 
   // نحطو HTML فـ div مؤقت
   const element = document.createElement("div");
@@ -558,7 +603,7 @@ const DetailDemande = () => {
 };
 
   const handlePrint = () => {
-    const html = buildDecisionHTML(request, employee, request.status);
+    const html = buildDecisionHTML(request, employee, request.status, interimaireData);
     const w = window.open('', '_blank', 'width=860,height=680');
     w.document.write(html);
     w.document.close();
@@ -567,34 +612,39 @@ const DetailDemande = () => {
   };
 
  const handleDownload = async () => {
-  const canvas = await html2canvas(pdfRef.current, {
+  const element = pdfRef.current;
+
+  const canvas = await html2canvas(element, {
     scale: 2,
+    useCORS: true,
+    height: element.scrollHeight,        // ← klé
+    windowHeight: element.scrollHeight,  // ← klé
   });
 
   const imgData = canvas.toDataURL('image/png');
-
   const pdf = new jsPDF('p', 'mm', 'a4');
 
   const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-  const pdfHeight =
-    (canvas.height * pdfWidth) / canvas.width;
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  let position = 0;
+  let heightLeft = pdfHeight;
 
-  pdf.addImage(
-    imgData,
-    'PNG',
-    0,
-    0,
-    pdfWidth,
-    pdfHeight
-  );
+  // ← ila kan lhajm kber mn page wahda, kaydir pages mteaddda
+  pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+  heightLeft -= pageHeight;
 
-  pdf.save(
-    `Decision_${request.id}.pdf`
-  );
+  while (heightLeft > 0) {
+    position -= pageHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+    heightLeft -= pageHeight;
+  }
 
+  pdf.save(`Decision_${request.id}.pdf`);
   toast.success('PDF téléchargé');
-  };
+};
 
   // ── Render ──
   return (
@@ -781,6 +831,16 @@ const DetailDemande = () => {
                   </p>
                 </div>
               </div>
+              {request.interimaire_id && (
+                <div className="rounded-xl border p-3.5">
+                  <p className="flex items-center gap-1 text-xs text-muted-foreground mb-1.5">
+                    <Users size={11} /> Intérimaire
+                  </p>
+                  <p className="font-semibold text-sm">
+                    {interimaireData?.nomComplet ?? 'Chargement...'}
+                  </p>
+                </div>
+              )}
 
               {/* Motif */}
               {request.reason && (
