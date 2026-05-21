@@ -169,6 +169,7 @@ const buildDemandeHTML = (request, employee, interimaire) => {
   const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
   const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
 
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -577,9 +578,13 @@ useEffect(() => {
   };
 
  const handleDownloadDemande = () => {
+<<<<<<< HEAD
+  const html = buildDemandeHTML(request, employee);
+=======
   const html = buildDemandeHTML(request, employee, interimaireData);
 
   // نحطو HTML فـ div مؤقت
+>>>>>>> 3c7509bda6fe73ea5a56e9f44ad87e2b030a9b8e
   const element = document.createElement("div");
   element.innerHTML = html;
   document.body.appendChild(element);
