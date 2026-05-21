@@ -164,6 +164,7 @@ const buildDemandeHTML = (request, employee) => {
   const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
   const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
 
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -533,8 +534,6 @@ const DetailDemande = () => {
 
  const handleDownloadDemande = () => {
   const html = buildDemandeHTML(request, employee);
-
-  // نحطو HTML فـ div مؤقت
   const element = document.createElement("div");
   element.innerHTML = html;
   document.body.appendChild(element);
