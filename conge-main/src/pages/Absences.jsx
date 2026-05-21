@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const Absences = () => {
   const { user } = useAuth();
-  const { requests = [], updateRequestStatus, requestsHistory } = useLeave();
+const { requests, updateRequestStatus, requestsHistory, cancelLeave, myDemandes } = useLeave();
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,10 +28,20 @@ const Absences = () => {
     cancelled: "Annulée",
   };
 
-  const requestsSource = user.role === 'manager' ? (requestsHistory || []) : requests;
+ 
+const requestsSource = user.role === 'manager'
+  ? (myDemandes || [])  // ← نفس LeaveHistory
+  : [
+      ...(requests || []),
+      ...(requestsHistory || []),
+    ].filter((r, index, self) =>
+      index === self.findIndex((t) => t.id === r.id)
+    );
 
-  const exceptionalRequests = requestsSource.filter(
-    (r) => r.type === "exceptionnel" || r.type === "exceptional"
+const exceptionalRequests = requestsSource
+  .filter((r) => r.type === "exceptionnel" || r.type === "exceptional")
+  .filter((r, index, self) => 
+    index === self.findIndex((t) => t.id === r.id) 
   );
 
   const filteredRequests = exceptionalRequests.filter((request) => {
@@ -237,22 +247,22 @@ const Absences = () => {
                       {STATUS_LABELS[request.status]}
                     </span>
 
-                    {request.status === "pending_manager" && (
-                      <button
-                        onClick={() => {
-                          if (
-                            confirm(
-                              "Voulez-vous vraiment annuler cette absence ?"
-                            )
-                          ) {
-                            updateRequestStatus(request.id, "cancelled");
-                          }
-                        }}
-                    className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300"
-                        >
-                        Annuler
-                      </button>
-                    )}
+                     {/* Bouton Annuler */}
+                    {request.user_id === user.id && (
+                    (user.role === 'employee' && request.status === 'pending_manager') ||
+                    (user.role === 'manager' && request.status.startsWith('pending'))
+                  ) && (
+                    <button
+                    onClick={() => {
+                    if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                      cancelLeave(request.id);
+                    }
+                  }}
+                      className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                    >
+                      Annuler
+                    </button>
+                  )}
                   </div>
                 </motion.div>
               ))}

@@ -15,7 +15,7 @@ const LeaveHistory = () => {
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { getRequestsByEmployee, updateRequestStatus, requestsHistory, requests } = useLeave();  if (!user) return null;
+  const { getRequestsByEmployee, updateRequestStatus, cancelLeave, requestsHistory, requests, myDemandes } = useLeave();
 
   const LEAVE_STATUS_LABELS = {
   pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
@@ -24,18 +24,18 @@ const LeaveHistory = () => {
   cancelled: 'Annulé',
 };
 
-  // Managers should see their own demandes including those with status 'pending_director'
+  // Managers should see their own demandes including cancelled and approved requests
   const myRequests = user.role === 'manager'
-    ? (requestsHistory || []).filter((r) => String(r.user_id) === String(user.id))
+    ? (myDemandes || [])
     : getRequestsByEmployee(user.id);
 
   const filteredRequests = myRequests.filter((request) => {
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-const matchType =
-  request.type !== "exceptional" &&
-  request.type !== "exceptionnel";
-    const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
-    const matchesSearch = 
+  const matchType =
+    request.type !== "exceptional" &&
+    request.type !== "exceptionnel";
+      const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
+      const matchesSearch = 
       typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch && matchType;
@@ -191,11 +191,11 @@ const administrativeRequests = myRequests.filter(
                 (user.role === 'manager' && request.status.startsWith('pending'))
               ) && (
                 <button
-                  onClick={() => {
-                    if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
-                      updateRequestStatus(request.id, "cancelled");
-                    }
-                  }}
+                 onClick={() => {
+                if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                  cancelLeave(request.id);
+                }
+              }}
                   className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
                 >
                   Annuler

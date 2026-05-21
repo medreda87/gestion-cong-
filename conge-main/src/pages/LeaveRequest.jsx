@@ -132,7 +132,7 @@ const totSolde = parseInt(totalSolde);
   const duration = calculateDuration();
   const total=totall()
   const isValidDuration = (type !== 'exceptional' ? duration > 0 && duration <= totSolde : duration > 0);
-  const isDateValid = startDate && new Date(startDate) >= addDays(today,8);
+  const isDateValid = startDate && new Date(startDate) >= addDays(today,7);
   
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -161,7 +161,7 @@ const totSolde = parseInt(totalSolde);
     });
 
     toast.success("Demande soumise avec succès !");
-    navigate("/history");
+    subType === 'exceptional' ? navigate('/Absences') : navigate('/history');
   } catch (error) {
     toast.error("Erreur lors de la création de la demande");
     console.error(error.response?.data || error.message);

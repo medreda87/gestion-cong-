@@ -1,19 +1,37 @@
 <div>
     <!-- Order your soul. Reduce your wants. - Augustine -->
-    <h2>Nouvelle demande de congé</h2>
-    <p>
-    L'employé {{ $employee->nom }} {{ $employee->prenom }}
-    a soumis une demande de congé.
-    </p>
+   <div>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #1d4ed8;">Nouvelle demande de congé</h2>
 
-    <p>
-    Date début : {{ $demande->start_date }}
-    </p>
-    <p>
-    Date fin : {{ $demande->end_date }}
-    </p>
+        <p>L'employé <strong>{{ $employee->nom }} {{ $employee->prenom }}</strong> a soumis une demande de congé.</p>
 
-    <p>
-    Motif : {{ $demande->reason }}
-    </p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+            <tr>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Employé</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0;">{{ $employee->nom }} {{ $employee->prenom }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Date de début</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0;">{{ $demande->start_date }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Date de fin</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0;">{{ $demande->end_date }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Motif</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0;">{{ $demande->reason }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Statut</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; color: #d97706;">En attente de traitement</td>
+            </tr>
+        </table>
+
+        <p style="margin-top: 20px; color: #6b7280; font-size: 13px;">
+            Veuillez vous connecter au système pour traiter cette demande.
+        </p>
+    </div>
+</div>
 </div>

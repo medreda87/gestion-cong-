@@ -20,6 +20,11 @@ use App\Http\Controllers\DocumentController;
 |
 */
 
+
+Route::get('/', function () {
+    return redirect('/login');
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -36,9 +41,11 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/demandes',[DemandeController::class,'getdemande']);
+    Route::get('/demandeHistory',[DemandeController::class,'getDemandeHistory']);
+    Route::get('/my-demandes',[DemandeController::class,'getMyDemandes']);
     Route::post('/store_demande',[DemandeController::class,'store']);
     Route::put('/demandes/{id}/status', [DemandeController::class, 'updateStatus']);
-    Route::put('/demandes/{id}/cancel', [DemandeController::class, 'cancel']);
+    Route::patch('/demandes/{id}/cancel', [DemandeController::class, 'cancel']);
     Route::delete('/demandes/{id}', [DemandeController::class, 'destroy']);
 });
 

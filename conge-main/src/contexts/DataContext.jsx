@@ -8,7 +8,7 @@ const DataContext = createContext(undefined);
 
 export const DataProvider = ({ children }) => {
   const [requests, setRequests] = useState();
-  const [holidays, setHolidays] = useState();
+  const [holidays, setHolidays] = useState([]);
 
   const addRequest = (req) => {
     setRequests(prev => [

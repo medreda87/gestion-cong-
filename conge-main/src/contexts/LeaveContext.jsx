@@ -38,6 +38,7 @@ const transformDemande = (demande) => {
 export const LeaveProvider = ({ children }) => {
   const [requests, setRequests] = useState([]);
   const [requestsHistory, setRequestsHistory] = useState([]);
+  const [myDemandes, setMyDemandes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [solde, setSolde] = useState(null);
   const [refreshHistory, setRefreshHistory] = useState(false);
@@ -45,6 +46,7 @@ export const LeaveProvider = ({ children }) => {
   const { user } = useAuth();
   const getToken = () => localStorage.getItem("token");
   const token = getToken();
+
   const getDemandes = async () => {
     setLoading(true);
     try {
@@ -115,12 +117,42 @@ const getDemandesHistory = async () => {
     }
   };
 
+const getMyDemandes = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/my-demandes`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          Accept: "application/json",
+        },
+      });
+   
+      const data = response.data;
+      
+      const demandesArray = Array.isArray(data)
+        ? data
+        : Array.isArray(data.demandes)
+        ? data.demandes
+        : [];
+      
+      const transformedDemandes = demandesArray.map(transformDemande);
+
+      setMyDemandes(transformedDemandes);
+    } catch (error) {
+      console.error("GET MY DEMANDES ERROR:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 useEffect(() => {
   if (getToken()) {
     getDemandesHistory();
+    getMyDemandes();
 
     const interval = setInterval(() => {
       getDemandesHistory();
+      getMyDemandes();
     }, 5000);
     return () => clearInterval(interval);
   }
@@ -161,21 +193,27 @@ const triggerRefreshHistory = () => {
     await getDemandes();
   };
 
-  const cancelLeave = async (id) => {
-    await axios.put(
-      `${API_URL}/demandes/${id}/cancel`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-          Accept: "application/json",
-        },
+    const cancelLeave = async (id) => {
+      try {
+          const res = await axios.patch(
+              `${API_URL}/demandes/${id}/cancel`,
+              {},
+              {
+                  headers: {
+                      Authorization: `Bearer ${getToken()}`,
+                      Accept: "application/json",
+                  },
+              }
+          );
+          console.log('✅ cancel response:', res.data);
+          await getDemandes();
+          await getMyDemandes();
+          await getDemandesHistory();
+      } catch (err) {
+          console.error('❌ status:', err.response?.status);
+          console.error('❌ data:', err.response?.data);
       }
-    );
-
-    await getDemandes();
   };
-
   const deleteLeave = async (id) => {
     await axios.delete(`${API_URL}/demandes/${id}`, {
       headers: {
@@ -256,6 +294,7 @@ const validateLeave = async (id) => {
         loading,
         solde,
         requestsHistory,
+        myDemandes,
         getDemandes,
         addRequest,
         updateRequestStatus,

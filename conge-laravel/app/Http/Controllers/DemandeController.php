@@ -71,6 +71,20 @@ public function getDemandeHistory()
     ]);
 }
 
+public function getMyDemandes()
+{
+    $user = auth('api')->user();
+
+    $demandes = Demande::with('user')
+        ->where('user_id', $user->id)
+        ->orderBy('id', 'desc')
+        ->get();
+
+    return response()->json([
+        'demandes' => $demandes
+    ]);
+}
+
     public function store(Request $request){
         $user = auth('api')->user();
 
@@ -177,25 +191,25 @@ public function getDemandeHistory()
     ]);
 }
 
-    public function cancel(string $id)
+   public function cancel(string $id)
 {
+    $user = auth('api')->user(); // ← missing
+
     $demande = Demande::with('user')->findOrFail($id);
 
     $demande->status = 'cancelled';
     $demande->save();
 
-    // employee cancels → notify manager
     if ($demande->user->role === 'employee') {
         $managers = User::where('role', 'manager')
             ->where('efp_travail', $demande->user->efp_travail)
             ->get();
 
         foreach ($managers as $manager) {
-            $manager->notify(new EmployeeCancelledNotification($demande));
+            $manager->notify(new EmployeeCancelledNotification($demande)); // ← remove $user
         }
     }
 
-    // manager cancels → notify director
     elseif ($demande->user->role === 'manager') {
         $director = User::where('role', 'directeur')->first();
 
@@ -203,6 +217,11 @@ public function getDemandeHistory()
             $director->notify(new ManagerCancelledNotification($demande));
         }
     }
+
+    return response()->json([   // ← missing return
+        'message' => 'Demande annulée avec succès',
+        'demande' => $demande,
+    ]);
 }
 
     public function detsroy(string $id){
