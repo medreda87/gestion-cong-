@@ -6,7 +6,9 @@ use App\Mail\DemandeCongeNotification;
 use App\Models\Demande;
 use App\Models\User;
 use App\Notifications\DirectorLeaveRequestNotification;
+use App\Notifications\EmployeeCancelledNotification;
 use App\Notifications\LeaveStatusChangedNotification;
+use App\Notifications\ManagerCancelledNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -69,6 +71,20 @@ public function getDemandeHistory()
     ]);
 }
 
+public function getMyDemandes()
+{
+    $user = auth('api')->user();
+
+    $demandes = Demande::with('user')
+        ->where('user_id', $user->id)
+        ->orderBy('id', 'desc')
+        ->get();
+
+    return response()->json([
+        'demandes' => $demandes
+    ]);
+}
+
     public function store(Request $request){
         $user = auth('api')->user();
 
@@ -95,32 +111,45 @@ public function getDemandeHistory()
                 ? 'pending_director'
                 : 'pending_manager',
         ]);
+        $demande->load('user');
 
         $users = User::where('efp_travail', $user->efp_travail)->get();
 
         // managers / responsables
         $managers = $users->where('role', 'manager');
-
         // interimaire(s)
         $interimaires = $users->where('role', 'employee');
 
-        // 1. send to managers
-        foreach($managers as $manager){
-            Mail::to($manager->email)
-                ->send(new DemandeCongeNotification($demande, $user));
+        if ($user->role === 'manager') {
+
+            $director = User::where('role', 'directeur')->first();
+
+            if (!$director) {
+                return response()->json([
+                    'error' => 'Director not found'
+                ], 500);
+            }
+
+            $director->notify(new DirectorLeaveRequestNotification($demande,'manager_self'));
+            }else{
+            // employee -> managers
+            foreach($managers as $manager){
+                Mail::to($manager->email)
+                    ->send(new DemandeCongeNotification($demande, $user));
+            }
+
+            // employee -> interimaires
+            foreach($interimaires as $interimaire){
+                Mail::to($interimaire->email)
+                    ->send(new DemandeCongeNotification($demande, $user));
+            }
         }
 
-        // 2. send to interimaire(s)
-        foreach($interimaires as $interimaire){
-            Mail::to($interimaire->email)
-                ->send(new DemandeCongeNotification($demande, $user));
+            return response()->json([
+            'responsable_id' => $user->responsable_id,
+            'interimaire_id' => $user->interimaire_id,
+            ]);
         }
-
-        return response()->json([
-        'responsable_id' => $user->responsable_id,
-        'interimaire_id' => $user->interimaire_id,
-        ]);
-    }
 
   public function updateStatus(Request $request, string $id)
 {
@@ -148,25 +177,11 @@ public function getDemandeHistory()
         $director = User::where('role', 'directeur')->first();
 
         if ($director) {
-            $director->notify(new DirectorLeaveRequestNotification($demande));
+            $director->notify(new DirectorLeaveRequestNotification($demande,'from_manager'));
         }
 
         $demande->user->notify(
             new LeaveStatusChangedNotification($demande, 'pending_director')
-        );
-    }
-
-    /*
-    |-----------------------------------
-    | CANCELLED
-    |-----------------------------------
-    */
-    elseif ($validated['status'] === 'cancelled') { // ✅ handle cancel here too
-        $demande->status = 'cancelled';
-        $demande->save();
-
-        $demande->user->notify(
-            new LeaveStatusChangedNotification($demande, 'cancelled')
         );
     }
 
@@ -176,12 +191,38 @@ public function getDemandeHistory()
     ]);
 }
 
-    public function cancel(string $id){
-        $demande = Demande::findOrFail($id);
+   public function cancel(string $id)
+{
+    $user = auth('api')->user(); // ← missing
 
-        $demande->status = 'cancelled';
-        $demande->save();
+    $demande = Demande::with('user')->findOrFail($id);
+
+    $demande->status = 'cancelled';
+    $demande->save();
+
+    if ($demande->user->role === 'employee') {
+        $managers = User::where('role', 'manager')
+            ->where('efp_travail', $demande->user->efp_travail)
+            ->get();
+
+        foreach ($managers as $manager) {
+            $manager->notify(new EmployeeCancelledNotification($demande)); // ← remove $user
+        }
     }
+
+    elseif ($demande->user->role === 'manager') {
+        $director = User::where('role', 'directeur')->first();
+
+        if ($director) {
+            $director->notify(new ManagerCancelledNotification($demande));
+        }
+    }
+
+    return response()->json([   // ← missing return
+        'message' => 'Demande annulée avec succès',
+        'demande' => $demande,
+    ]);
+}
 
     public function detsroy(string $id){
         $demande = Demande::findOrFail($id);

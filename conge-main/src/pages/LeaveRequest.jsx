@@ -66,7 +66,7 @@ const calculateDuration = () => {
   let count = 0;
 
   // holidays from backend
-  const holdays = holidays.map(
+  const holdays = (holidays || []).map(
     holiday => new Date(holiday.date).toDateString()
   );
 
@@ -161,7 +161,7 @@ const totSolde = parseInt(totalSolde);
     });
 
     toast.success("Demande soumise avec succès !");
-    navigate("/history");
+    subType === 'exceptional' ? navigate('/Absences') : navigate('/history');
   } catch (error) {
     toast.error("Erreur lors de la création de la demande");
     console.error(error.response?.data || error.message);
@@ -177,7 +177,7 @@ const isWorkingDay = (date) => {
   const formatted = format(date, 'yyyy-MM-dd');
 
   const isWeekend = day === 0 || day === 6;
-  const isHoliday = holidays.includes(formatted);
+  const isHoliday = holidays?.includes(formatted);
 
   return !isWeekend && !isHoliday;
 };
@@ -213,8 +213,15 @@ useEffect(() => {
 useEffect(() => {
   const fetchEmployees = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://127.0.0.1:8000/api/interimaires/${user.id}`
+        `http://127.0.0.1:8000/api/interimaires/${user.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        }
       );
 
       const data = await response.json();

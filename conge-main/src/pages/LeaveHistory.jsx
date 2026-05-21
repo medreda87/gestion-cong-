@@ -9,13 +9,11 @@ import { useLeave } from '@/contexts/LeaveContext';
 import { LEAVE_TYPE_LABELS } from '@/types/leave';
 import { Link } from 'react-router-dom';
 
-
-
 const LeaveHistory = () => {
   const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { getRequestsByEmployee, updateRequestStatus } = useLeave();  if (!user) return null;
+  const { getRequestsByEmployee, updateRequestStatus, cancelLeave, requestsHistory, requests, myDemandes } = useLeave();
 
   const LEAVE_STATUS_LABELS = {
   pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
@@ -24,13 +22,18 @@ const LeaveHistory = () => {
   cancelled: 'Annulé',
 };
 
-  const myRequests = getRequestsByEmployee(user.id);
+  // Managers should see their own demandes including cancelled and approved requests
+  const myRequests = user.role === 'manager'
+    ? (myDemandes || [])
+    : getRequestsByEmployee(user.id);
 
   const filteredRequests = myRequests.filter((request) => {
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-    const matchType = request.type!== 'exceptional';
-    const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
-    const matchesSearch = 
+  const matchType =
+    request.type !== "exceptional" &&
+    request.type !== "exceptionnel";
+      const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
+      const matchesSearch = 
       typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch && matchType;
@@ -136,7 +139,7 @@ const administrativeRequests = myRequests.filter(
             </div>
           ) : (
             <div className="divide-y">
-              {filteredRequests.map((request, index) => (
+              {filteredRequests?.map((request, index) => (
                 <motion.div
                   key={request.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -186,11 +189,11 @@ const administrativeRequests = myRequests.filter(
                 (user.role === 'manager' && request.status.startsWith('pending'))
               ) && (
                 <button
-                  onClick={() => {
-                    if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
-                      updateRequestStatus(request.id, "cancelled");
-                    }
-                  }}
+                 onClick={() => {
+                if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                  cancelLeave(request.id);
+                }
+              }}
                   className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
                 >
                   Annuler

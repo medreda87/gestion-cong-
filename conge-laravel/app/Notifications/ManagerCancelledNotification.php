@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class ManagerCancelledNotification extends Notification
+{
+    use Queueable;
+
+    public $demande;
+
+    public function __construct($demande)
+    {
+        $this->demande = $demande;
+    }
+
+    public function via($notifiable)
+    {
+        return ['mail'];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Demande de congé annulée par un responsable')
+            ->view('mail.manager-cancelled', [
+                'demande' => $this->demande,
+                'director' => $notifiable,
+            ]);
+    }
+}
