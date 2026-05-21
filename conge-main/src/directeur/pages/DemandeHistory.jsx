@@ -25,20 +25,15 @@ const LeaveHistory = () => {
 };
  
   
-const filteredRequests = requestsHistory.filter((request) => {
-
+const filteredRequests = requestsHistory.filter(request => {
   const matchFilter =
-    request.status === "approved" &&
-    (String(request.userId) === String(user.id) || String(request.user_id) === String(user.id));
-
-  const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
-
-  const matchesSearch =
-    typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  return matchFilter && matchesSearch;
-});
+    ['approved'].includes(request.status);    
+    const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
+    const matchesSearch = 
+      typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchFilter && matchesSearch ;
+  });
 
   const getStatusBadgeClass = (status) => {
     const variants = {

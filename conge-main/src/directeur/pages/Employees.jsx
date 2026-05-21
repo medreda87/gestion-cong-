@@ -34,7 +34,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useEffect } from 'react';
 
-const departments = ['Ntic', 'Solicode', 'ibn marhal'];
+const departments = ['Ntic', 'Solicode', 'ista IBN MARHAL'];
 
 const roleLabels = {
   employee: 'Employé',

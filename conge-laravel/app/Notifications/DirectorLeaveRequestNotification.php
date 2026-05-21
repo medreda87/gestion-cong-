@@ -16,10 +16,12 @@ class DirectorLeaveRequestNotification extends Notification
      */
 
     public $demande;
+    public $source; // 'manager_self' or 'from_manager'
 
-    public function __construct($demande)
+    public function __construct($demande, $source = 'from_manager')
     {
         $this->demande = $demande;
+        $this->source = $source;
     }
 
     public function via($notifiable)
@@ -28,13 +30,17 @@ class DirectorLeaveRequestNotification extends Notification
     }
 
     public function toMail($notifiable)
-    {
-        return (new MailMessage)
-            ->subject('New Leave Request Awaiting Approval')
-            ->view('mail.director-leave-request', [
-                'demande' => $this->demande,
-                'director' => $notifiable,
-            ]);
+{
+    $view = $this->source === 'manager_self'
+        ? 'mail.director-leave-request-from-manager-self'
+        : 'mail.director-leave-request';
+
+    return (new MailMessage)
+        ->subject('New Leave Request Awaiting Your Approval')
+        ->view($view, [
+            'demande' => $this->demande,
+            'director' => $notifiable,
+        ]);
     }
 
     /**

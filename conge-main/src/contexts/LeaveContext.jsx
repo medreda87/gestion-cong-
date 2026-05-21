@@ -48,7 +48,7 @@ export const LeaveProvider = ({ children }) => {
   const getDemandes = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/demandes`, {
+      const response = await axios.get(`${API_URL}/demandes`,{
         headers: {
           Authorization: `Bearer ${getToken()}`,
           Accept: "application/json",
