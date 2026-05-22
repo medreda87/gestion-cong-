@@ -139,13 +139,14 @@ public function getAllUsers()
         return response()->json(['message' => 'Utilisateur supprimé avec succès']);
     }
     public function getInterimaires($id)
-    {
-        $user = User::findOrFail($id);
+{
+    $user = User::findOrFail($id);
 
-        $interimaires = User::where('efp_travail', $user->efp_travail)
-            ->where('id', '!=', $user->id)
-            ->get();
+    $interimaires = User::where('efp_travail', $user->efp_travail)
+        ->where('id', '!=', $user->id)
+        ->where('role', $user->role) 
+        ->get();
 
-        return response()->json($interimaires);
-    }
+    return response()->json($interimaires);
+}
     };

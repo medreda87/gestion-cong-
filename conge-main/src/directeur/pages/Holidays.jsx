@@ -12,17 +12,7 @@ import { fr } from 'date-fns/locale';
 import { useData } from '@/contexts/DataContext';
 import toast from "react-hot-toast";
 
-// const initialHolidays = [
-//   { id: '1', name: "Jour de l'An",type: "national",date: '2026-01-01', is_recurring: true },
-//   { id: '2', name: "Manifeste de l'Indépendance",type: "national", date: '2026-01-11', is_recurring: true },
-//   { id: '3', name: "Fête du Travail",type: "national", date: '2026-05-01', is_recurring: true },
-//   { id: '4', name: "Fête du Trône",type: "national", date: '2026-07-30', is_recurring: true },
-//   { id: '5', name: "Oued Ed-Dahab",type: "national", date: '2026-08-14', is_recurring: true },
-//   { id: '6', name: "Révolution du Roi et du Peuple",type: "national", date: '2026-08-20', is_recurring: true },
-//   { id: '7', name: "Fête de la Jeunesse",type: "national", date: '2026-08-21', is_recurring: true },
-//   { id: '8', name: "Marche Verte",type: "national", date: '2026-11-06', is_recurring: true },
-//   { id: '9', name: "Fête de l'Indépendance",type: "national",date: '2026-11-18', is_recurring: true },
-// ];
+
 
 const Holidays = () => {
   const { removeHoliday, addHoliday, updateHoliday,holidays} = useData();
