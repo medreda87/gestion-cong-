@@ -24,6 +24,7 @@ import jsPDF from 'jspdf';
 import html2pdf from "html2pdf.js";
 
 import DecisionDocument from './DecisionDocument';
+import DemandeDocument from './DemandeDocument';
 
   const safeFormat = (date, pattern, locale) => {
     const d = new Date(date);
@@ -365,6 +366,7 @@ const DetailDemande = () => {
       },
     };
     const pdfRef = useRef();
+    const demandeRef = useRef();
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -577,6 +579,12 @@ useEffect(() => {
     navigate(-1);
   };
 
+const handleDownloadDemande = async () => {
+  const canvas = await html2canvas(demandeRef.current, {
+    scale: 2,
+  });
+
+  const imgData = canvas.toDataURL('image/png');
  const handleDownloadDemande = () => {
   const html = buildDemandeHTML(request, employee, interimaireData);
 
@@ -585,22 +593,27 @@ useEffect(() => {
   element.innerHTML = html;
   document.body.appendChild(element);
 
-  const opt = {
-    margin: 0,
-    filename: `Demande_Conge_${request.id}.pdf`,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-  };
+  const pdf = new jsPDF('p', 'mm', 'a4');
 
-  html2pdf()
-    .set(opt)
-    .from(element)
-    .save()
-    .then(() => {
-      document.body.removeChild(element);
-      toast.success("PDF téléchargé avec succès");
-    });
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+
+  const pdfHeight =
+    (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(
+    imgData,
+    'PNG',
+    0,
+    0,
+    pdfWidth,
+    pdfHeight
+  );
+
+  pdf.save(
+    `Demande_${request.id}.pdf`
+  );
+
+  toast.success('PDF téléchargé');
 };
 
   const handlePrint = () => {
@@ -908,6 +921,20 @@ useEffect(() => {
                   LEAVE_TYPE_LABELS={LEAVE_TYPE_LABELS}
                 />
               </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '-9999px',
+                  top: 0,
+                }}
+              >
+                <DemandeDocument
+                  ref={demandeRef}
+                  request={request}
+                  employee={employee}
+                  LEAVE_TYPE_LABELS={LEAVE_TYPE_LABELS}
+                />
+              </div>
         {/* ══ SOLDE DE CONGÉ ═══════════════════════════════════════════════ */}
         {(() => {
             const anneeDerniere = Number(employee?.anneeDerniere) || 0;
@@ -1170,6 +1197,6 @@ useEffect(() => {
       </AnimatePresence>
     </DashboardLayout>
   );
-};
+}; }
 
-export default DetailDemande;
+export default DetailDemande ;
