@@ -3,6 +3,8 @@ import { format, isValid } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import axios from 'axios';
 import { useLeave } from '@/contexts/LeaveContext';
+import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const safeFormat = (date, pattern) => {
   const d = new Date(date);
@@ -17,6 +19,17 @@ const DecisionDocument = React.forwardRef(
     const lastYesr = new Date().getFullYear() - 1;
     const [interimaireData,setInterimaireData] = useState();
     const {requests} = useLeave();
+    const {parameters} = useData();
+    const { user } = useAuth();
+
+    const sexe = user?.detail_user?.sexe;
+
+    const civilite =
+      typeof sexe === "string" && sexe.trim().toLowerCase() === "homme"
+        ? "Monsieur"
+        : "Madame";
+  
+
 
 
   useEffect(() => {
@@ -24,22 +37,27 @@ const DecisionDocument = React.forwardRef(
       setInterimaireData(null);
       return;
     }
-  
+
     const token = localStorage.getItem('token');
-  
+
     axios
-      .get(`http://127.0.0.1:8000/api/users/${request.interimaire_id}`, {
+      .get(`/api/interimaires/${request.interimaire_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        const u = res.data ?? {};
-  
-        setInterimaireData({
-          nomComplet: (u.prenom && u.nom) ? `${u.prenom} ${u.nom}` : u.nom || u.nom_prenom || '—',
-        });
+        const data = res.data;
+
+        // API may return a single user object or an array of users.
+        const u = Array.isArray(data)
+          ? data.find(u => u.id === request.interimaire_id) || data[0]
+          : data;
+
+        setInterimaireData(
+          u ? { nomComplet: `${u.prenom ?? ''} ${u.nom ?? ''}`.trim() } : null
+        );
       })
       .catch(() => {
         setInterimaireData(null);
@@ -77,7 +95,7 @@ const DecisionDocument = React.forwardRef(
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '20px', marginBottom: '20px' }}>
-            <p><strong>N/Réf :</strong> OFP/DRTTA/CFPT1/DC/{requests?.length}/{currentYear.toString().slice(-2)}</p>
+            <p><strong>N/Réf :</strong> {parameters.cfpt_code}/{parameters.direction_code}/{requests?.length}/{currentYear.toString().slice(-2)}</p>
             <p>Tanger, le {safeFormat(new Date(), 'dd/MM/yyyy')}</p>
           </div>
         </div>
@@ -97,7 +115,7 @@ const DecisionDocument = React.forwardRef(
               Vu le Dahir portant lot N⁰1-72-183 Rabia II 1394 (21 Mai 1974) instituant l'Office de la Formation Professionnelle et de la Promotion du Travail ;
             </li>
             <li className="list-item">
-              Vu la Décision de Madame le Directeur Général N⁰53 en date du 17/05/2024 portant Délégation signature à Monsieur ELMECHRAFI Abdlhamid Directeur de Complexe Tanger;
+              Vu la Décision de Madame le Directeur Général {parameters.delegation_number} en date du {safeFormat(parameters.delegation_date, 'dd/MM/yyyy')} portant Délégation signature à {civilite} {user.nom} {user.prenom} Directeur de Complexe Tanger;
             </li>
             <li className="list-item">
               Vu la demande de congé administratif présenté(e) par{' '}

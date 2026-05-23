@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class authController extends Controller
@@ -21,8 +22,9 @@ class authController extends Controller
             'message' => 'Email or password incorrect'
         ], 401);
     }
-
-    $user = auth('api')->user();
+    
+    $user = User::with(['detailUser', 'detailJobUser'])
+    ->find(auth('api')->id());
 
     return response()->json([
         'message' => 'Login success',

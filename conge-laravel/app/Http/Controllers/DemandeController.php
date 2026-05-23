@@ -18,8 +18,6 @@ public function getdemande()
 {
     $user = auth('api')->user();
 
-   
-
     $query = Demande::with('user')->orderBy('id', 'desc');
 
     if ($user->role === 'manager') {

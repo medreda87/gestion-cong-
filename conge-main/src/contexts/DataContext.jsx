@@ -9,6 +9,7 @@ const DataContext = createContext(undefined);
 export const DataProvider = ({ children }) => {
   const [requests, setRequests] = useState();
   const [holidays, setHolidays] = useState([]);
+  const [parameters, setParameters] = useState([]);
 
   const addRequest = (req) => {
     setRequests(prev => [
@@ -94,17 +95,104 @@ useEffect(() => {
     getHolidays();
 },[])
 
+
+const getParametrage = async () => {
+    try {
+        const res = await axios.get("http://127.0.0.1:8000/api/parametrage", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+
+        setParameters(res.data); // ← res بدل response
+        return res.data;         // ← زيد return باش Settings يستقبل الـ data
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+  useEffect(() => {
+    getParametrage();
+},[])
+
+    // ADD
+    const addParametrage = async (data) => {
+        try {
+
+            const res = await axios.post(
+                "http://127.0.0.1:8000/api/parametrage/add",
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            return res.data;
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // UPDATE
+    const updateParametrage = async (id, data) => {
+        try {
+
+            const res = await axios.post(
+                `http://127.0.0.1:8000/api/parametrage/update/${id}`,
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            return res.data;
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // DELETE
+    const deleteParametrage = async (id) => {
+        try {
+
+            const res = await axios.delete(
+                `http://127.0.0.1:8000/api/parametrage/delete/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            return res.data;
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
   return (
     <DataContext.Provider
       value={{
         requests,
         holidays,
+        parameters,
         addRequest,
         updateRequestStatus,
         addHoliday,
         removeHoliday,
         getHolidays,
-        updateHoliday
+        updateHoliday,
+        getParametrage,
+        addParametrage,
+        updateParametrage,
+        deleteParametrage
       }}
     >
       {children}

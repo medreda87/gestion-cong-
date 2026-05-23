@@ -585,33 +585,13 @@ const handleDownloadDemande = async () => {
   });
 
   const imgData = canvas.toDataURL('image/png');
- const handleDownloadDemande = () => {
-  const html = buildDemandeHTML(request, employee, interimaireData);
-
-  // نحطو HTML فـ div مؤقت
-  const element = document.createElement("div");
-  element.innerHTML = html;
-  document.body.appendChild(element);
-
   const pdf = new jsPDF('p', 'mm', 'a4');
 
   const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-  const pdfHeight =
-    (canvas.height * pdfWidth) / canvas.width;
-
-  pdf.addImage(
-    imgData,
-    'PNG',
-    0,
-    0,
-    pdfWidth,
-    pdfHeight
-  );
-
-  pdf.save(
-    `Demande_${request.id}.pdf`
-  );
+  pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`Demande_${request.id}.pdf`);
 
   toast.success('PDF téléchargé');
 };
@@ -1197,6 +1177,6 @@ const handleDownloadDemande = async () => {
       </AnimatePresence>
     </DashboardLayout>
   );
-}; }
+};
 
-export default DetailDemande ;
+export default DetailDemande;

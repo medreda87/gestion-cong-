@@ -9,6 +9,8 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\SoldeCongeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ParameterController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -73,3 +75,15 @@ Route::get('/demandeHistory', [DemandeController::class, 'getDemandeHistory']);
 Route::get('/documents', [DocumentController::class, 'index']);
 Route::post('/documents', [DocumentController::class, 'store']);
 Route::delete('/documents/{id}', [DocumentController::class, 'destroy']); 
+
+Route::middleware('auth:api')->group(function () {
+
+    Route::get('/parametrage', [ParameterController::class, 'index']);
+
+    Route::post('/parametrage/add', [ParameterController::class, 'store']);
+
+    Route::post('/parametrage/update/{id}', [ParameterController::class, 'update']);
+
+    Route::delete('/parametrage/delete/{id}', [ParameterController::class, 'destroy']);
+
+});
