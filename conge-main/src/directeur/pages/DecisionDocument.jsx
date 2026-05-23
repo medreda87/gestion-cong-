@@ -22,47 +22,50 @@ const DecisionDocument = React.forwardRef(
     const {parameters} = useData();
     const { user } = useAuth();
 
+    console.log(interimaireData);
     const sexe = user?.detail_user?.sexe;
 
     const civilite =
       typeof sexe === "string" && sexe.trim().toLowerCase() === "homme"
         ? "Monsieur"
         : "Madame";
+
+    console.log("full request:", request);
   
 
-
-
   useEffect(() => {
-    if (!request?.interimaire_id) {
-      setInterimaireData(null);
-      return;
-    }
+  const id = request?.interimaireId || request?.interimaire_id; 
 
-    const token = localStorage.getItem('token');
+  if (!id) {
+    setInterimaireData(null);
+    return;
+  }
 
-    axios
-      .get(`/api/interimaires/${request.interimaire_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        const data = res.data;
+  const token = localStorage.getItem('token');
 
-        // API may return a single user object or an array of users.
-        const u = Array.isArray(data)
-          ? data.find(u => u.id === request.interimaire_id) || data[0]
-          : data;
-
-        setInterimaireData(
-          u ? { nomComplet: `${u.prenom ?? ''} ${u.nom ?? ''}`.trim() } : null
-        );
-      })
-      .catch(() => {
+  axios
+    .get(`http://127.0.0.1:8000/api/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    })
+    .then(res => {
+      const u = res.data;
+      if (u && u.prenom && u.nom) {
+        setInterimaireData({ nomComplet: `${u.prenom} ${u.nom}`.trim() });
+      } else if (u) {
+        setInterimaireData({ nomComplet: u.nom_prenom || u.nom || '—' });
+      } else {
         setInterimaireData(null);
-      });
-  }, [request?.interimaire_id]);
+      }
+    })
+    .catch(err => {
+      console.warn('interimaire fetch error:', err.message);
+      setInterimaireData(null);
+    });
+
+}, [request?.interimaireId, request?.interimaire_id]);
     
     return (
       <div
