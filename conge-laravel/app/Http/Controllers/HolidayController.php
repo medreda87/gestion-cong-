@@ -4,28 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Holiday;
 use Illuminate\Http\Request;
+use App\Models\Demande;
+use App\Models\SoldeConge;
+use Carbon\Carbon;
 
 class HolidayController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return response()->json(Holiday::orderBy('date')->get());
+        return response()->json(
+            Holiday::orderBy('date')->get()
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -42,28 +33,11 @@ class HolidayController extends Controller
             'is_recurring' => $request->is_recurring ?? true,
         ]);
 
+        $this->recalculateAllDemandes();
+
         return response()->json($holiday, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Holiday $holiday)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Holiday $holiday)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $holiday = Holiday::findOrFail($id);
@@ -80,21 +54,84 @@ class HolidayController extends Controller
             'is_recurring' => $request->is_recurring ?? true,
         ]);
 
+        $this->recalculateAllDemandes();
+
         return response()->json($holiday);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $holiday = Holiday::findOrFail($id);
         $holiday->delete();
 
+        $this->recalculateAllDemandes();
+
         return response()->json([
             'message' => 'Holiday deleted successfully'
         ]);
     }
+public function recalculateAllDemandes()
+{
+    $demands = Demande::where('status', 'approved')->get();
 
-   
+    foreach ($demands as $demande) {
+
+        if (!$demande->start_date || !$demande->end_date) {
+            continue;
+        }
+
+        $oldDuration = (int) $demande->duration;
+
+        $newDuration = $this->calculateWorkingDays(
+            $demande->start_date,
+            $demande->end_date
+        );
+
+        // ila makayn ta changement
+        if ($oldDuration == $newDuration) {
+            continue;
+        }
+
+        $difference = $oldDuration - $newDuration;
+
+        // update demande
+        $demande->duration = $newDuration;
+        $demande->save();
+
+        // get solde
+        $solde = SoldeConge::where('user_id', $demande->user_id)->first();
+
+        if (!$solde) {
+            continue;
+        }
+
+        // update soldes
+        $solde->solde_utilise -= $difference;
+        $solde->solde_restant += $difference;
+
+        $solde->save();
+    }
+}
+    public function calculateWorkingDays($startDate, $endDate)
+    {
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+
+        $holidays = Holiday::pluck('date')
+            ->filter()
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+        $days = 0;
+        while ($start <= $end) {
+
+            $date = $start->format('Y-m-d');
+
+            if (!$start->isWeekend() && !in_array($date, $holidays)) {
+                $days++;
+            }
+
+            $start->addDay();
+        }
+        return $days;
+    }
 }

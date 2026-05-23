@@ -57,6 +57,7 @@ Route::middleware('auth:api')->group(function (){
     Route::post('/holidays', [HolidayController::class, 'store']);
     Route::delete('/holidays/{id}', [HolidayController::class, 'destroy']);
     Route::put('/holidays/{id}', [HolidayController::class, 'update']);
+    Route::post('/holidays/recalcule', [HolidayController::class, 'recalculateAllDemandes']);
 });
 
 
