@@ -87,13 +87,14 @@ export default function DocumentsDirecteur() {
 
   // ================= GET =================
   const fetchDocs = async () => {
-    try {
-      const res = await api.get("/documents");
-      setDocuments(res.data);
-    } catch (err) {
-      console.log("GET ERROR:", err.response?.data || err.message);
-    }
-  };
+  try {
+    const res = await api.get("/documents");
+    console.log("docs:", res.data); // ← شوف شنو كاين في file_url
+    setDocuments(res.data);
+  } catch (err) {
+    console.log("GET ERROR:", err.response?.data || err.message);
+  }
+};
 
   useEffect(() => {
     fetchDocs();

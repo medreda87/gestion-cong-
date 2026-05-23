@@ -692,16 +692,24 @@ const handleDownloadDemande = async () => {
 
           {/* Right: download buttons */}
          {user?.role === 'directeur' &&  (<div className="flex items-center gap-2 flex-shrink-0">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={handleDownload}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 text-white px-4 py-2.5 text-sm font-semibold shadow-sm hover:bg-blue-700 transition-colors"
-            >
-              <Download size={16} />
-              <span className="hidden sm:inline">Télécharger Décision</span>
-              <span className="sm:hidden">Décision</span>
-            </motion.button>
+           
+             <motion.button
+          disabled={request.status !== 'approved'}
+          whileHover={request.status === 'approved' ? { scale: 1.03 } : {}}
+          whileTap={request.status === 'approved' ? { scale: 0.97 } : {}}
+          onClick={request.status === 'approved' ? handleDownload : undefined}
+          title={request.status !== 'approved' ? 'Vous devez approuver avant de télécharger la décision' : 'Télécharger la décision'}
+          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-colors ${
+            request.status === 'approved'
+              ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'
+          }`}
+        >
+          <Download size={16} />
+          <span className="hidden sm:inline">Télécharger Décision</span>
+          <span className="sm:hidden">Décision</span>
+        </motion.button>
+                  
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
