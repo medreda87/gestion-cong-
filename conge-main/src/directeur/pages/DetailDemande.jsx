@@ -586,7 +586,6 @@ const handleDownloadDemande = async () => {
 
   const imgData = canvas.toDataURL('image/png');
  const handleDownloadDemande = () => {
-  const html = buildDemandeHTML(request, employee);
   const html = buildDemandeHTML(request, employee, interimaireData);
 
   // نحطو HTML فـ div مؤقت

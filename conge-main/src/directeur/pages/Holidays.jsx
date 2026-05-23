@@ -87,7 +87,7 @@ const Holidays = () => {
       toast.success(`${formData.name} a été ajouté au calendrier`);
     }
 
-    setFormData({ name: '', date: '', is_recurring: true });
+    setFormData({ name: '', date: '', is_recurring: true, type: '', });
     setEditingHoliday(null);
     setIsDialogOpen(false);
 
@@ -99,7 +99,7 @@ const Holidays = () => {
 
   const handleEdit = (holiday) => {
     setEditingHoliday(holiday);
-    setFormData({ name: holiday.name, date: holiday.date, isRecurring: holiday.isRecurring });
+    setFormData({ name: holiday.name, date: holiday.date, is_recurring: holiday.is_recurring });
     setIsDialogOpen(true);
     
   };
