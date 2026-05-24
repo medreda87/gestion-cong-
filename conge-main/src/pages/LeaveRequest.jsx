@@ -236,43 +236,44 @@ useEffect(() => {
     fetchEmployees();
   }
 }, [user]);
+
   return (
     <DashboardLayout>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="mx-auto max-w-2xl"
+        className="mx-auto w-full max-w-3xl px-4 sm:px-0"
       >
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-primary/10 p-3">
-              <CalendarPlus className="h-6 w-6 text-primary" />
+        {/* Header responsive */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="rounded-xl bg-primary/10 p-2 sm:p-3">
+              <CalendarPlus className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Nouvelle demande de congé</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold">Nouvelle demande de congé</h1>
+              <p className="text-sm text-muted-foreground">
                 Remplissez le formulaire pour soumettre votre demande
               </p>
             </div>
           </div>
         </div>
 
-        {/* Balance card */}
+        {/* Balance card responsive */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 rounded-xl border bg-primary/5 p-4"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-sm text-muted-foreground">Votre solde de congés</p>
-              <p className="text-2xl font-bold text-primary">{totSolde} jours</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Votre solde de congés</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary">{totSolde} jours</p>
             </div>
             {duration > 0 && type !== 'exceptional' && (
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Après cette demande</p>
-                <p className={`text-2xl font-bold ${isValidDuration ? 'text-success' : 'text-destructive'}`}>
+              <div className="text-left sm:text-right">
+                <p className="text-xs sm:text-sm text-muted-foreground">Après cette demande</p>
+                <p className={`text-xl sm:text-2xl font-bold ${isValidDuration ? 'text-success' : 'text-destructive'}`}>
                   {parseInt(totalSolde - duration)} jours
                 </p>
               </div>
@@ -286,12 +287,12 @@ useEffect(() => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           onSubmit={handleSubmit}
-          className="rounded-xl border bg-card p-6 shadow-sm"
+          className="rounded-xl border bg-card p-4 sm:p-6 shadow-sm"
         >
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* Leave type */}
             <div className="space-y-2">
-              <label htmlFor="type" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label htmlFor="type" className="text-sm font-medium leading-none">
                 Type de congé *
               </label>
               <div className="relative">
@@ -299,7 +300,7 @@ useEffect(() => {
                   id="type"
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   required
                 >
                   {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
@@ -310,13 +311,15 @@ useEffect(() => {
                 </select>
               </div>
             </div>
+
+            {/* Subtype for exceptional leave */}
             {type === 'exceptional' && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="space-y-2"
               >
-                <label htmlFor="subType" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label htmlFor="subType" className="text-sm font-medium leading-none">
                   Sous-type de congé exceptionnel *
                 </label>
                 <div className="relative">
@@ -324,7 +327,7 @@ useEffect(() => {
                     id="subType"
                     value={subType}
                     onChange={(e) => setSubType(e.target.value)}
-                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     required
                   >
                     <option value="">Sélectionnez un sous-type</option>
@@ -339,40 +342,41 @@ useEffect(() => {
                 </div>
               </motion.div>
             )}
+
             {/* Dates */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label htmlFor="startDate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label htmlFor="startDate" className="text-sm font-medium leading-none">
                   Date de début *
                 </label>
                 <input
-              id="startDate"
-              type="date"
-              min={minDate}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              onClick={(e) => e.currentTarget.showPicker?.()}
-              onFocus={(e) => e.currentTarget.showPicker?.()}
-              className="flex h-10 w-full cursor-pointer appearance-none rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-              required
-            />
+                  id="startDate"
+                  type="date"
+                  min={minDate}
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker?.()}
+                  onFocus={(e) => e.currentTarget.showPicker?.()}
+                  className="flex h-10 w-full cursor-pointer appearance-none rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <label htmlFor="endDate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label htmlFor="endDate" className="text-sm font-medium leading-none">
                   Date de fin *
                 </label>
-               <input
-              id="endDate"
-              type="date"
-              disabled={type === "exceptional"}
-              min={startDate || minDate}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              onClick={(e) => e.currentTarget.showPicker?.()}
-              onFocus={(e) => e.currentTarget.showPicker?.()}
-              className="flex h-10 w-full cursor-pointer appearance-none rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-              required
-            />
+                <input
+                  id="endDate"
+                  type="date"
+                  disabled={type === "exceptional"}
+                  min={startDate || minDate}
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker?.()}
+                  onFocus={(e) => e.currentTarget.showPicker?.()}
+                  className="flex h-10 w-full cursor-pointer appearance-none rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  required
+                />
               </div>
             </div>
 
@@ -389,17 +393,15 @@ useEffect(() => {
               >
                 <div className="flex items-center gap-2">
                   {isValidDuration ? (
-                    <CheckCircle className="h-5 w-5" />
+                    <CheckCircle className="h-5 w-5 flex-shrink-0" />
                   ) : (
-                    <AlertTriangle className="h-5 w-5" />
+                    <AlertTriangle className="h-5 w-5 flex-shrink-0" />
                   )}
-
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium break-words">
                     {type === 'exceptional' ? `Durée fixe: ${duration} jours (${subType})` : `Durée des jours de congé : ${duration}`}
                     {!isValidDuration && " - Solde insuffisant"}
                   </span>
                 </div>
-
                 <span className="text-primary text-sm font-medium">
                   Durée totale des jours : {total}
                 </span>
@@ -413,8 +415,8 @@ useEffect(() => {
                 animate={{ opacity: 1 }}
                 className="flex items-center gap-2 rounded-lg bg-warning/10 p-3 text-warning"
               >
-                <AlertTriangle className="h-5 w-5" />
-                <span className="text-sm">
+                <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                <span className="text-xs sm:text-sm">
                   La demande doit être faite au moins 8 jours avant le début du congé
                 </span>
               </motion.div>
@@ -422,7 +424,7 @@ useEffect(() => {
 
             {/* Reason */}
             <div className="space-y-2">
-              <label htmlFor="reason" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label htmlFor="reason" className="text-sm font-medium leading-none">
                 Motif (facultatif)
               </label>
               <textarea
@@ -436,38 +438,38 @@ useEffect(() => {
             </div>
 
             {/* Interimaire */}
-<div className="space-y-2">
-  <label htmlFor="interimaire" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-    Interimaire (facultatif)
-  </label>
-  <Select 
-    value={interimaireId || ""} 
-    onValueChange={(value) => setInterimaireId(value)}
-  >
-    <SelectTrigger id="interimaire" className="w-full h-10">
-      <SelectValue placeholder="Sélectionner un interimaire (même département)" />
-    </SelectTrigger>
-    <SelectContent>
-      {employees.length > 0 ? (
-        employees.map((emp) => (
-          <SelectItem key={emp.id} value={String(emp.id)}>
-            {emp.nom_prenom}
-          </SelectItem>
-        ))
-      ) : (
-        <SelectItem value="no-data" disabled>
-          Aucun interimaire disponible dans votre département
-        </SelectItem>
-      )}
-    </SelectContent>
-  </Select>
-</div>
+            <div className="space-y-2">
+              <label htmlFor="interimaire" className="text-sm font-medium leading-none">
+                Interimaire (facultatif)
+              </label>
+              <Select 
+                value={interimaireId || ""} 
+                onValueChange={(value) => setInterimaireId(value)}
+              >
+                <SelectTrigger id="interimaire" className="w-full h-10">
+                  <SelectValue placeholder="Sélectionner un interimaire (même département)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.length > 0 ? (
+                    employees.map((emp) => (
+                      <SelectItem key={emp.id} value={String(emp.id)}>
+                        {emp.nom_prenom}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-data" disabled>
+                      Aucun interimaire disponible dans votre département
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
 
-            {/* Submit */}
-            <div className="flex gap-3 pt-4">
+            {/* Submit buttons - responsive */}
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
               <button
                 type="button"
-                className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 [&_svg]:size-4 [&_svg]:shrink-0"
+                className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
                 onClick={() => navigate('/dashboard')}
               >
                 Annuler
@@ -475,7 +477,7 @@ useEffect(() => {
               <button
                 type="submit"
                 disabled={!isValidDuration || !isDateValid || isSubmitting}
-                className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 [&_svg]:size-4 [&_svg]:shrink-0"
+                className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
               >
                 {isSubmitting ? 'Envoi...' : 'Soumettre la demande'}
               </button>
@@ -483,12 +485,12 @@ useEffect(() => {
           </div>
         </motion.form>
 
-        {/* Info */}
+        {/* Info card responsive */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-6 rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground"
+          className="mt-6 rounded-lg border bg-muted/50 p-4 text-xs sm:text-sm text-muted-foreground"
         >
           <p className="font-medium text-foreground">Processus de validation :</p>
           <ol className="mt-2 list-inside list-decimal space-y-1">
@@ -503,4 +505,3 @@ useEffect(() => {
 };
 
 export default LeaveRequest;
-

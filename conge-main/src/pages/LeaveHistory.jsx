@@ -16,31 +16,28 @@ const LeaveHistory = () => {
   const { getRequestsByEmployee, updateRequestStatus, cancelLeave, requestsHistory, requests, myDemandes } = useLeave();
 
   const LEAVE_STATUS_LABELS = {
-  pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
-  pending_director: 'En attente (Directeur)',
-  approved: 'Approuvé',
-  cancelled: 'Annulé',
-};
+    pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
+    pending_director: 'En attente (Directeur)',
+    approved: 'Approuvé',
+    cancelled: 'Annulé',
+  };
 
-  // Managers should see their own demandes including cancelled and approved requests
   const myRequests = user.role === 'manager'
     ? (myDemandes || [])
     : getRequestsByEmployee(user.id);
 
   const filteredRequests = myRequests.filter((request) => {
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-  const matchType =
-    request.type !== "exceptional" &&
-    request.type !== "exceptionnel";
-      const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
-      const matchesSearch = 
+    const matchType = request.type !== "exceptional" && request.type !== "exceptionnel";
+    const typeLabel = LEAVE_TYPE_LABELS[request.type] || "";
+    const matchesSearch = 
       typeLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (request.reason?.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch && matchType;
   });
-const administrativeRequests = myRequests.filter(
-  (r) => r.type === "administratif"
-);
+
+  const administrativeRequests = myRequests.filter((r) => r.type === "administratif");
+
   const getStatusBadgeClass = (status) => {
     const variants = {
       pending_manager: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-warning/10 text-warning border-warning/20',
@@ -56,34 +53,34 @@ const administrativeRequests = myRequests.filter(
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="space-y-6"
+        className="space-y-6 px-4 sm:px-0"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between">
+        {/* Header responsive */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-primary/10 p-3">
-              <History className="h-6 w-6 text-primary" />
+              <History className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Historique des congés</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold">Historique des congés</h1>
+              <p className="text-sm text-muted-foreground">
                 Consultez toutes vos demandes de congés
               </p>
             </div>
           </div>
-          <Link to="/request">
-            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 [&_svg]:size-4 [&_svg]:shrink-0">
+          <Link to="/request" className="self-start sm:self-auto">
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 sm:h-10 sm:px-4">
               <Calendar className="h-4 w-4" />
               Nouvelle demande
             </button>
           </Link>
         </div>
 
-        {/* Filters */}
+        {/* Filtres responsives */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap gap-4 rounded-xl border bg-card p-4"
+          className="flex flex-col gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:flex-wrap"
         >
           <div className="flex-1">
             <div className="relative">
@@ -92,16 +89,16 @@ const administrativeRequests = myRequests.filter(
                 placeholder="Rechercher..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-9 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                className="h-10 w-full rounded-md border border-input bg-background px-9 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
           </div>
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative w-full sm:w-auto">
+            <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex h-10 w-[200px] cursor-default select-none items-center justify-between rounded-md border border-input bg-background px-8 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+              className="h-10 w-full rounded-md border border-input bg-background px-8 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 sm:w-[200px]"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(LEAVE_STATUS_LABELS).map(([value, label]) => (
@@ -113,25 +110,25 @@ const administrativeRequests = myRequests.filter(
           </div>
         </motion.div>
 
-        {/* Results */}
+        {/* Liste des demandes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-xl border bg-card shadow-sm"
+          className="rounded-xl border bg-card shadow-sm overflow-hidden"
         >
           {filteredRequests.length === 0 ? (
-            <div className="py-16 text-center">
-              <Calendar className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
-              <h3 className="text-lg font-medium">Aucune demande trouvée</h3>
-              <p className="mt-2 text-muted-foreground">
+            <div className="py-12 sm:py-16 text-center">
+              <Calendar className="mx-auto mb-4 h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground/30" />
+              <h3 className="text-base sm:text-lg font-medium">Aucune demande trouvée</h3>
+              <p className="mt-2 text-sm text-muted-foreground px-4">
                 {myRequests.length === 0
                   ? "Vous n'avez pas encore fait de demande de congé"
                   : 'Aucune demande ne correspond à vos critères de recherche'}
               </p>
               {myRequests.length === 0 && (
                 <Link to="/request">
-                  <button className="mt-4 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 [&_svg]:size-4 [&_svg]:shrink-0">
+                  <button className="mt-4 inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4">
                     Faire une demande
                   </button>
                 </Link>
@@ -139,66 +136,72 @@ const administrativeRequests = myRequests.filter(
             </div>
           ) : (
             <div className="divide-y">
-              {filteredRequests?.map((request, index) => (
+              {filteredRequests.map((request, index) => (
                 <motion.div
                   key={request.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-center justify-between p-4 hover:bg-muted/50"
+                  className="p-4 hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`rounded-lg p-3 ${
-                      request.status === 'approved' ? 'bg-success/10' :
-                      request.status === 'rejected' ? 'bg-destructive/10' :
-                      'bg-warning/10'
-                    }`}>
-                      <Calendar className={`h-5 w-5 ${
-                        request.status === 'approved' ? 'text-success' :
-                        request.status === 'rejected' ? 'text-destructive' :
-                        'text-warning'
-                      }`} />
-                    </div>
-                    <div>
-                      <p className="font-medium">{LEAVE_TYPE_LABELS[request.type]}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Du {format(new Date(request.start_date), 'dd MMMM', { locale: fr })} au{' '}
-                        {format(new Date(request.end_date), 'dd MMMM yyyy', { locale: fr })}
-                      </p>
-                      {request.reason && (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Motif: {request.reason}
+                  {/* Layout en colonne sur mobile, ligne sur desktop */}
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    {/* Partie gauche : icône + infos */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className={`rounded-lg p-2 sm:p-3 shrink-0 ${
+                        request.status === 'approved' ? 'bg-success/10' :
+                        request.status === 'rejected' ? 'bg-destructive/10' :
+                        'bg-warning/10'
+                      }`}>
+                        <Calendar className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                          request.status === 'approved' ? 'text-success' :
+                          request.status === 'rejected' ? 'text-destructive' :
+                          'text-warning'
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm sm:text-base">{LEAVE_TYPE_LABELS[request.type]}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          Du {format(new Date(request.start_date), 'dd MMMM', { locale: fr })} au{' '}
+                          {format(new Date(request.end_date), 'dd MMMM yyyy', { locale: fr })}
                         </p>
-                      )}
+                        {request.reason && (
+                          <p className="mt-1 text-xs text-muted-foreground break-words">
+                            Motif: {request.reason}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <p className="text-lg font-semibold">{request.duration} jours</p>
-                      <p className="text-xs text-muted-foreground">
-                        Créé le {format(new Date(request.created_at), 'dd/MM/yyyy', { locale: fr })}
-                      </p>
-                    </div>
-                    <span className={getStatusBadgeClass(request.status)}>
-                      {LEAVE_STATUS_LABELS[request.status]}
-                    </span>
 
-                  {/* Bouton Annuler */}
-                 {request.user_id === user.id && (
-                (user.role === 'employee' && request.status === 'pending_manager') ||
-                (user.role === 'manager' && request.status.startsWith('pending'))
-              ) && (
-                <button
-                 onClick={() => {
-                if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
-                  cancelLeave(request.id);
-                }
-              }}
-                  className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
-                >
-                  Annuler
-                </button>
-              )}
+                    {/* Partie droite : durée, date, badge, annulation */}
+                    <div className="flex flex-wrap items-center justify-between md:justify-end gap-3 md:gap-6">
+                      <div className="text-left md:text-right">
+                        <p className="text-base sm:text-lg font-semibold">{request.duration} jours</p>
+                        <p className="text-xs text-muted-foreground">
+                          Créé le {format(new Date(request.created_at), 'dd/MM/yyyy', { locale: fr })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={getStatusBadgeClass(request.status)}>
+                          {LEAVE_STATUS_LABELS[request.status]}
+                        </span>
+                        {request.user_id === user.id && (
+                          (user.role === 'employee' && request.status === 'pending_manager') ||
+                          (user.role === 'manager' && request.status.startsWith('pending'))
+                        ) && (
+                          <button
+                            onClick={() => {
+                              if (confirm("Voulez-vous vraiment annuler cette demande ?")) {
+                                cancelLeave(request.id);
+                              }
+                            }}
+                            className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                          >
+                            Annuler
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -206,13 +209,13 @@ const administrativeRequests = myRequests.filter(
           )}
         </motion.div>
 
-      {/* Summary */}
+        {/* Cartes statistiques */}
         {myRequests.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+            className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
           >
             {[
               {
@@ -245,19 +248,13 @@ const administrativeRequests = myRequests.filter(
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.08 }}
-                className="group relative overflow-hidden rounded-2xl border bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-2xl border bg-white p-4 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className={`absolute left-0 top-0 h-1 w-full bg-gradient-to-r ${stat.color}`} />
-
-                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${stat.bg}`}>
-                  <span className="text-xl font-bold text-gray-900">
-                    {stat.count}
-                  </span>
+                <div className={`mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-2xl ${stat.bg}`}>
+                  <span className="text-lg font-bold text-gray-900">{stat.count}</span>
                 </div>
-
-                <p className="text-sm font-semibold text-gray-700">
-                  {stat.label}
-                </p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-700">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -268,4 +265,3 @@ const administrativeRequests = myRequests.filter(
 };
 
 export default LeaveHistory;
-
