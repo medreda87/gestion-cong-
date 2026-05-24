@@ -38,7 +38,7 @@ import DemandeDocument from './DemandeDocument';
   const badgeColor = isApproved ? '#16a34a' : '#dc2626';
   const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
   const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
-  
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -498,7 +498,6 @@ useEffect(() => {
       setInterimaireData(null);
     });
 }, [request?.interimaire_id]);
-  console.log()
   // ── Not found guard ──
   if (!request) {
     return (

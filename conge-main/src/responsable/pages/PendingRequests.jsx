@@ -12,79 +12,74 @@ import { createPortal } from "react-dom";
 import { useNavigate } from 'react-router-dom';
 
 const PendingRequests = () => {
-const { user } = useAuth();
-const { getPendingForManager, getPendingForDirector, updateRequestStatus,triggerRefreshHistory } = useLeave();
-const navigate = useNavigate();
+  const { user } = useAuth();
+  const { getPendingForManager, getPendingForDirector, updateRequestStatus, triggerRefreshHistory } = useLeave();
+  const navigate = useNavigate();
 
-const [selectedRequest, setSelectedRequest] = useState(null);
-const [action, setAction] = useState(null);
-const [comment, setComment] = useState('');
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [action, setAction] = useState(null);
+  const [comment, setComment] = useState('');
 
-if (!user) return null;
+  if (!user) return null;
 
-const pendingRequests =
-  user.role === 'manager'
-    ? getPendingForManager()
-    : user.role === 'directeur'
-    ? getPendingForDirector()
-    : [];
+  const pendingRequests =
+    user.role === 'manager'
+      ? getPendingForManager()
+      : user.role === 'directeur'
+      ? getPendingForDirector()
+      : [];
 
-const handleAction = (request, actionType) => {
-  setSelectedRequest(request);
-  setAction(actionType);
-};
+  const handleAction = (request, actionType) => {
+    setSelectedRequest(request);
+    setAction(actionType);
+  };
 
-const confirmAction = () => {
-  if (!selectedRequest || !action) return;
+  const confirmAction = () => {
+    if (!selectedRequest || !action) return;
+    const newStatus = action === 'approve' ? 'pending_director' : 'rejected';
+    updateRequestStatus(selectedRequest.id, newStatus, comment);
+    setSelectedRequest(null);
+    setAction(null);
+    setComment('');
+  };
 
-  const newStatus =
-    action === 'approve' ? 'pending_director' : 'rejected';
+  const isModalOpen = !!selectedRequest && !!action;
 
-  updateRequestStatus(selectedRequest.id, newStatus, comment);
-
-  setSelectedRequest(null);
-  setAction(null);
-  setComment('');
-};
-
-const isModalOpen = !!selectedRequest && !!action;
-
-
-const getInitials = (nom, prenom) => {
-  return `${nom?.charAt(0) || ""}${prenom?.charAt(0) || ""}`.toUpperCase();
-};
+  const getInitials = (nom, prenom) => {
+    return `${nom?.charAt(0) || ""}${prenom?.charAt(0) || ""}`.toUpperCase();
+  };
 
   return (
     <DashboardLayout>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="space-y-6"
+        className="space-y-6 px-4 sm:px-0"
       >
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-warning/10 p-3">
-            <ClipboardList className="h-6 w-6 text-warning" />
+        {/* Header responsive */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="rounded-xl bg-warning/10 p-3 shrink-0 w-fit">
+            <ClipboardList className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Demandes à valider</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-xl sm:text-2xl font-bold">Demandes à valider</h1>
+            <p className="text-sm text-muted-foreground">
               {pendingRequests.length} demande(s) en attente de votre validation
             </p>
           </div>
         </div>
 
-        {/* Requests list */}
+        {/* Liste des demandes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border bg-card shadow-sm"
+          className="rounded-xl border bg-card shadow-sm overflow-hidden"
         >
           {pendingRequests.length === 0 ? (
-            <div className="py-16 text-center">
-              <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success/50" />
-              <h3 className="text-lg font-medium">Tout est à jour !</h3>
-              <p className="mt-2 text-muted-foreground">
+            <div className="py-12 sm:py-16 text-center">
+              <CheckCircle className="mx-auto mb-4 h-12 w-12 sm:h-16 sm:w-16 text-success/50" />
+              <h3 className="text-base sm:text-lg font-medium">Tout est à jour !</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
                 Aucune demande de congé en attente de validation
               </p>
             </div>
@@ -98,66 +93,75 @@ const getInitials = (nom, prenom) => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ delay: index * 0.05 }}
-                    className="p-6"
+                    className="p-4 sm:p-6"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
-                        {getInitials(request.user?.nom, request.user?.prenom)}
+                    {/* Layout colonne sur mobile, ligne sur desktop */}
+                    <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
+                      {/* Partie gauche : avatar + infos */}
+                      <div className="flex flex-1 flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium">
+                          {getInitials(request.user?.nom, request.user?.prenom)}
                         </div>
-                        <div>
-                          <h3 className="font-semibold">{request.employeeName}</h3>
-                          <p className="text-sm text-muted-foreground">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base sm:text-lg truncate">{request.employeeName}</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {LEAVE_TYPE_LABELS[request.type]}
                           </p>
-                          <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                            <span>
-                          {format(new Date(request.startDate || request.start_date), 'dd MMM', { locale: fr })} au{' '}
-                         {format(new Date(request.endDate || request.end_date), 'dd MMM yyyy', { locale: fr })}
+                          <div className="mt-2 flex flex-wrap gap-3 text-xs sm:text-sm">
+                            <span className="whitespace-nowrap">
+                              {format(new Date(request.startDate || request.start_date), 'dd MMM', { locale: fr })} au{' '}
+                              {format(new Date(request.endDate || request.end_date), 'dd MMM yyyy', { locale: fr })}
                             </span>
-                            <p className='flex '><AlarmClock className='mr-2 mt-1'  size={16}/> {request.duration} jours</p>
+                            <span className="flex items-center gap-1">
+                              <AlarmClock size={14} />
+                              {request.duration} jours
+                            </span>
                           </div>
                           {request.reason && (
-                            <p className="mt-2 rounded-lg bg-muted p-3 text-sm flex items-start gap-2">
-                              <MessageCircle size={14} className="mt-0.5" />
+                            <p className="mt-2 rounded-lg bg-muted p-2 sm:p-3 text-xs sm:text-sm flex items-start gap-2 break-words">
+                              <MessageCircle size={14} className="shrink-0 mt-0.5" />
                               <span>{request.reason}</span>
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-3">
-                      <span
-                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                        request.status === 'cancelled'
-                          ? 'bg-gray-200 text-gray-700 border-gray-300'
-                          : 'bg-warning/10 text-warning border-warning/20'
-                      }`}
-                    >
-                      {request.status === 'cancelled' ? 'Annulée' : 'En attente'}
-                    </span>
-                        <p className="text-xs text-muted-foreground">
+
+                      {/* Partie droite : badge et actions */}
+                      <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-end lg:items-end gap-3 shrink-0">
+                        <div className="flex flex-wrap gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${
+                              request.status === 'cancelled'
+                                ? 'bg-gray-200 text-gray-700 border-gray-300'
+                                : 'bg-warning/10 text-warning border-warning/20'
+                            }`}
+                          >
+                            {request.status === 'cancelled' ? 'Annulée' : 'En attente'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap">
                           Demandé le {format(new Date(request.createdAt || request.created_at), 'dd/MM/yyyy', { locale: fr })}
                         </p>
-                        <div className="flex gap-2">
-                        <button
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                          onClick={() => navigate(`/demande/${request.id}`)}
-                        >
-                          <Eye className="h-4 w-4" />
-                          Détail
-                        </button>
-                        {request.status !== 'cancelled' && (
-                        <button
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success text-success-foreground hover:bg-success/90 h-9 px-3 [&_svg]:size-4 [&_svg]:shrink-0"
-                          onClick={async () => {
-                          await handleAction(request, 'approve');
-                          triggerRefreshHistory();
-                        }}
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          Valider
-                        </button>
-                      )}
+                        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                          <button
+                            className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-md text-sm font-medium border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 h-9 px-3"
+                            onClick={() => navigate(`/demande/${request.id}`)}
+                          >
+                            <Eye className="h-4 w-4" />
+                            Détail
+                          </button>
+                          {request.status !== 'cancelled' && (
+                            <button
+                              className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-md text-sm font-medium bg-success text-success-foreground hover:bg-success/90 h-9 px-3"
+                              onClick={async () => {
+                                await handleAction(request, 'approve');
+                                triggerRefreshHistory();
+                              }}
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              Valider
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -168,94 +172,90 @@ const getInitials = (nom, prenom) => {
           )}
         </motion.div>
 
-        {/* Modal Overlay */}
+        {/* Modal responsive */}
         {isModalOpen &&
-        createPortal(
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[999999] min-h-screen w-screen bg-white/60 backdrop-blur-sm flex items-center justify-center"
-            onClick={() => {
-              setSelectedRequest(null);
-              setAction(null);
-            }}
-          >
+          createPortal(
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="w-full max-w-md rounded-xl border bg-card p-6 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[999999] min-h-screen w-screen bg-white/60 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => {
+                setSelectedRequest(null);
+                setAction(null);
+              }}
             >
-              <div className="space-y-4">
-              <div>
-                        <h2 className="text-lg font-semibold">
-                          {action === 'approve' 
-                            ? 'Valider et transmettre au directeur'
-                            : 'Refuser la demande'}
-                        </h2>
-                      </div>
-                      {selectedRequest && (
-                        <div className="rounded-lg bg-muted p-4">
-                          <p className="font-medium">{selectedRequest.employeeName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Du {format(new Date(selectedRequest.start_date), 'dd MMM', { locale: fr })} au{' '}
-                            {format(new Date(selectedRequest.end_date), 'dd MMM yyyy', { locale: fr })}
-                          </p>
-                        </div>
-                      )}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                          <MessageSquare className="mr-1 inline h-4 w-4" />
-                          Commentaire {action === 'reject' ? '(recommandé)' : '(facultatif)'}
-                        </label>
-                        <textarea
-                          placeholder={action === 'reject' 
-                            ? 'Expliquez le motif du refus...'
-                            : 'Ajoutez un commentaire si nécessaire...'}
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          rows={3}
-                          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                          onClick={() => {
-                            setSelectedRequest(null);
-                            setAction(null);
-                          }}
-                        >
-                          Annuler
-                        </button>
-                        <button
-                          onClick={confirmAction}
-                          className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
-                            action === 'approve' 
-                              ? 'bg-success text-success-foreground hover:bg-success/90' 
-                              : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                          }`}
-                        >
-                          {action === 'approve' ? 'Confirmer' : 'Refuser'}
-                        </button>
-                      </div>
-              </div>
-            </motion.div>
-          </motion.div>,
-          document.body
-        )}
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                className="w-full max-w-md rounded-xl border bg-card p-4 sm:p-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold">
+                      {action === 'approve'
+                        ? 'Valider et transmettre au directeur'
+                        : 'Refuser la demande'}
+                    </h2>
+                  </div>
+                  {selectedRequest && (
+                    <div className="rounded-lg bg-muted p-3 sm:p-4">
+                      <p className="font-medium text-sm sm:text-base">{selectedRequest.employeeName}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {LEAVE_TYPE_LABELS[selectedRequest.type]} • {selectedRequest.duration} jours
+                      </p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Du {format(new Date(selectedRequest.start_date), 'dd MMM', { locale: fr })} au{' '}
+                        {format(new Date(selectedRequest.end_date), 'dd MMM yyyy', { locale: fr })}
+                      </p>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-1">
+                      <MessageSquare className="h-4 w-4" />
+                      Commentaire {action === 'reject' ? '(recommandé)' : '(facultatif)'}
+                    </label>
+                    <textarea
+                      placeholder={action === 'reject'
+                        ? 'Expliquez le motif du refus...'
+                        : 'Ajoutez un commentaire si nécessaire...'}
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={3}
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+                  <div className="flex flex-col-reverse sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      className="flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                      onClick={() => {
+                        setSelectedRequest(null);
+                        setAction(null);
+                      }}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      onClick={confirmAction}
+                      className={`flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 ${
+                        action === 'approve'
+                          ? 'bg-success text-success-foreground hover:bg-success/90'
+                          : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                      }`}
+                    >
+                      {action === 'approve' ? 'Confirmer' : 'Refuser'}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>,
+            document.body
+          )}
       </motion.div>
     </DashboardLayout>
   );
 };
 
 export default PendingRequests;
-
-
-
-
