@@ -461,22 +461,23 @@ avgLeave: Math.round(
         </div>
 
         {/* Affectation */}
-        <div className="space-y-2">
-          <Label htmlFor="affectation">Affectation *</Label>
-          <Select 
-            value={formData.affectation || ''} 
-            onValueChange={(value) => setFormData({ ...formData, affectation: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner un département" />
-            </SelectTrigger>
-            <SelectContent>
-              {departments.map((dept) => (
-                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+       {/* Affectation */}
+      <div className="space-y-2">
+        <Label htmlFor="affectation">Affectation *</Label>
+
+        <Input
+          id="affectation"
+          type="text"
+          placeholder="Entrer l'affectation"
+          value={formData.affectation || ""}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              affectation: e.target.value,
+            })
+          }
+        />
+      </div>
         {/* Solde année précédente */}
         <div className="space-y-2">
           <Label htmlFor="solde_annee_precedente">Solde année précédente</Label>
