@@ -82,7 +82,6 @@ export const Sidebar = ({ onClose }) => {
 
   return (
     <motion.aside
-      initial={{ x: -300 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.3 }}
       className="

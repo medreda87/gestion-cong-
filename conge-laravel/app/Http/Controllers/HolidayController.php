@@ -6,6 +6,7 @@ use App\Models\Holiday;
 use Illuminate\Http\Request;
 use App\Models\Demande;
 use App\Models\SoldeConge;
+use App\Models\User;
 use Carbon\Carbon;
 
 class HolidayController extends Controller
@@ -110,6 +111,30 @@ public function recalculateAllDemandes()
         $solde->solde_restant += $difference;
 
         $solde->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Modification jdida f table users
+        |--------------------------------------------------------------------------
+        */
+
+        $user = User::find($demande->user_id);
+
+        if ($user && $difference > 0) {
+
+            // ila kayn solde année dernière
+            if ($user->solde_annee_derniere > 0) {
+
+                $user->solde_annee_derniere += $difference;
+
+            } else {
+
+                // sinon zidha f année précédente
+                $user->solde_annee_precedent += $difference;
+            }
+
+            $user->save();
+        }
     }
 }
     public function calculateWorkingDays($startDate, $endDate)

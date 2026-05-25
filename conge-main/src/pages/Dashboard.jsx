@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+ 
 
   const LEAVE_STATUS_LABELS = {
     pending_manager: user.role === 'manager' ? 'En attente (Directeur)' : 'En attente (Responsable)',
@@ -248,7 +249,8 @@ const Dashboard = () => {
             {
               title: "Solde de congés",
               value: totalSolde,
-              subtitle: `Restant: ${solde?.solde_restant ?? 0} j`,
+              subtitle: `${currentYear}: ${user.solde_annee_precedente ?? 0} j`,
+              subtitle2: `${previousYear}: ${user.solde_annee_derniere ?? 0} j`,
               icon: Calendar,
               color: "from-blue-500 to-cyan-500",
               bg: "bg-blue-50",
@@ -297,6 +299,7 @@ const Dashboard = () => {
                     <p className="text-xs sm:text-sm font-semibold text-muted-foreground">{stat.title}</p>
                     <p className="mt-2 sm:mt-3 text-2xl sm:text-4xl font-bold tracking-tight text-gray-900">{stat.value}</p>
                     <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">{stat.subtitle}</p>
+                    <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">{stat.subtitle2}</p>
                   </div>
                   <div className={`rounded-2xl ${stat.bg} p-2 sm:p-3 ${stat.text}`}>
                     <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
