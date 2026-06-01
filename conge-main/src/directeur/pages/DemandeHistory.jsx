@@ -147,13 +147,15 @@ const LeaveHistory = () => {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
+                       {user.role === 'directeur' && (
+                         <button
                           className="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors"
                           onClick={() => navigate(`/demande/${request.id}`)}
                         >
                           <Eye className="h-3 w-3 mr-1" />
                           Détail
                         </button>
+                       )}
                         <span className={getStatusBadgeClass(request.status)}>
                           {LEAVE_STATUS_LABELS[request.status]}
                         </span>

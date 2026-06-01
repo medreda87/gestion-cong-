@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
-
 const navItems = [
   { label: "Tableau de bord", href: "/employerDashboard", icon: ClipboardList, roles: ["directeur"] },
   { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard, roles: ["employee", "manager"] },
@@ -82,7 +81,6 @@ export const Sidebar = ({ onClose }) => {
 
   return (
     <motion.aside
-      initial={{ x: -300 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.3 }}
       className="

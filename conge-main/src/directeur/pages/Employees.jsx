@@ -518,21 +518,22 @@ export default function Employees() {
                     placeholder="06XXXXXXXX"
                   />
                 </div>
+               {/* Affectation */}
                 <div className="space-y-2">
                   <Label htmlFor="affectation">Affectation *</Label>
-                  <Select
-                    value={formData.affectation || ''}
-                    onValueChange={(value) => setFormData({ ...formData, affectation: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un département" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+
+                  <Input
+                    id="affectation"
+                    type="text"
+                    placeholder="Entrer l'affectation"
+                    value={formData.affectation || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        affectation: e.target.value,
+                      })
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="solde_annee_precedente">Solde année précédente</Label>
