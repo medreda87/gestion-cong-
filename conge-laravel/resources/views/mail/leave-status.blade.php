@@ -2,7 +2,12 @@
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #1d4ed8;">Bonjour {{ $demande->user->nom }},</h2>
 
-        <p>Votre demande de congé a été mise à jour avec le statut suivant : <strong>{{ $demande->status }}</strong>.</p>
+        <p>Votre demande de congé a été mise à jour avec le statut suivant : <strong>
+                     @if($demande->status === 'pending_director')
+                    <span class="text-yellow-500">En attend le directeur</span>
+                    @else 
+                    <span class="text-yellow-500">{{ $demande->status}}</span>
+                    @endif</strong>.</p>
 
         <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
             <tr>
@@ -27,7 +32,13 @@
             </tr>
             <tr>
                 <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Statut</td>
-                <td style="padding: 8px; border: 1px solid #e2e8f0; color: #d97706;">{{ $demande->status }}</td>
+                <td style="padding: 8px; border: 1px solid #e2e8f0; color: #d97706;">
+                    @if($demande->status === 'pending_director')
+                    <span class="text-yellow-500">En attend le directeur</span>
+                    @else 
+                    <span class="text-yellow-500">{{ $demande->status}}</span>
+                    @endif
+                </td>
             </tr>
         </table>
 
