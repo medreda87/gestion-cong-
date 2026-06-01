@@ -94,6 +94,7 @@ public function getMyDemandes()
             'duration' => 'required|integer|min:1',
             'reason' => 'nullable|string',
             'interimaire_id' => 'nullable|exists:users,id',
+            
         ]);
 
         $demande = Demande::create([

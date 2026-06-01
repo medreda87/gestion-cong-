@@ -26,7 +26,19 @@ class LeaveController extends Controller
             'message' => 'Solde non initialisé pour cet utilisateur'
         ], 400);
     }
+$solde = $user->soldeConge;
 
+$prisDerniere = min(
+    $days,
+    $user->solde_annee_derniere
+);
+
+$reste = $days - $prisDerniere;
+
+$prisPrecedente = min(
+    $reste,
+    $solde->solde_annee_precedente
+);
     // consume
     $result = $service->consumeSolde($user, $days,$leave->type);
 
@@ -35,7 +47,9 @@ class LeaveController extends Controller
             'message' => $result['message']
         ], 400);
     }
+$leave->jours_pris_annee_derniere = $prisDerniere;
 
+$leave->jours_pris_annee_precedente = $prisPrecedente;
     // update leave
     $leave->status = 'approved';
     $leave->duration = $days;
