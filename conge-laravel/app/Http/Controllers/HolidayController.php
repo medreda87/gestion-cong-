@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Holiday;
 use Illuminate\Http\Request;
 use App\Models\Demande;
-use App\Models\SoldeConge;
 use App\Models\User;
+use App\Models\SoldeConge;
 use Carbon\Carbon;
 
 class HolidayController extends Controller
@@ -74,7 +74,6 @@ class HolidayController extends Controller
 public function recalculateAllDemandes()
 {
     $demands = Demande::where('status', 'approved')->get();
-
     foreach ($demands as $demande) {
 
         if (!$demande->start_date || !$demande->end_date) {
@@ -101,40 +100,30 @@ public function recalculateAllDemandes()
 
         // get solde
         $solde = SoldeConge::where('user_id', $demande->user_id)->first();
+        $user =User::where('id',$demande->user_id)->first();
 
         if (!$solde) {
             continue;
         }
+        if ($demande->jours_pris_annee_precedente == 0) {
 
-        // update soldes
+            $user = $demande->user;
+
+            $user->solde_annee_derniere += $difference;
+            $demande->jours_pris_annee_derniere -= $difference;
+            $user->save();
+        } else {
+            $user->solde_annee_precedente += $difference;
+            $demande->jours_pris_annee_precedente-= $difference;
+
+        }
+                // update soldes
         $solde->solde_utilise -= $difference;
         $solde->solde_restant += $difference;
 
         $solde->save();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Modification jdida f table users
-        |--------------------------------------------------------------------------
-        */
-
-        $user = User::find($demande->user_id);
-
-        if ($user && $difference > 0) {
-
-            // ila kayn solde année dernière
-            if ($user->solde_annee_derniere > 0) {
-
-                $user->solde_annee_derniere += $difference;
-
-            } else {
-
-                // sinon zidha f année précédente
-                $user->solde_annee_precedent += $difference;
-            }
-
-            $user->save();
-        }
+        $demande->save();
+        $user->save();
     }
 }
     public function calculateWorkingDays($startDate, $endDate)

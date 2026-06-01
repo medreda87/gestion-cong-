@@ -33,7 +33,8 @@ import DemandeDocument from './DemandeDocument';
   // ─── PDF decision document generator ──────────────────────────────────────
   const buildDecisionHTML = (request, employee, actionStatus, interimaire) => {
   const today = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
-  const isApproved = actionStatus === 'approved';
+
+  const isApproved =actionStatus === 'approved';
   const actionLabel = isApproved ? 'APPROUVÉE' : 'REFUSÉE';
   const badgeColor = isApproved ? '#16a34a' : '#dc2626';
   const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
