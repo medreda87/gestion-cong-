@@ -33,12 +33,13 @@ import DemandeDocument from './DemandeDocument';
   // ─── PDF decision document generator ──────────────────────────────────────
   const buildDecisionHTML = (request, employee, actionStatus, interimaire) => {
   const today = safeFormat(request.created_at, 'dd MMM yyyy à HH:mm', fr)
-  const isApproved = actionStatus === 'approved';
+
+  const isApproved =actionStatus === 'approved';
   const actionLabel = isApproved ? 'APPROUVÉE' : 'REFUSÉE';
   const badgeColor = isApproved ? '#16a34a' : '#dc2626';
   const startFmt = safeFormat(request.start_date, 'dd MMM yyyy', fr)
   const endFmt   = safeFormat(request.end_date, 'dd MMM yyyy', fr)
-  
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -497,7 +498,6 @@ useEffect(() => {
       setInterimaireData(null);
     });
 }, [request?.interimaire_id]);
-  console.log()
   // ── Not found guard ──
   if (!request) {
     return (

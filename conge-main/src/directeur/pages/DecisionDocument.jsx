@@ -22,17 +22,12 @@ const DecisionDocument = React.forwardRef(
     const {parameters} = useData();
     const { user } = useAuth();
 
-    console.log(interimaireData);
     const sexe = user?.detail_user?.sexe;
 
     const civilite =
       typeof sexe === "string" && sexe.trim().toLowerCase() === "homme"
         ? "Monsieur"
         : "Madame";
-
-    console.log("full request:", request);
-  
-
   useEffect(() => {
   const id = request?.interimaireId || request?.interimaire_id; 
 
