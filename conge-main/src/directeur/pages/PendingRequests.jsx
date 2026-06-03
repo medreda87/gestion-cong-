@@ -19,12 +19,15 @@ const PendingRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
   const handleValidate = async (id) => {
   try {
+    setActionLoading(true);
 
     await validateLeave(id);
 
     toast.success("Demande validée");
+    return true;
 
   } catch (error) {
 
@@ -32,6 +35,9 @@ const PendingRequests = () => {
       error.response?.data?.message ||
       "Erreur validation"
     );
+    return false;
+  } finally {
+    setActionLoading(false);
   }
 };
 
@@ -212,7 +218,7 @@ const PendingRequests = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-onClick={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <motion.div 
               initial={{ scale: 0.95, y: 20 }}
@@ -266,18 +272,22 @@ onClick={(e) => e.stopPropagation()}
                     Annuler
                   </button>
                   <button
-                    onClick={() => {
-                      handleValidate(selectedRequest.id);
+                    onClick={async () => {
+                      const validated = await handleValidate(selectedRequest.id);
+                      if (!validated) return;
+
                       setSelectedRequest(null);
                       setAction(null);
+                      setComment('');
                     }}
+                    disabled={actionLoading}
                     className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
                       action === 'approve' 
                         ? 'bg-success text-success-foreground hover:bg-success/90' 
                         : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                     }`}
                   >
-                    {action === 'approve' ? 'Confirmer' : 'Refuser'}
+                    {actionLoading ? 'Traitement...' : action === 'approve' ? 'Confirmer' : 'Refuser'}
                   </button>
                 </div>
               </div>

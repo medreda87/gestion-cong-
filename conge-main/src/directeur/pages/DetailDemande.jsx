@@ -370,11 +370,12 @@ const DetailDemande = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { requests, updateRequestStatus } = useLeave();
+    const { requests, updateRequestStatus, validateLeave } = useLeave();
 
     const [showModal, setShowModal] = useState(false);
     const [modalAction, setModalAction] = useState(null);
     const [comment, setComment] = useState('');
+    const [actionLoading, setActionLoading] = useState(false);
     const [soldeData, setSoldeData] = useState(null);
     const [employeeData, setEmployeeData] = useState(null);
     const [interimaireData, setInterimaireData] = useState(null);
@@ -411,8 +412,6 @@ const DetailDemande = () => {
     solde_annee_derniere: u.solde_annee_derniere ?? null,
 
     solde_annee_precedente: u.solde_annee_precedente ?? null,
-    
-    affectation: u.affectation ?? null,
 
     efp_travail:
       u.efp_travail ?? null,
@@ -557,26 +556,70 @@ useEffect(() => {
     setComment('');
     setShowModal(true);
   };
-  const getNextStatus = (action) => {
-  return action === 'approve' ? 'approved' : 'rejected';
-};
-  const confirmAction = () => {
+  const getNextStatus = (action, role, currentStatus) => {
+    if (action !== 'approve') return 'rejected';
+    if (role === 'manager' && currentStatus === 'pending_manager') return 'pending_director';
+    if (role === 'directeur' && currentStatus === 'pending_director') return 'approved';
+    return currentStatus;
+  };
+  const confirmAction = async () => {
+    if (actionLoading) return;
+
     const newStatus = getNextStatus(
           modalAction,
           user?.role,
           request.status
         );
 
-    updateRequestStatus(request.id, newStatus, comment || undefined);
-    toast.success(
-      modalAction === 'approve'
-        ? user?.role === 'manager'
-          ? 'Demande transmise au directeur'
-          : 'Demande approuvée avec succès !'
-        : 'Demande refusée.'
-    );
-    setShowModal(false);
-    navigate(-1);
+    setActionLoading(true);
+    try {
+      if (modalAction === 'approve' && user?.role === 'directeur') {
+        await validateLeave(request.id);
+      } else {
+        await updateRequestStatus(request.id, newStatus, comment || undefined);
+      }
+
+      toast.success(
+        modalAction === 'approve'
+          ? user?.role === 'manager'
+            ? 'Demande transmise au directeur'
+            : 'Demande approuvée avec succès !'
+          : 'Demande refusée.'
+      );
+      setShowModal(false);
+      navigate(-1);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Erreur lors de la validation de la demande"
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleValidateButton = async () => {
+    if (user?.role === 'directeur') {
+      if (actionLoading) return;
+
+      setActionLoading(true);
+      try {
+        await validateLeave(request.id);
+        toast.success('Demande approuvée avec succès !');
+        navigate(-1);
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message ||
+            "Erreur lors de la validation de la demande"
+        );
+      } finally {
+        setActionLoading(false);
+      }
+
+      return;
+    }
+
+    openModal('approve');
   };
 
 const handleDownloadDemande = async () => {
@@ -912,6 +955,7 @@ const handleDownloadDemande = async () => {
                   ref={demandeRef}
                   request={request}
                   employee={employee}
+                  interimaire={interimaireData}
                   LEAVE_TYPE_LABELS={LEAVE_TYPE_LABELS}
                 />
               </div>
@@ -1066,11 +1110,16 @@ const handleDownloadDemande = async () => {
                 <motion.button
                   whileHover={{ scale: 1.02, boxShadow: '0 6px 24px rgba(22,163,74,.40)' }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => openModal('approve')}
-                  className="inline-flex items-center gap-2 rounded-xl bg-green-600 text-white px-5 py-2.5 text-sm font-bold shadow-md hover:bg-green-700 transition-colors"
+                  onClick={handleValidateButton}
+                  disabled={actionLoading}
+                  className="inline-flex items-center gap-2 rounded-xl bg-green-600 text-white px-5 py-2.5 text-sm font-bold shadow-md hover:bg-green-700 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <CheckCircle size={17} />
-                  {user?.role === 'manager' ? 'Transmettre au Directeur' : 'Valider la Demande'}
+                  {actionLoading
+                    ? 'Traitement...'
+                    : user?.role === 'manager'
+                    ? 'Transmettre au Directeur'
+                    : 'Valider la Demande'}
                 </motion.button>
               )}
             </div>
@@ -1161,13 +1210,14 @@ const handleDownloadDemande = async () => {
                 </button>
                 <button
                   onClick={confirmAction}
+                  disabled={actionLoading}
                   className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-colors ${
                     modalAction === 'approve'
                       ? 'bg-green-600 hover:bg-green-700'
                       : 'bg-red-600   hover:bg-red-700'
-                  }`}
+                  } disabled:cursor-not-allowed disabled:opacity-70`}
                 >
-                  Confirmer
+                  {actionLoading ? 'Traitement...' : 'Confirmer'}
                 </button>
               </div>
             </motion.div>

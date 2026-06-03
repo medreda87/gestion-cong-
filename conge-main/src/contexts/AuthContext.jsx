@@ -6,8 +6,10 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
+    const storedToken = localStorage.getItem("token");
+    return stored && storedToken ? JSON.parse(stored) : null;
   });
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
 
   const login = async (email, password) => {
   const response = await axios.post("http://127.0.0.1:8000/api/login", {
@@ -52,12 +54,14 @@ export const AuthProvider = ({ children }) => {
   setUser(user);
   localStorage.setItem("user", JSON.stringify(user));
   localStorage.setItem("token", token);
+  setToken(token);
 
   return user;
 };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("conge_user");
@@ -66,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user && !!token }}>
       {children}
     </AuthContext.Provider>
   );

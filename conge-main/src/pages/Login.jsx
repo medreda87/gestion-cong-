@@ -13,7 +13,7 @@ const Login = () => {
    const { login } = useAuth();
 
   
-
+  
   const navigate = useNavigate();
 
 const handleSubmit = async (e) => {
@@ -27,8 +27,6 @@ const handleSubmit = async (e) => {
 
    
     const user = await login(email, password);
-
-
     if (user.role === "directeur") {
       navigate("/employerDashboard");
     } else if (user.role === "manager") {
@@ -136,6 +134,7 @@ const handleSubmit = async (e) => {
             <div className="space-y-2 text-xs text-muted-foreground">
               <p><span className="font-medium">Employé:</span> employe@ofppt.ma</p>
               <p><span className="font-medium">Responsable:</span> responsable@ofppt.ma</p>
+              <p><span className="font-medium">Directeur:</span> directeur@ofppt.ma</p>
               <p className="pt-1 text-muted-foreground/70">Mot de passe: demo123</p>
             </div>
           </div>

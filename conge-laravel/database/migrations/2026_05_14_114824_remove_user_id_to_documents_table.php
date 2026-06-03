@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasColumn('documents', 'user_id')) {
+            return;
+        }
+
         Schema::table('documents', function (Blueprint $table) {
-                $table->dropColumn('user_id');
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
         });
     }
 

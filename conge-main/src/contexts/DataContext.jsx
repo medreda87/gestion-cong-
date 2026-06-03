@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { RequestStatus } from '@/types/leave';
 import { ImageOff } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DataContext = createContext(undefined);
 
@@ -10,6 +11,7 @@ export const DataProvider = ({ children }) => {
   const [requests, setRequests] = useState();
   const [holidays, setHolidays] = useState([]);
   const [parameters, setParameters] = useState([]);
+  const { user, token, logout } = useAuth();
 
   const addRequest = (req) => {
     setRequests(prev => [
@@ -82,38 +84,51 @@ const removeHoliday = async (id) => {
 };
 
 const getHolidays = async () => {
-  const response = await axios.get("http://127.0.0.1:8000/api/holidays", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
+  if (!token) return;
 
-  setHolidays(response.data);
+  try {
+    const response = await axios.get("http://127.0.0.1:8000/api/holidays", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setHolidays(response.data);
+  } catch (error) {
+    if (error.response?.status === 401) {
+      logout();
+    } else {
+      console.error("GET HOLIDAYS ERROR:", error.response?.data || error.message);
+    }
+  }
 };
 
-useEffect(() => {
-    getHolidays();
-},[])
-
-
 const getParametrage = async () => {
+    if (!token) return;
+
     try {
         const res = await axios.get("http://127.0.0.1:8000/api/parametrage", {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${token}`,
             },
         });
 
-        setParameters(res.data); // ← res بدل response
-        return res.data;         // ← زيد return باش Settings يستقبل الـ data
+        setParameters(res.data);
+        return res.data;
 
     } catch (error) {
-        console.log(error);
+        if (error.response?.status === 401) {
+          logout();
+        } else {
+          console.error("GET PARAMETRAGE ERROR:", error.response?.data || error.message);
+        }
     }
 };
   useEffect(() => {
+    if (!user?.id) return;
+    getHolidays();
     getParametrage();
-},[])
+},[user?.id, token])
 
     // ADD
     const addParametrage = async (data) => {

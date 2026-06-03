@@ -18,6 +18,10 @@ public function getdemande()
 {
     $user = auth('api')->user();
 
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
+
     $query = Demande::with('user')->orderBy('id', 'desc');
 
     if ($user->role === 'manager') {
@@ -40,6 +44,10 @@ public function getdemande()
 public function getDemandeHistory()
 {
     $user = auth('api')->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
 
     $query = Demande::with('user')->orderBy('id', 'desc');
 
@@ -73,6 +81,10 @@ public function getMyDemandes()
 {
     $user = auth('api')->user();
 
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
+
     $demandes = Demande::with('user')
         ->where('user_id', $user->id)
         ->orderBy('id', 'desc')
@@ -85,6 +97,10 @@ public function getMyDemandes()
 
     public function store(Request $request){
         $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
 
         $validated = $request->validate([
             'type' => 'required|string',
@@ -153,6 +169,10 @@ public function getMyDemandes()
 {
     $user = auth('api')->user();
 
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
+
     // ✅ Eager-load the user relation
     $demande = Demande::with('user')->findOrFail($id);
 
@@ -193,6 +213,10 @@ public function getMyDemandes()
 {
     $user = auth('api')->user(); // ← missing
 
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
+
     $demande = Demande::with('user')->findOrFail($id);
 
     $demande->status = 'cancelled';
@@ -222,8 +246,12 @@ public function getMyDemandes()
     ]);
 }
 
-    public function detsroy(string $id){
+    public function destroy(string $id){
         $demande = Demande::findOrFail($id);
         $demande->delete();
+
+        return response()->json([
+            'message' => 'Demande supprimee avec succes',
+        ]);
     }   
 }
