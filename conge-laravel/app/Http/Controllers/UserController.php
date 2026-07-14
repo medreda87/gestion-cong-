@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -54,6 +54,18 @@ public function getAllUsers()
         try {
 
             $user =User::with(['detailUser', 'detailJobUser'])->findOrFail($id);
+            $photo = optional($user->detailUser)->photo;
+
+            if ($request->hasFile('photo')) {
+
+        // حذف الصورة القديمة إذا كانت موجودة
+        if ($photo && Storage::disk('public')->exists($photo)) {
+            Storage::disk('public')->delete($photo);
+        }
+
+        // حفظ الصورة الجديدة
+        $photo = $request->file('photo')->store('profiles', 'public');
+    }
 
             $user->update([
                 'matricule' => $request->matricule,
@@ -82,7 +94,7 @@ public function getAllUsers()
                     'adresse' => $request->adresse,
                     'ville' => $request->ville,
                     'telephone' => $request->telephone,
-                    'photo' => $request->photo,
+                    'photo' => $photo, // تحديث مسار الصورة الجديدة
                 ]
             );
 

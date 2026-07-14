@@ -18,21 +18,28 @@ const PendingRequests = () => {
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
-  const handleValidate = async (id) => {
+const handleeValidate = async (id) => {
   try {
+    console.log("ID =", id);
+
     setActionLoading(true);
 
-    await validateLeave(id);
+    const result = await validateLeave(id);
+
+    console.log("RESULT =", result);
 
     toast.success("Demande validée");
     return true;
 
   } catch (error) {
+    console.error(error);
 
     toast.error(
       error.response?.data?.message ||
+      error.message ||
       "Erreur validation"
     );
+
     return false;
   } finally {
     setActionLoading(false);
@@ -212,7 +219,6 @@ const PendingRequests = () => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
 
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
@@ -266,7 +272,7 @@ const PendingRequests = () => {
                   </button>
                   <button
                     onClick={async () => {
-                      const validated = await handleValidate(selectedRequest.id);
+                      const validated = await handleeValidate(selectedRequest.id);
                       if (!validated) return;
 
                       setSelectedRequest(null);

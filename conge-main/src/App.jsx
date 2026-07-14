@@ -26,6 +26,7 @@ import ManagerHistory from './responsable/pages/DemandeHistory';
 import DirectorHistory from './directeur/pages/DemandeHistory';
 import { Toaster } from "react-hot-toast"; 
 import { useAuth } from "./contexts/AuthContext";
+import Profile from "./pages/Profile";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -64,6 +65,7 @@ const App = () => {
             <Route path="/documents" element={<DocumentsDirecteur/>}/>
             <Route path="/documentEmploye" element={<EmployeeDocuments/>}/>
             <Route path='/paramettre' element={<Setting/>}/>
+            <Route path="/profile" element={<Profile />} />
 
             <Route path="/history" element={
               <RoleGuard roles={['employee','manager']}>

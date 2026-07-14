@@ -36,14 +36,15 @@ export default function Settings() {
   });
 
   
- useEffect(() => {
-    if (parameters) {
-        setParametrage(parameters);
+useEffect(() => {
+    if (parameters?.data) {
+        setParametrage(parameters.data);
+
         setParams({
-            cfpt_code: parameters.cfpt_code || "",
-            direction_code: parameters.direction_code || "",
-            delegation_number: parameters.delegation_number || "",
-            delegation_date: parameters.delegation_date?.split("T")[0] || "",
+            cfpt_code: parameters.data.cfpt_code || "",
+            direction_code: parameters.data.direction_code || "",
+            delegation_number: parameters.data.delegation_number || "",
+            delegation_date: parameters.data.delegation_date?.split("T")[0] || "",
         });
     }
     setLoading(false);
@@ -62,12 +63,12 @@ export default function Settings() {
     if (parametrage) {
       // UPDATE
       const res = await updateParametrage(parametrage.id, params);
-      setParametrage(res.data || res); // ← زيد || res
+      setParametrage(res.data.data || res); // ← زيد || res
       toast.success("Paramétrage mis à jour avec succès");
     } else {
       // ADD
       const res = await addParametrage(params);
-      setParametrage(res.data || res); // ← زيد || res
+      setParametrage(res.data.data.data || res); // ← زيد || res
       toast.success("Paramétrage créé avec succès");
     }
     setReviewOpen(false);

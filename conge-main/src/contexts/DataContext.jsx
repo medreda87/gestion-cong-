@@ -144,33 +144,35 @@ const getParametrage = async () => {
                 }
             );
 
-            return res.data;
-
+setParameters(res.data);
+return res.data;
         } catch (error) {
             console.log(error);
+            throw error; // 🔥 مهم
         }
     };
 
     // UPDATE
-    const updateParametrage = async (id, data) => {
-        try {
+const updateParametrage = async (id, data) => {
+    try {
+        const res = await axios.post(
+            `http://127.0.0.1:8000/api/parametrage/update/${id}`,
+            data,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            }
+        );
 
-            const res = await axios.post(
-                `http://127.0.0.1:8000/api/parametrage/update/${id}`,
-                data,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                }
-            );
+        setParameters(res.data.data);
+        return res.data;
 
-            return res.data;
-
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    } catch (error) {
+        console.log("UPDATE PARAM ERROR:", error);
+        throw error; // 🔥 مهم
+    }
+};
 
     // DELETE
     const deleteParametrage = async (id) => {

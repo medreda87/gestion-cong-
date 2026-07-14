@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import {
   LayoutDashboard,
@@ -32,16 +34,56 @@ const navItems = [
 ];
 
 export const Sidebar = ({ onClose }) => {
-  const { user, logout } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+const { logout, user } = useAuth();
+const location = useLocation();
+const navigate = useNavigate();
 
-  if (!user) return null;
+const [userData, setUserData] = useState(null);
+
+if (!user) return null;
 
   const filteredItems = navItems.filter((item) =>
     item.roles.includes(user.role)
   );
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const reda = JSON.parse(localStorage.getItem("user"));
+  
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/users/${reda.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Accept: "application/json",
+            },
+          }
+        );
+        console.log(response.data);
+  
+        const data = response.data;
+  
+        setUserData({
+          ...data,
+          ...data.detail_user,
+          ...data.detail_job_user,
+        });
+  
+        setOriginalData({
+          ...data,
+          ...data.detail_user,
+          ...data.detail_job_user,
+        });
+      } catch (error) {
+        console.error("Profile Error :", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchProfile();
+  }, []);
   const handleLogout = () => {
     if (logout) logout();
 
@@ -64,20 +106,16 @@ export const Sidebar = ({ onClose }) => {
       .toUpperCase();
   };
 
-  const getUserName = () => {
-    return (
-      user.name ||
-      `${user.nom || ""} ${user.prenom || ""}`.trim() ||
-      "Utilisateur"
-    );
-  };
+const getUserName = () => {
+  return `${user?.nom || ""} ${user?.prenom || ""}`;
+};
 
-  const getRoleLabel = () => {
-    if (user.role === "employee") return "Employé";
-    if (user.role === "manager") return "Responsable";
-    if (user.role === "directeur") return "Directeur";
-    return user.role;
-  };
+const getRoleLabel = () => {
+  if (user?.role === "employee") return "Employé";
+  if (user?.role === "manager") return "Responsable";
+  if (user?.role === "directeur") return "Directeur";
+  return user?.role;
+};
 
   return (
     <motion.aside
@@ -106,21 +144,47 @@ export const Sidebar = ({ onClose }) => {
         </div>
 
         {/* User */}
-        <div className="border-b border-sidebar-border p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-accent text-sm font-medium">
-              {getInitials()}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="truncate text-sm font-medium">
-                {getUserName()}
-              </p>
-              <p className="text-xs text-sidebar-foreground/60">
-                {getRoleLabel()}
-              </p>
-            </div>
-          </div>
-        </div>
+<Link to="/profile" onClick={onClose}>
+  <div className="border-b border-sidebar-border p-4">
+    <div className="flex items-center gap-3">
+
+<div className="h-10 w-10 rounded-full overflow-hidden bg-sidebar-accent flex items-center justify-center">
+
+  {userData?.photo ? (
+
+<img
+  src={
+    userData?.photo?.startsWith("data:")
+      ? userData.photo
+      : userData.photo
+      ? `http://127.0.0.1:8000/storage/${userData.photo}`
+      : "/default-avatar.png"
+  }  alt="Profile"
+  className="w-full h-full object-cover"
+/>
+
+  ) : (
+
+    <span className="text-sm font-medium">
+      {getInitials()}
+    </span>
+
+  )}
+
+</div>
+
+      <div className="flex-1 overflow-hidden">
+        <p className="truncate text-sm font-medium">
+          {getUserName()}
+        </p>
+        <p className="text-xs text-sidebar-foreground/60">
+          {getRoleLabel()}
+        </p>
+      </div>
+
+    </div>
+  </div>
+</Link>
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
